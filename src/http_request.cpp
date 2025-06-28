@@ -1,0 +1,157 @@
+#include "http_request.hpp"
+#include <sstream>
+#include <stdexcept>
+
+namespace Gecko {
+inline auto stringToHttpMethod(std::string method) -> HttpMethod {
+    static const std::map<std::string, HttpMethod> methods = {
+        {"GET", HttpMethod::GET},
+        {"POST", HttpMethod::POST},
+        {"HEAD", HttpMethod::HEAD},
+        {"PUT", HttpMethod::PUT},
+        {"DELETE", HttpMethod::DELETE}};
+    if (methods.find(method) != methods.end()) {
+        return methods.at(method);
+    }
+    return HttpMethod::UNKNOWN;
+}
+
+inline auto HttpMethodToString(HttpMethod method) -> std::string {
+    static const std::map<HttpMethod, std::string> methods = {
+        {HttpMethod::GET, "GET"},
+        {HttpMethod::POST, "POST"},
+        {HttpMethod::HEAD, "HEAD"},
+        {HttpMethod::PUT, "PUT"},
+        {HttpMethod::DELETE, "DELETE"}};
+    if (methods.find(method) != methods.end()) {
+        return methods.at(method);
+    }
+    return "UNKNOWN";
+}
+
+inline auto stringToHttpVersion(std::string version) -> HttpVersion {
+    static const std::map<std::string, HttpVersion> versions = {
+        {"HTTP/1.0", HttpVersion::HTTP_1_0}};
+    if (versions.find(version) != versions.end()) {
+        return versions.at(version);
+    }
+    return HttpVersion::UNKNOWN;
+}
+
+inline auto HttpVersionToString(HttpVersion version) -> std::string {
+    static const std::map<HttpVersion, std::string> versions = {
+        {HttpVersion::HTTP_1_0, "HTTP/1.0"}};
+    if (versions.find(version) != versions.end()) {
+        return versions.at(version);
+    }
+    return "UNKNOWN";
+}
+
+HttpRequest::HttpRequest()
+: method(HttpMethod::UNKNOWN), version(HttpVersion::UNKNOWN) {}
+
+HttpRequest::HttpRequest(std::string request) {
+    HttpRequestParser::parse(request, this);
+}
+
+HttpRequest::HttpRequest(const HttpRequest &other) {
+    method = other.method;
+    url = other.url;
+    version = other.version;
+    headers = other.headers;
+    body = other.body;
+}
+
+HttpRequest::HttpRequest(HttpRequest &&other) {
+    method = std::move(other.method);
+    url = std::move(other.url);
+    version = std::move(other.version);
+    headers = std::move(other.headers);
+    body = std::move(other.body);
+}
+
+HttpRequest &HttpRequest::operator=(const HttpRequest &other) {
+    method = other.method;
+    url = other.url;
+    version = other.version;
+    headers = other.headers;
+    body = other.body;
+    return *this;
+}
+
+HttpRequest &HttpRequest::operator=(HttpRequest &&other) {
+    method = std::move(other.method);
+    url = std::move(other.url);
+    version = std::move(other.version);
+    headers = std::move(other.headers);
+    body = std::move(other.body);
+    return *this;
+}
+
+void trim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }));
+    s.erase(std::find_if(s.rbegin(), s.rend(),
+                         [](unsigned char ch) { return !std::isspace(ch); })
+            .base(),
+            s.end());
+}
+
+void HttpRequestParser::parse(std::string originRequestString,
+                              HttpRequest *httpRequest) {
+    // TODO:
+    if (!httpRequest) {
+        throw std::invalid_argument("HttpRequest is null");
+        return;
+    }
+    const std::string crlf = "\r\n";
+    const std::string double_crlf = "\r\n\r\n";
+
+    size_t request_line_end = originRequestString.find(crlf);
+    if (request_line_end == std::string::npos) {
+        throw std::invalid_argument("request line not found");
+        return;
+    }
+    std::string request_line = originRequestString.substr(0, request_line_end);
+    std::stringstream request_line_stream(request_line);
+    std::string method_str, url_str, version_str;
+    request_line_stream >> method_str >> url_str >> version_str;
+
+    if (method_str.empty() || url_str.empty() || version_str.empty()) {
+        throw std::invalid_argument("request line is invalid");
+        return;
+    }
+    httpRequest->method = stringToHttpMethod(method_str);
+    httpRequest->url = url_str;
+    httpRequest->version = stringToHttpVersion(version_str);
+
+    size_t headers_start = request_line_end + crlf.length();
+    size_t headers_end = originRequestString.find(double_crlf, headers_start);
+    if (headers_end == std::string::npos) {
+        throw std::invalid_argument("headers not found");
+        return;
+    }
+    std::string headers_block =
+        originRequestString.substr(headers_start, headers_end - headers_start);
+    std::stringstream headers_stream(headers_block);
+    std::string header_line;
+    HttpHeaderMap headers;
+    while(std::getline(headers_stream,header_line) && !header_line.empty() && header_line != "\r\n") {
+        if(header_line.back()=='\r'){
+            header_line.pop_back();
+        }
+        size_t colon_pos = header_line.find(":");
+        if (colon_pos == std::string::npos) {
+            throw std::invalid_argument("header line is invalid");
+            return;
+        }
+        std::string key = header_line.substr(0, colon_pos);
+        std::string value = header_line.substr(colon_pos + 1);
+        trim(key);
+        headers[key] = value;
+    }
+    
+}
+
+} // namespace Gecko
