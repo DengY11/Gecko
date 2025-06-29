@@ -1,0 +1,65 @@
+#ifndef SERVER
+#define SERVER
+#include "http_request.hpp"
+#include "http_response.hpp"
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <stdexcept>
+#include <sstream>
+#include <functional>
+
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/epoll.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <cstring>
+#include <cerrno>
+#include <fcntl.h>
+
+namespace Gecko {
+
+class Server{
+public:
+    using RequestHandler = std::function<Gecko::HttpResponse(const Gecko::HttpRequest&)>;
+
+    Server(int port):port_(port),listen_fd_(-1),epoll_fd_(-1){
+        epoll_fd_ = epoll_create1(0);
+        if(epoll_fd_ == -1){
+            throw std::runtime_error("epoll_create1 error");
+        }
+        setup_listen_socket();
+    }
+    ~Server(){
+        if(listen_fd_ != -1){
+            close(listen_fd_);
+        }
+        if(epoll_fd_ != -1){
+            close(epoll_fd_);
+        }
+    }
+
+    void run(RequestHandler request_handler);
+    
+
+private:
+    void setup_listen_socket();
+    void handler_new_connection();
+    void handler_client_data(int client_fd);
+    void set_non_blockint(int fd);
+    void add_to_epoll(int fd,uint32_t events);
+    void remove_from_epoll(int fd);
+
+    static constexpr int MAX_EVENTS = 1024;
+    int port_;
+    int listen_fd_;
+    int epoll_fd_;
+    RequestHandler request_handler_;
+};
+
+}
+
+#endif
