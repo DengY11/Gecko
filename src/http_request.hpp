@@ -8,13 +8,13 @@ namespace Gecko {
 
 enum class HttpMethod { GET, POST, HEAD, PUT, DELETE, UNKNOWN };
 
-inline auto stringToHttpMethod(std::string method) -> HttpMethod;
-inline auto HttpMethodToString(HttpMethod method) -> std::string;
+auto stringToHttpMethod(std::string method) -> HttpMethod;
+auto HttpMethodToString(HttpMethod method) -> std::string;
 
 enum class HttpVersion { HTTP_1_0, UNKNOWN };
 
-inline auto stringToHttpVersion(std::string version) -> HttpVersion;
-inline auto HttpVersionToString(HttpVersion version) -> std::string;
+auto stringToHttpVersion(std::string version) -> HttpVersion;
+auto HttpVersionToString(HttpVersion version) -> std::string;
 
 struct CaseInsensitiveCompare {
     bool operator()(const std::string &a, const std::string &b) const {
@@ -51,10 +51,12 @@ public:
     void setUrl(HttpUrl url) { this->url = url; }
     void setVersion(HttpVersion version) { this->version = version; }
     void setHeaders(HttpHeaderMap headers) { this->headers = headers; }
+    void setHeaders(const HttpHeaderMap &headers) { this->headers = headers; }
     void setHeaders(HttpHeaderMap &&headers) {
         this->headers = std::move(headers);
     }
     void setBody(HttpBody body) { this->body = body; }
+    void setBody(const HttpBody &body) { this->body = body; }
     void setBody(HttpBody &&body) { this->body = std::move(body); }
 
 private:

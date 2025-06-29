@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 namespace Gecko {
-inline auto stringToHttpMethod(std::string method) -> HttpMethod {
+auto stringToHttpMethod(std::string method) -> HttpMethod {
     static const std::map<std::string, HttpMethod> methods = {
         {"GET", HttpMethod::GET},
         {"POST", HttpMethod::POST},
@@ -16,7 +16,7 @@ inline auto stringToHttpMethod(std::string method) -> HttpMethod {
     return HttpMethod::UNKNOWN;
 }
 
-inline auto HttpMethodToString(HttpMethod method) -> std::string {
+auto HttpMethodToString(HttpMethod method) -> std::string {
     static const std::map<HttpMethod, std::string> methods = {
         {HttpMethod::GET, "GET"},
         {HttpMethod::POST, "POST"},
@@ -29,7 +29,7 @@ inline auto HttpMethodToString(HttpMethod method) -> std::string {
     return "UNKNOWN";
 }
 
-inline auto stringToHttpVersion(std::string version) -> HttpVersion {
+auto stringToHttpVersion(std::string version) -> HttpVersion {
     static const std::map<std::string, HttpVersion> versions = {
         {"HTTP/1.0", HttpVersion::HTTP_1_0}};
     if (versions.find(version) != versions.end()) {
@@ -38,7 +38,7 @@ inline auto stringToHttpVersion(std::string version) -> HttpVersion {
     return HttpVersion::UNKNOWN;
 }
 
-inline auto HttpVersionToString(HttpVersion version) -> std::string {
+auto HttpVersionToString(HttpVersion version) -> std::string {
     static const std::map<HttpVersion, std::string> versions = {
         {HttpVersion::HTTP_1_0, "HTTP/1.0"}};
     if (versions.find(version) != versions.end()) {
@@ -69,6 +69,10 @@ HttpRequest::HttpRequest(HttpRequest &&other) {
     headers = std::move(other.headers);
     body = std::move(other.body);
 }
+
+HttpRequest::HttpRequest(HttpMethod method, HttpUrl url, HttpVersion version, 
+                        HttpHeaderMap headers, HttpBody body)
+    : method(method), url(url), version(version), headers(headers), body(body) {}
 
 HttpRequest &HttpRequest::operator=(const HttpRequest &other) {
     method = other.method;
@@ -137,8 +141,9 @@ void HttpRequestParser::parse(std::string originRequestString,
     std::stringstream headers_stream(headers_block);
     std::string header_line;
     HttpHeaderMap headers;
-    while(std::getline(headers_stream,header_line) && !header_line.empty() && header_line != "\r\n") {
-        if(header_line.back()=='\r'){
+    while (std::getline(headers_stream, header_line) && !header_line.empty() &&
+        header_line != "\r\n") {
+        if (header_line.back() == '\r') {
             header_line.pop_back();
         }
         size_t colon_pos = header_line.find(":");
@@ -149,9 +154,28 @@ void HttpRequestParser::parse(std::string originRequestString,
         std::string key = header_line.substr(0, colon_pos);
         std::string value = header_line.substr(colon_pos + 1);
         trim(key);
+        trim(value);
         headers[key] = value;
     }
-    
+
+    size_t body_start = headers_end + double_crlf.length();
+    auto it = headers.find("Content-Length");
+    if (it != headers.end()) {
+        try {
+            int content_length = std::stoi(it->second);
+            if (content_length > 0) {
+                if (originRequestString.length() >= body_start + content_length) {
+                    httpRequest->body =
+                        originRequestString.substr(body_start, content_length);
+                } else {
+                    throw std::runtime_error("Actual body length is less than expected");
+                }
+            }
+        } catch (const std::exception &e) {
+            throw std::runtime_error("Content-Length is invalid");
+        }
+    }
+    httpRequest->headers = std::move(headers);
 }
 
 } // namespace Gecko
