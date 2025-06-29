@@ -104,7 +104,6 @@ void trim(std::string &s) {
 
 void HttpRequestParser::parse(std::string originRequestString,
                               HttpRequest *httpRequest) {
-    // TODO:
     if (!httpRequest) {
         throw std::invalid_argument("HttpRequest is null");
         return;
