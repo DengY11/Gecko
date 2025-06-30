@@ -31,4 +31,30 @@ void Router::insert(Gecko::HttpMethod method, const std::string &path,
     current->handler = handler;
 }
 
+auto Router::find(Gecko::HttpMethod method, const std::string &path) const
+-> std::optional<RouteMatchResult> {
+    auto method_iter = roots_.find(method);
+    if (method_iter == roots_.end()) {
+        return std::nullopt;
+    }
+    const Node *current_iter = method_iter->second.get();
+    auto segments = split_path(path);
+    RouteMatchResult ret{};
+    for (const auto &seg : segments) {
+        auto child_iter = current_iter->children.find(seg);
+        if (child_iter != current_iter->children.end()) {
+            current_iter = child_iter->second.get();
+        } else if (current_iter->param_child) {
+            ret.params[current_iter->param_key] = seg;
+            current_iter = current_iter->param_child.get();
+        } else {
+            return std::nullopt;
+        }
+    }
+    if (current_iter && current_iter->handler) {
+        ret.handler = current_iter->handler;
+        return ret;
+    }
+    return std::nullopt;
+}
 } // namespace Gecko
