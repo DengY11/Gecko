@@ -52,8 +52,9 @@ private:
     void set_non_blockint(int fd);
     void add_to_epoll(int fd,uint32_t events);
     void remove_from_epoll(int fd);
+    void send_response(int client_fd, const std::string& response);
 
-    static constexpr int MAX_EVENTS = 1024;
+    static constexpr int MAX_EVENTS = 100000;
     int port_;
     int listen_fd_;
     int epoll_fd_;
