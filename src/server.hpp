@@ -45,6 +45,10 @@ public:
     void run(RequestHandler request_handler);
     
 
+protected:
+    size_t parse_content_length(const std::string& headers_part) const;
+    bool is_request_complete(const std::string& request_data) const;
+
 private:
     void setup_listen_socket();
     void handler_new_connection();

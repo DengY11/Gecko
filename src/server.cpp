@@ -91,48 +91,8 @@ void Server::handler_client_data(int client_fd) {
         if (bytes_read > 0) {
             buffer[bytes_read] = '\0';
             request_data += buffer;
-            
-            // 检查是否找到了header结束标记
-            size_t header_end_pos = request_data.find("\r\n\r\n");
-            if (header_end_pos != std::string::npos) {
-                // 找到了header结束标记，现在检查body是否完整
-                size_t body_start = header_end_pos + 4; // 4是"\r\n\r\n"的长度
-                
-                // 简单解析Content-Length（避免在这里做完整的header解析）
-                size_t content_length = 0;
-                
-                // 支持大小写不敏感的Content-Length查找
-                std::string headers_part = request_data.substr(0, header_end_pos);
-                std::string headers_lower = headers_part;
-                std::transform(headers_lower.begin(), headers_lower.end(), headers_lower.begin(), ::tolower);
-                
-                size_t content_length_pos = headers_lower.find("content-length:");
-                if (content_length_pos != std::string::npos) {
-                    // 找到Content-Length header
-                    size_t value_start = content_length_pos + 15; // "content-length:"的长度
-                    size_t line_end = headers_part.find("\r\n", value_start);
-                    if (line_end != std::string::npos) {
-                        std::string length_str = headers_part.substr(value_start, line_end - value_start);
-                        // 去除空格
-                        length_str.erase(0, length_str.find_first_not_of(" \t"));
-                        length_str.erase(length_str.find_last_not_of(" \t") + 1);
-                        
-                        try {
-                            content_length = std::stoull(length_str);
-                        } catch (const std::exception&) {
-                            // Content-Length解析失败，假设为0
-                            content_length = 0;
-                        }
-                    }
-                }
-                
-                // 检查是否已经读取了足够的body数据
-                size_t current_body_length = request_data.length() - body_start;
-                if (current_body_length >= content_length) {
-                    // 请求完整，退出读取循环
-                    break;
-                }
-                // 否则继续读取body数据
+            if (is_request_complete(request_data)) {
+                break;
             }
         } else if (bytes_read == 0) {
             std::cout << "Client closed connection: fd=" << client_fd << std::endl;
@@ -228,6 +188,42 @@ void Server::send_response(int client_fd, const std::string& response) {
             total_sent += sent;
         }
     }
+}
+
+size_t Server::parse_content_length(const std::string& headers_part) const {
+    std::string headers_lower = headers_part;
+    std::transform(headers_lower.begin(), headers_lower.end(), headers_lower.begin(), ::tolower);
+    size_t content_length_pos = headers_lower.find("content-length:");
+    if (content_length_pos == std::string::npos) {
+        return 0; // don't find content-length
+    }
+    size_t value_start = content_length_pos + 15; // "content-length:"
+    size_t line_end = headers_part.find("\r\n", value_start);
+    if (line_end == std::string::npos) {
+        line_end = headers_part.length();
+    }
+    std::string length_str = headers_part.substr(value_start, line_end - value_start);
+    length_str.erase(0, length_str.find_first_not_of(" \t"));
+    length_str.erase(length_str.find_last_not_of(" \t") + 1);
+    
+    try {
+        return std::stoull(length_str);
+    } catch (const std::exception&) {
+        //failed to parse content-length
+        return 0;
+    }
+}
+
+bool Server::is_request_complete(const std::string& request_data) const {
+    size_t header_end_pos = request_data.find("\r\n\r\n");
+    if (header_end_pos == std::string::npos) {
+        return false;  
+    }
+    size_t body_start = header_end_pos + 4; // "\r\n\r\n"
+    std::string headers_part = request_data.substr(0, header_end_pos);
+    size_t content_length = parse_content_length(headers_part);
+    size_t current_body_length = request_data.length() - body_start;
+    return current_body_length >= content_length;
 }
 
 } // namespace Gecko
