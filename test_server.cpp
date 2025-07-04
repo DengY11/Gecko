@@ -145,9 +145,9 @@ int main() {
 
         std::cout << "\n🚀 启动测试服务器..." << std::endl;
         std::cout << "端口: 13513" << std::endl;
-        std::cout << "测试地址: http://localhost:8080" << std::endl;
+        std::cout << "测试地址: http://localhost:13514" << std::endl;
         std::cout << "\n📋 测试步骤:" << std::endl;
-        std::cout << "1. 在浏览器中访问 http://localhost:8080" << std::endl;
+        std::cout << "1. 在浏览器中访问 http://localhost:13514" << std::endl;
         std::cout << "2. 点击各个测试链接验证功能" << std::endl;
         std::cout << "3. 观察终端输出的请求日志" << std::endl;
         std::cout << "4. 按 Ctrl+C 停止服务器\n" << std::endl;
