@@ -19,6 +19,7 @@
 #include <cstring>
 #include <cerrno>
 #include <fcntl.h>
+#include <string_view>
 
 namespace Gecko {
 
@@ -46,7 +47,7 @@ public:
     
 
 protected:
-    size_t parse_content_length(const std::string& headers_part) const;
+    size_t find_content_length_in_headers(std::string_view headers_part) const;
     bool is_request_complete(const std::string& request_data) const;
 
 private:

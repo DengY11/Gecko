@@ -1,6 +1,7 @@
 #include "server.hpp"
 #include <algorithm>
 #include <cctype>
+#include <string_view>
 
 namespace Gecko {
 
@@ -190,9 +191,10 @@ void Server::send_response(int client_fd, const std::string& response) {
     }
 }
 
-size_t Server::parse_content_length(const std::string& headers_part) const {
-    std::string headers_lower = headers_part;
-    std::transform(headers_lower.begin(), headers_lower.end(), headers_lower.begin(), ::tolower);
+size_t Server::find_content_length_in_headers(std::string_view headers_part) const {
+    std::string headers_lower{headers_part};
+    std::transform(headers_lower.begin(), headers_lower.end(), headers_lower.begin(), 
+                   [](unsigned char c) { return std::tolower(c); });
     size_t content_length_pos = headers_lower.find("content-length:");
     if (content_length_pos == std::string::npos) {
         return 0; // don't find content-length
@@ -202,7 +204,7 @@ size_t Server::parse_content_length(const std::string& headers_part) const {
     if (line_end == std::string::npos) {
         line_end = headers_part.length();
     }
-    std::string length_str = headers_part.substr(value_start, line_end - value_start);
+    std::string length_str{headers_part.substr(value_start, line_end - value_start)};
     length_str.erase(0, length_str.find_first_not_of(" \t"));
     length_str.erase(length_str.find_last_not_of(" \t") + 1);
     
@@ -220,8 +222,9 @@ bool Server::is_request_complete(const std::string& request_data) const {
         return false;  
     }
     size_t body_start = header_end_pos + 4; // "\r\n\r\n"
-    std::string headers_part = request_data.substr(0, header_end_pos);
-    size_t content_length = parse_content_length(headers_part);
+    //std::string headers_part = request_data.substr(0, header_end_pos);
+    std::string_view headers_part(request_data.data(), header_end_pos);
+    size_t content_length = find_content_length_in_headers(headers_part);
     size_t current_body_length = request_data.length() - body_start;
     return current_body_length >= content_length;
 }
