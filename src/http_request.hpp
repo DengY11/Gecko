@@ -28,6 +28,7 @@ using HttpHeaderMap =
 std::map<std::string, std::string, CaseInsensitiveCompare>;
 using HttpUrl = std::string;
 using HttpBody = std::string;
+using HttpQueryMap = std::map<std::string, std::string>;
 
 class HttpRequest {
 public:
@@ -43,12 +44,16 @@ public:
 
     HttpMethod getMethod() const { return method; }
     HttpUrl getUrl() const { return url; }
-    HttpVersion getVersion() const { return version; }
-    HttpHeaderMap getHeaders() const { return headers; }
-    HttpBody getBody() const { return body; }
+    const HttpVersion& getVersion() const { return version; }
+    const HttpHeaderMap& getHeaders() const { return headers; }
+    const HttpBody& getBody() const { return body; }
+    const HttpQueryMap& getQueryParams() const { return query_params; }
 
     void setMethod(HttpMethod method) { this->method = method; }
-    void setUrl(HttpUrl url) { this->url = url; }
+    void setUrl(HttpUrl url) { 
+        this->url = url; 
+        parseQueryParams(); 
+    }
     void setVersion(HttpVersion version) { this->version = version; }
     void setHeaders(HttpHeaderMap headers) { this->headers = headers; }
     void setHeaders(const HttpHeaderMap &headers) { this->headers = headers; }
@@ -58,6 +63,10 @@ public:
     void setBody(HttpBody body) { this->body = body; }
     void setBody(const HttpBody &body) { this->body = body; }
     void setBody(HttpBody &&body) { this->body = std::move(body); }
+    std::string getQueryParam(const std::string& key) const {
+        auto it = query_params.find(key);
+        return it != query_params.end() ? it->second : "";
+    }
 
 private:
     HttpMethod method;
@@ -65,9 +74,14 @@ private:
     HttpVersion version;
     HttpHeaderMap headers;
     HttpBody body;
+    HttpQueryMap query_params; 
+    void parseQueryParams();
 };
 
 void trim(std::string &s);
+std::string urlDecode(const std::string& str);
+
+
 
 struct HttpRequestParser {
     static void parse(std::string originRequestString, HttpRequest *request);

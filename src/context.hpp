@@ -3,82 +3,83 @@
 
 #include "http_request.hpp"
 #include "http_response.hpp"
+#include <mutex>
+#include <shared_mutex>
 #include <string>
 #include <map>
 #include <functional>
 #include <nlohmann/json.hpp>
+#include <any>
 
 namespace Gecko {
 
 class Context {
 public:
     Context(const HttpRequest& req) : request_(req), response_(HttpResponse::stockResponse(200)) {}
-
-    // === 请求相关 ===
     const HttpRequest& request() const { return request_; }
-    
-    // 获取路由参数 /users/:id -> params["id"]
-    const std::string& param(const std::string& key) const {
-        static const std::string empty;
-        auto it = params_.find(key);
-        return it != params_.end() ? it->second : empty;
-    }
-    
-    // 获取查询参数 ?name=value
-    std::string query(const std::string& key) const {
-        // TODO: 解析URL查询参数
-        return "";
-    }
-    
-    // 获取请求头
+    // get router params
+    const std::string& param(const std::string& key) const ;
+    // get query params
+    std::string query(const std::string& key) const ;
     std::string header(const std::string& key) const {
         auto headers = request_.getHeaders();
         auto it = headers.find(key);
         return it != headers.end() ? it->second : "";
     }
 
-    // === 响应相关 ===
+    void set(const std::string& key, const std::any& value) {
+        std::lock_guard<std::shared_mutex> lock(context_data_mutex_);
+        context_data_[key] = value;
+    }
+    template<typename T>
+    T get(const std::string& key) const {
+        std::shared_lock<std::shared_mutex> lock(context_data_mutex_);
+        auto it = context_data_.find(key);
+        if (it != context_data_.end()) {
+            try {
+                return std::any_cast<T>(it->second);
+            } catch (const std::bad_any_cast& e) {
+                throw std::runtime_error("Context data type mismatch for key: " + key);
+            }
+        }
+        throw std::runtime_error("Context data not found for key: " + key);
+    }
+    bool has(const std::string& key) const {
+        std::shared_lock<std::shared_mutex> lock(context_data_mutex_);
+        return context_data_.find(key) != context_data_.end();
+    }
+
     HttpResponse& response() { return response_; }
-    
-    // 设置状态码
     Context& status(int code) {
         response_.setStatusCode(code);
         return *this;
     }
-    
-    // JSON响应 - Gin风格
     void json(const nlohmann::json& data) {
         response_.addHeader("Content-Type", "application/json");
         response_.setBody(data.dump());
     }
-    
-    // 字符串响应
     void string(const std::string& data) {
         response_.addHeader("Content-Type", "text/plain; charset=utf-8");
         response_.setBody(data);
     }
-    
-    // HTML响应
     void html(const std::string& html) {
         response_.addHeader("Content-Type", "text/html; charset=utf-8");
         response_.setBody(html);
     }
-    
-    // 设置响应头
     Context& header(const std::string& key, const std::string& value) {
         response_.addHeader(key, value);
         return *this;
     }
 
-    // === 内部方法（框架使用） ===
-    void setParams(const std::map<std::string, std::string>& params) {
-        params_ = params;
-    }
+    void setParams(const std::map<std::string, std::string>& params) ;
 
 private:
     const HttpRequest& request_;
     HttpResponse response_;
-    std::map<std::string, std::string> params_;  // 路由参数
+    std::map<std::string, std::string> router_params_;  // 路由参数
+    
+    mutable std::shared_mutex context_data_mutex_;
+    std::map<std::string, std::any> context_data_;  // 上下文传递的kv对
 };
 
 // Gin风格的Handler函数签名

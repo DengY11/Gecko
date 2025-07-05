@@ -3,6 +3,28 @@
 #include <stdexcept>
 
 namespace Gecko {
+
+std::string urlDecode(const std::string& str) {
+    std::string result;
+    for (size_t i = 0; i < str.length(); ++i) {
+        if (str[i] == '%' && i + 2 < str.length()) {
+            std::string hex = str.substr(i + 1, 2);
+            try {
+                int value = std::stoi(hex, nullptr, 16);
+                result += static_cast<char>(value);
+                i += 2; 
+            } catch (...) {
+                result += str[i];
+            }
+        } else if (str[i] == '+') {
+            result += ' ';
+        } else {
+            result += str[i];
+        }
+    }
+    return result;
+}
+
 auto stringToHttpMethod(std::string method) -> HttpMethod {
     static const std::map<std::string, HttpMethod> methods = {
         {"GET", HttpMethod::GET},
@@ -60,6 +82,7 @@ HttpRequest::HttpRequest(const HttpRequest &other) {
     version = other.version;
     headers = other.headers;
     body = other.body;
+    query_params = other.query_params;
 }
 
 HttpRequest::HttpRequest(HttpRequest &&other) {
@@ -68,11 +91,14 @@ HttpRequest::HttpRequest(HttpRequest &&other) {
     version = std::move(other.version);
     headers = std::move(other.headers);
     body = std::move(other.body);
+    query_params = std::move(other.query_params);
 }
 
 HttpRequest::HttpRequest(HttpMethod method, HttpUrl url, HttpVersion version, 
                         HttpHeaderMap headers, HttpBody body)
-    : method(method), url(url), version(version), headers(headers), body(body) {}
+    : method(method), url(url), version(version), headers(headers), body(body) {
+    parseQueryParams();
+}
 
 HttpRequest &HttpRequest::operator=(const HttpRequest &other) {
     method = other.method;
@@ -80,6 +106,7 @@ HttpRequest &HttpRequest::operator=(const HttpRequest &other) {
     version = other.version;
     headers = other.headers;
     body = other.body;
+    query_params = other.query_params;
     return *this;
 }
 
@@ -89,7 +116,33 @@ HttpRequest &HttpRequest::operator=(HttpRequest &&other) {
     version = std::move(other.version);
     headers = std::move(other.headers);
     body = std::move(other.body);
+    query_params = std::move(other.query_params);
     return *this;
+}
+
+void HttpRequest::parseQueryParams() {
+    query_params.clear();
+    size_t query_start = url.find('?');
+    if (query_start == std::string::npos) {
+        return; 
+    }
+    std::string query_string = url.substr(query_start + 1);
+    //split by &
+    std::stringstream ss(query_string);
+    std::string param;
+    while (std::getline(ss, param, '&')) {
+        if (param.empty()) continue;
+        size_t eq_pos = param.find('=');
+        if (eq_pos == std::string::npos) {
+            query_params[param] = "";
+        } else {
+            std::string key = param.substr(0, eq_pos);
+            std::string value = param.substr(eq_pos + 1);
+            // for url like /search?q=hello%20world&name=%E5%BC%A0%E4%B8%89&test=a+b
+            // will return return a pair of "q" and "hello world"
+            query_params[key] = urlDecode(value);
+        }
+    }
 }
 
 void trim(std::string &s) {
@@ -127,6 +180,7 @@ void HttpRequestParser::parse(std::string originRequestString,
     }
     httpRequest->method = stringToHttpMethod(method_str);
     httpRequest->url = url_str;
+    httpRequest->parseQueryParams(); 
     httpRequest->version = stringToHttpVersion(version_str);
 
     size_t headers_start = request_line_end + crlf.length();
