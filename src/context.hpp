@@ -76,13 +76,11 @@ public:
 private:
     const HttpRequest& request_;
     HttpResponse response_;
-    std::map<std::string, std::string> router_params_;  // 路由参数
-    
+    std::map<std::string, std::string> router_params_; 
     mutable std::shared_mutex context_data_mutex_;
-    std::map<std::string, std::any> context_data_;  // 上下文传递的kv对
+    std::map<std::string, std::any> context_data_; 
 };
 
-// Gin风格的Handler函数签名
 using HandlerFunc = std::function<void(Context&)>;
 
 } // namespace Gecko
