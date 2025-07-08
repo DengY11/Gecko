@@ -11,8 +11,11 @@
 #include <optional>
 
 namespace Gecko {
-using RequestHandler =
-std::function<Gecko::HttpResponse(const Gecko::HttpRequest &)>;
+
+// 前向声明
+class Context;
+
+using RequestHandler = std::function<void(Context&)>;
 
 struct Node {
 

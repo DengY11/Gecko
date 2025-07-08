@@ -1,4 +1,5 @@
 #include "server.hpp"
+#include "context.hpp"
 #include <algorithm>
 #include <cctype>
 #include <string_view>
@@ -121,7 +122,11 @@ void Server::handler_client_data(int client_fd) {
         HttpRequestParser::parse(request_data, &request);
         std::cout << "[REQUEST] " << HttpMethodToString(request.getMethod()) 
                   << " " << request.getUrl() << std::endl;
-        HttpResponse response = request_handler_(request);
+        
+        Context ctx(request);
+        request_handler_(ctx);
+        HttpResponse response = ctx.response();
+        
         std::string response_str = HttpResponseSerializer::serialize(response);
         send_response(client_fd, response_str);
         std::cout << "[RESPONSE] " << response.getStatusCode() 

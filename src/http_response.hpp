@@ -32,6 +32,8 @@ public:
     HttpResponse() = default;
     HttpResponse(const HttpResponse &other) = default;
     HttpResponse(HttpResponse &&other) = default;
+    HttpResponse& operator=(const HttpResponse &other) = default;
+    HttpResponse& operator=(HttpResponse &&other) = default;
 
     static auto stockResponse(int statusCode) -> HttpResponse;
     void setVersion(HttpVersion version) { this->version = version; }

@@ -23,9 +23,11 @@
 
 namespace Gecko {
 
+class Context;
+
 class Server{
 public:
-    using RequestHandler = std::function<Gecko::HttpResponse(const Gecko::HttpRequest&)>;
+    using RequestHandler = std::function<void(Context&)>;
 
     Server(int port):port_(port),listen_fd_(-1),epoll_fd_(-1){
         epoll_fd_ = epoll_create1(0);

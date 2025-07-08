@@ -8,7 +8,7 @@ CORE_SOURCES = $(SRC_DIR)/http_request.cpp $(SRC_DIR)/http_response.cpp $(SRC_DI
 CORE_OBJECTS = $(CORE_SOURCES:.cpp=.o)
 
 # 测试程序
-TEST_PROGRAMS = test_server
+TEST_PROGRAMS = test_server example_gin_style
 
 # 默认目标
 all: $(TEST_PROGRAMS)
@@ -19,6 +19,10 @@ all: $(TEST_PROGRAMS)
 
 # 编译Server测试（只链接核心对象文件）
 test_server: test_server.cpp $(CORE_OBJECTS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
+
+# 编译Gin风格示例
+example_gin_style: example_gin_style.cpp $(CORE_OBJECTS) src/context.cpp src/engine.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
 
 # 运行Server测试

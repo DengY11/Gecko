@@ -1,4 +1,5 @@
 #include "src/server.hpp"
+#include "src/context.hpp"
 #include <iostream>
 
 int main() {
@@ -6,8 +7,9 @@ int main() {
         std::cout << "🦎 测试 Gecko Web Framework Server 类" << std::endl;
         std::cout << "====================================" << std::endl;
 
-        // 创建请求处理函数
-        auto handler = [](const Gecko::HttpRequest& request) -> Gecko::HttpResponse {
+        // 创建请求处理函数（使用Gin风格的Context）
+        auto handler = [](Gecko::Context& ctx) -> void {
+            const auto& request = ctx.request();
             std::cout << "收到请求: " << Gecko::HttpMethodToString(request.getMethod()) 
                       << " " << request.getUrl() << std::endl;
             
@@ -18,14 +20,10 @@ int main() {
                 std::cout << "  " << header.first << ": " << header.second << std::endl;
             }
             
-            // 创建响应
-            auto response = Gecko::HttpResponse::stockResponse(200);
-            
             // 简单路由处理
             std::string url = request.getUrl();
             if (url == "/") {
-                response.addHeader("Content-Type", "text/html; charset=utf-8");
-                response.setBody(R"(<!DOCTYPE html>
+                ctx.html(R"(<!DOCTYPE html>
 <html>
 <head>
     <title>🦎 Gecko Server Test</title>
@@ -60,21 +58,19 @@ int main() {
 </html>)");
                 
             } else if (url == "/ping") {
-                response.addHeader("Content-Type", "application/json");
-                response.setBody(R"({
-    "message": "pong",
-    "framework": "Gecko Web Framework",
-    "status": "running",
-    "method": ")" + Gecko::HttpMethodToString(request.getMethod()) + R"(",
-    "timestamp": "2024-01-25T12:00:00Z"
-})");
+                nlohmann::json jsonResponse = {
+                    {"message", "pong"},
+                    {"framework", "Gecko Web Framework"},
+                    {"status", "running"},
+                    {"method", Gecko::HttpMethodToString(request.getMethod())},
+                    {"timestamp", "2024-01-25T12:00:00Z"}
+                };
+                ctx.json(jsonResponse);
                 
             } else if (url == "/hello") {
-                response.addHeader("Content-Type", "text/plain; charset=utf-8");
-                response.setBody("🦎 你好！这是来自 Gecko Web Framework 的问候！\n\n服务器正在正常运行。");
+                ctx.string("🦎 你好！这是来自 Gecko Web Framework 的问候！\n\n服务器正在正常运行。");
                 
             } else if (url == "/headers") {
-                response.addHeader("Content-Type", "text/html; charset=utf-8");
                 std::string body = R"(<!DOCTYPE html>
 <html>
 <head>
@@ -94,12 +90,10 @@ int main() {
     <p><a href="/">← 返回首页</a></p>
 </body>
 </html>)";
-                response.setBody(body);
+                ctx.html(body);
                 
             } else if (url == "/status/404") {
-                auto response_404 = Gecko::HttpResponse::stockResponse(404);
-                response_404.addHeader("Content-Type", "text/html; charset=utf-8");
-                response_404.setBody(R"(<!DOCTYPE html>
+                ctx.status(404).html(R"(<!DOCTYPE html>
 <html>
 <head><title>404 测试</title></head>
 <body>
@@ -108,12 +102,9 @@ int main() {
     <p><a href="/">← 返回首页</a></p>
 </body>
 </html>)");
-                return response_404;
                 
             } else if (url == "/status/500") {
-                auto response_500 = Gecko::HttpResponse::stockResponse(500);
-                response_500.addHeader("Content-Type", "text/html; charset=utf-8");
-                response_500.setBody(R"(<!DOCTYPE html>
+                ctx.status(500).html(R"(<!DOCTYPE html>
 <html>
 <head><title>500 测试</title></head>
 <body>
@@ -122,13 +113,10 @@ int main() {
     <p><a href="/">← 返回首页</a></p>
 </body>
 </html>)");
-                return response_500;
                 
             } else {
                 // 真正的404
-                auto response_not_found = Gecko::HttpResponse::stockResponse(404);
-                response_not_found.addHeader("Content-Type", "text/html; charset=utf-8");
-                response_not_found.setBody(R"(<!DOCTYPE html>
+                ctx.status(404).html(R"(<!DOCTYPE html>
 <html>
 <head><title>404 Not Found</title></head>
 <body>
@@ -137,10 +125,7 @@ int main() {
     <p><a href="/">← 返回首页</a></p>
 </body>
 </html>)");
-                return response_not_found;
             }
-            
-            return response;
         };
 
         std::cout << "\n🚀 启动测试服务器..." << std::endl;
