@@ -8,7 +8,7 @@ CORE_SOURCES = $(SRC_DIR)/http_request.cpp $(SRC_DIR)/http_response.cpp $(SRC_DI
 CORE_OBJECTS = $(CORE_SOURCES:.cpp=.o)
 
 # 测试程序
-TEST_PROGRAMS = test_server example_gin_style
+TEST_PROGRAMS = example_gin_style
 
 # 默认目标
 all: $(TEST_PROGRAMS)
@@ -17,20 +17,10 @@ all: $(TEST_PROGRAMS)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-# 编译Server测试（只链接核心对象文件）
-test_server: test_server.cpp $(CORE_OBJECTS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
-
 # 编译Gin风格示例
 example_gin_style: example_gin_style.cpp $(CORE_OBJECTS) src/context.cpp src/engine.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
 
-# 运行Server测试
-test: test_server
-	@echo "🦎 启动 Gecko Web Framework Server 测试..."
-	@echo "在浏览器中访问 http://localhost:8080 进行测试"
-	@echo "按 Ctrl+C 停止测试"
-	./test_server
 
 # 清理
 clean:
@@ -44,8 +34,6 @@ help:
 	@echo ""
 	@echo "可用目标："
 	@echo "  all         - 编译所有程序"
-	@echo "  test_server - 编译Server测试程序"
-	@echo "  test        - 运行Server测试"
 	@echo "  clean       - 清理编译文件"
 	@echo "  help        - 显示帮助"
 	@echo ""
