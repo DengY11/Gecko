@@ -8,6 +8,7 @@ auto Engine::Static(const std::string &relativePath, const std::string &root)
 }
 
 void Engine::Run(int port = 8080) {
+  // 使用默认线程池大小（硬件并发数）
   Server server(port);
   server.run([this](Context &ctx) -> void {
     this->handleRequest(ctx);
@@ -22,6 +23,14 @@ void Engine::Run(const std::string &addr) {
   } else {
     Run(8080);
   }
+}
+
+// 新增方法：支持自定义线程池大小
+void Engine::RunWithThreads(int port, size_t thread_count) {
+  Server server(port, thread_count);
+  server.run([this](Context &ctx) -> void {
+    this->handleRequest(ctx);
+  });
 }
 
 void Engine::handleRequest(Context &ctx) {

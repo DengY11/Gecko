@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cctype>
 #include <string_view>
+#include <thread>
 
 namespace Gecko {
 
@@ -117,32 +118,8 @@ void Server::handler_client_data(int client_fd) {
         return;  
     }
     
-    try {
-        HttpRequest request;
-        HttpRequestParser::parse(request_data, &request);
-        std::cout << "[REQUEST] " << HttpMethodToString(request.getMethod()) 
-                  << " " << request.getUrl() << std::endl;
-        
-        Context ctx(request);
-        request_handler_(ctx);
-        HttpResponse response = ctx.response();
-        
-        std::string response_str = HttpResponseSerializer::serialize(response);
-        send_response(client_fd, response_str);
-        std::cout << "[RESPONSE] " << response.getStatusCode() 
-                  << " | " << response_str.length() << " bytes" << std::endl;
-    } catch (const std::exception& e) {
-        std::cerr << "Error processing request: " << e.what() << std::endl;
-        HttpResponse error_response = HttpResponse::stockResponse(500);
-        error_response.setBody("Internal Server Error: " + std::string(e.what()));
-        std::string response_str = HttpResponseSerializer::serialize(error_response);
-        send_response(client_fd, response_str);
-    }
-
-    // HTTP/1.0 默认关闭连接
-    // TODO: 支持HTTP/1.1的keep-alive
-    remove_from_epoll(client_fd);
-    close(client_fd);
+    // 将请求处理提交给线程池
+    process_request_async(client_fd, std::move(request_data));
 }
 
 void Server::set_non_blockint(int fd) {
@@ -232,6 +209,41 @@ bool Server::is_request_complete(const std::string& request_data) const {
     size_t content_length = find_content_length_in_headers(headers_part);
     size_t current_body_length = request_data.length() - body_start;
     return current_body_length >= content_length;
+}
+
+void Server::process_request_async(int client_fd, std::string request_data) {
+    // 提交任务到线程池
+    thread_pool_->enqueue([this, client_fd, request_data = std::move(request_data)]() {
+        try {
+            HttpRequest request;
+            HttpRequestParser::parse(request_data, &request);
+            std::cout << "[REQUEST] " << HttpMethodToString(request.getMethod()) 
+                      << " " << request.getUrl() << " (Thread: " 
+                      << std::this_thread::get_id() << ")" << std::endl;
+            
+            Context ctx(request);
+            request_handler_(ctx);
+            HttpResponse response = ctx.response();
+            
+            std::string response_str = HttpResponseSerializer::serialize(response);
+            send_response(client_fd, response_str);
+            std::cout << "[RESPONSE] " << response.getStatusCode() 
+                      << " | " << response_str.length() << " bytes (Thread: "
+                      << std::this_thread::get_id() << ")" << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "Error processing request: " << e.what() << std::endl;
+            HttpResponse error_response = HttpResponse::stockResponse(500);
+            error_response.setBody("Internal Server Error: " + std::string(e.what()));
+            std::string response_str = HttpResponseSerializer::serialize(error_response);
+            send_response(client_fd, response_str);
+        }
+
+        // HTTP/1.0 默认关闭连接
+        // TODO: 支持HTTP/1.1的keep-alive
+        // 注意：这里不能调用remove_from_epoll，因为我们在工作线程中
+        // epoll操作应该在主线程中进行
+        close(client_fd);
+    });
 }
 
 } // namespace Gecko

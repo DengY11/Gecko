@@ -2,6 +2,7 @@
 #define SERVER
 #include "http_request.hpp"
 #include "http_response.hpp"
+#include "thread_pool.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -9,6 +10,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <functional>
+#include <memory>
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -29,13 +31,16 @@ class Server{
 public:
     using RequestHandler = std::function<void(Context&)>;
 
-    Server(int port):port_(port),listen_fd_(-1),epoll_fd_(-1){
+    explicit Server(int port, size_t thread_pool_size = 0)
+        : port_(port), listen_fd_(-1), epoll_fd_(-1), 
+          thread_pool_(std::make_unique<ThreadPool>(thread_pool_size)) {
         epoll_fd_ = epoll_create1(0);
         if(epoll_fd_ == -1){
             throw std::runtime_error("epoll_create1 error");
         }
         setup_listen_socket();
     }
+    
     ~Server(){
         if(listen_fd_ != -1){
             close(listen_fd_);
@@ -56,6 +61,7 @@ private:
     void setup_listen_socket();
     void handler_new_connection();
     void handler_client_data(int client_fd);
+    void process_request_async(int client_fd, std::string request_data);
     void set_non_blockint(int fd);
     void add_to_epoll(int fd,uint32_t events);
     void remove_from_epoll(int fd);
@@ -66,6 +72,7 @@ private:
     int listen_fd_;
     int epoll_fd_;
     RequestHandler request_handler_;
+    std::unique_ptr<ThreadPool> thread_pool_;
 };
 
 }

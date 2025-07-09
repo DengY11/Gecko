@@ -51,6 +51,7 @@ public:
 
     void Run(int port );
     void Run(const std::string& addr); 
+    void RunWithThreads(int port, size_t thread_count);
 
     
 
