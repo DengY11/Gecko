@@ -14,11 +14,11 @@ const BASE_URL = 'http://localhost:13514';
 export const options = {
   // 分阶段负载测试
   stages: [
-    { duration: '30s', target: 2000 },   // 预热: 30秒内增加到20个用户
-    { duration: '1m', target: 5000 },    // 增压: 1分钟内增加到50个用户
-    { duration: '2m', target: 10000 },   // 高压: 2分钟内增加到100个用户
-    { duration: '1m', target: 20000 },   // 峰值: 1分钟内增加到200个用户
-    { duration: '30s', target: 10000 },  // 降压: 30秒内降到100个用户
+    { duration: '30s', target: 20 },   // 预热: 30秒内增加到20个用户
+    { duration: '1m', target: 50 },    // 增压: 1分钟内增加到50个用户
+    { duration: '2m', target: 100 },   // 高压: 2分钟内增加到100个用户
+    { duration: '1m', target: 200 },   // 峰值: 1分钟内增加到200个用户
+    { duration: '30s', target: 100 },  // 降压: 30秒内降到100个用户
     { duration: '30s', target: 0 },    // 结束: 30秒内降到0个用户
   ],
   

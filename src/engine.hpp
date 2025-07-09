@@ -50,15 +50,11 @@ public:
     // === static file service ===
     Engine& Static(const std::string& relativePath, const std::string& root); 
 
-    // === 新的配置化运行方法 ===
     void Run(const ServerConfig& config);
-    
-    // === 向后兼容的便捷方法 ===
     void Run(int port = 8080) {
         ServerConfig config(port);
         Run(config);
     }
-    
     void Run(const std::string& addr) {
         size_t pos = addr.find(':');
         int port = 8080;
@@ -67,8 +63,6 @@ public:
         }
         Run(port);
     }
-    
-    // 向后兼容：支持指定线程数
     void RunWithThreads(int port, size_t thread_count) {
         ServerConfig config(port, thread_count);
         Run(config);
@@ -80,7 +74,7 @@ private:
 
     void handleRequest(Context& ctx); 
     void executeMiddlewares(Context& ctx, HandlerFunc finalHandler); 
-    void printServerInfo(const ServerConfig& config); // 打印服务器启动信息
+    void printServerInfo(const ServerConfig& config); 
 };
 
 } // namespace Gecko
