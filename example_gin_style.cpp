@@ -1,6 +1,7 @@
 #include "src/engine.hpp"
 #include <iostream>
 #include <chrono>
+#include <thread>
 
 int main() {
     try {
@@ -50,7 +51,7 @@ int main() {
 <body>
     <div class="container">
         <h1>🦎 Gecko Web Framework</h1>
-        <p><strong>现在支持Gin风格的API！</strong></p>
+        <p><strong>现在支持Gin风格的API和多线程处理！</strong></p>
         
         <h2>🎯 API端点：</h2>
         <div class="endpoint">
@@ -76,6 +77,8 @@ int main() {
             <li>📝 <strong>简洁的响应方法</strong> - json(), html(), string()</li>
             <li>🔗 <strong>链式调用</strong> - status().header().json()</li>
             <li>⚡ <strong>高性能路由</strong> - 基数树实现</li>
+            <li>🧵 <strong>多线程处理</strong> - 线程池并发处理请求</li>
+            <li>⚙️ <strong>配置化启动</strong> - 灵活的服务器配置</li>
         </ul>
     </div>
 </body>
@@ -88,12 +91,15 @@ int main() {
                 {"framework", "Gecko Web Framework"},
                 {"status", "running"},
                 {"style", "gin-like"},
+                {"thread_id", std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()))},
                 {"features", nlohmann::json::array({
                     "context-based handlers",
                     "onion-model middleware", 
                     "method chaining",
                     "path parameters",
-                    "query parameters"
+                    "query parameters",
+                    "multi-threading",
+                    "configurable server"
                 })}
             };
             ctx.json(response);
@@ -109,7 +115,8 @@ int main() {
             nlohmann::json response = {
                 {"message", "Hello, " + name + "!"},
                 {"path_param", name},
-                {"framework", "Gecko"}
+                {"framework", "Gecko"},
+                {"thread_id", std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()))}
             };
             ctx.status(200).json(response);
         });
@@ -122,7 +129,8 @@ int main() {
                 {"search_query", query},
                 {"search_type", type},
                 {"results", nlohmann::json::array()},
-                {"total", 0}
+                {"total", 0},
+                {"thread_id", std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()))}
             };
             
             if (!query.empty()) {
@@ -142,7 +150,8 @@ int main() {
                 {"headers", nlohmann::json::object()},
                 {"count", headers.size()},
                 {"user_agent", ctx.header("User-Agent")},
-                {"host", ctx.header("Host")}
+                {"host", ctx.header("Host")},
+                {"thread_id", std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()))}
             };
             
             for (const auto& header : headers) {
@@ -162,7 +171,8 @@ int main() {
                     {"name", "张三"},
                     {"email", "zhangsan@example.com"},
                     {"role", "admin"},
-                    {"created_at", "2024-01-25T12:00:00Z"}
+                    {"created_at", "2024-01-25T12:00:00Z"},
+                    {"processed_by_thread", std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()))}
                 };
                 ctx.json(user);
             } else if (userId == "456") {
@@ -171,13 +181,15 @@ int main() {
                     {"name", "李四"},
                     {"email", "lisi@example.com"},
                     {"role", "user"},
-                    {"created_at", "2024-01-20T08:30:00Z"}
+                    {"created_at", "2024-01-20T08:30:00Z"},
+                    {"processed_by_thread", std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()))}
                 };
                 ctx.json(user);
             } else {
                 ctx.status(404).json({
                     {"error", "User not found"},
-                    {"user_id", userId}
+                    {"user_id", userId},
+                    {"thread_id", std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()))}
                 });
             }
         });
@@ -189,24 +201,45 @@ int main() {
                 {"message", "User created successfully"},
                 {"id", 789},
                 {"method", "POST"},
-                {"note", "This is a demo endpoint"}
+                {"note", "This is a demo endpoint"},
+                {"thread_id", std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()))}
             };
             ctx.status(201).json(response);
         });
 
-        // 启动服务器
-        std::cout << "\n🚀 启动服务器..." << std::endl;
-        std::cout << "端口: 13514" << std::endl;
-        std::cout << "访问: http://localhost:8080" << std::endl;
-        std::cout << "\n📝 特性展示:" << std::endl;
+        // 使用配置化启动服务器
+        std::cout << "\n🚀 配置服务器启动参数..." << std::endl;
+        
+        // 获取系统硬件并发数
+        size_t max_threads = std::thread::hardware_concurrency();
+        if (max_threads == 0) {
+            max_threads = 8; // 后备默认值
+        }
+        
+        // 创建服务器配置
+        Gecko::ServerConfig config = Gecko::ServerConfig()
+            .setPort(13514)                           // 设置端口为13514
+            .setThreadPoolSize(max_threads)           // 使用系统最大线程数
+            .setLogLevel(Gecko::LogLevel::INFO)       // 设置日志等级
+            .enableAccessLog(true)                    // 启用访问日志
+            .setMaxConnections(10000)                 // 最大连接数
+            .setKeepAliveTimeout(30)                  // Keep-Alive超时
+            .setMaxRequestBodySize(2 * 1024 * 1024);  // 2MB请求体限制
+
+        std::cout << "📝 特性展示:" << std::endl;
         std::cout << "  ✅ Gin风格的Context API" << std::endl;
         std::cout << "  ✅ 洋葱模型中间件" << std::endl;
         std::cout << "  ✅ 链式方法调用" << std::endl;
         std::cout << "  ✅ 路径参数和查询参数" << std::endl;
         std::cout << "  ✅ JSON/HTML/Text响应" << std::endl;
+        std::cout << "  ✅ 多线程并发处理" << std::endl;
+        std::cout << "  ✅ 配置化服务器启动" << std::endl;
+        std::cout << "\n💡 提示: 每个响应都包含thread_id字段，可以观察不同线程处理请求" << std::endl;
+        std::cout << "📊 系统检测到 " << max_threads << " 个CPU核心，将启动对应数量的工作线程" << std::endl;
         std::cout << "\n按 Ctrl+C 停止服务器\n" << std::endl;
 
-        app.Run(13514);
+        // 使用新的配置API启动服务器
+        app.Run(config);
 
     } catch (const std::exception& e) {
         std::cerr << "❌ 错误: " << e.what() << std::endl;

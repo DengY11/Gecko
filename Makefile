@@ -8,7 +8,7 @@ CORE_SOURCES = $(SRC_DIR)/http_request.cpp $(SRC_DIR)/http_response.cpp $(SRC_DI
 CORE_OBJECTS = $(CORE_SOURCES:.cpp=.o)
 
 # 测试程序
-TEST_PROGRAMS = example_gin_style example_multithread
+TEST_PROGRAMS = example_gin_style
 
 # 默认目标
 all: $(TEST_PROGRAMS)
@@ -17,14 +17,9 @@ all: $(TEST_PROGRAMS)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-# 编译Gin风格示例
+# 编译Gin风格示例（更新了配置API）
 example_gin_style: example_gin_style.cpp $(CORE_OBJECTS) src/context.cpp src/engine.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ -pthread
-
-# 编译多线程示例
-example_multithread: example_multithread.cpp $(CORE_OBJECTS) src/context.cpp src/engine.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ -pthread
-
 
 # 清理
 clean:
@@ -33,7 +28,7 @@ clean:
 
 # 显示帮助
 help:
-	@echo "🦎 Gecko Web Framework 测试系统"
+	@echo "🦎 Gecko Web Framework 构建系统"
 	@echo "==============================="
 	@echo ""
 	@echo "可用目标："
@@ -46,14 +41,17 @@ help:
 	@echo ""
 	@echo "测试步骤："
 	@echo "  1. make clean"
-	@echo "  2. make test"
-	@echo "  3. 在浏览器访问 http://localhost:8080"
-	@echo "  4. 点击测试链接验证功能"
-	@echo "  5. 按 Ctrl+C 停止服务器"
+	@echo "  2. make"
+	@echo "  3. ./example_gin_style"
+	@echo "  4. 在浏览器访问 http://localhost:13514"
+	@echo "  5. 测试各个端点，观察多线程处理"
+	@echo "  6. 按 Ctrl+C 停止服务器"
 	@echo ""
-	@echo "新特性："
-	@echo "  ✅ 多线程请求处理"
+	@echo "最新特性："
+	@echo "  ✅ 多线程请求处理（使用系统最大线程数）"
+	@echo "  ✅ 配置化服务器启动"
+	@echo "  ✅ 灵活的日志系统设计"
 	@echo "  ✅ 线程池优化"
-	@echo "  ✅ 异步请求处理"
+	@echo "  ✅ 响应中包含线程ID信息"
 
-.PHONY: all clean help test 
+.PHONY: all clean help 
