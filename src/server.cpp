@@ -113,12 +113,9 @@ void Server::handler_client_data(int client_fd) {
             }
         }
     }
-
     if (request_data.empty()) {
         return;  
     }
-    
-    // 将请求处理提交给线程池
     process_request_async(client_fd, std::move(request_data));
 }
 
@@ -212,7 +209,6 @@ bool Server::is_request_complete(const std::string& request_data) const {
 }
 
 void Server::process_request_async(int client_fd, std::string request_data) {
-    // 提交任务到线程池
     thread_pool_->enqueue([this, client_fd, request_data = std::move(request_data)]() {
         try {
             HttpRequest request;
