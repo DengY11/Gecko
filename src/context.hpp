@@ -17,20 +17,17 @@ class Context {
 public:
     Context(const HttpRequest& req) : request_(req), response_(HttpResponse::stockResponse(200)) {}
     const HttpRequest& request() const { return request_; }
+    
     // get router params
-    const std::string& param(const std::string& key) const ;
+    const std::string& param(const std::string& key) const;
+    
     // get query params
-    std::string query(const std::string& key) const ;
-    std::string header(const std::string& key) const {
-        auto headers = request_.getHeaders();
-        auto it = headers.find(key);
-        return it != headers.end() ? it->second : "";
-    }
+    std::string query(const std::string& key) const;
+    
+    std::string header(const std::string& key) const;
 
-    void set(const std::string& key, const std::any& value) {
-        std::lock_guard<std::shared_mutex> lock(context_data_mutex_);
-        context_data_[key] = value;
-    }
+    void set(const std::string& key, const std::any& value);
+    
     template<typename T>
     T get(const std::string& key) const {
         std::shared_lock<std::shared_mutex> lock(context_data_mutex_);
@@ -44,34 +41,22 @@ public:
         }
         throw std::runtime_error("Context data not found for key: " + key);
     }
-    bool has(const std::string& key) const {
-        std::shared_lock<std::shared_mutex> lock(context_data_mutex_);
-        return context_data_.find(key) != context_data_.end();
-    }
+    
+    bool has(const std::string& key) const;
 
-    HttpResponse& response() { return response_; }
-    Context& status(int code) {
-        response_.setStatusCode(code);
-        return *this;
-    }
-    void json(const nlohmann::json& data) {
-        response_.addHeader("Content-Type", "application/json");
-        response_.setBody(data.dump());
-    }
-    void string(const std::string& data) {
-        response_.addHeader("Content-Type", "text/plain; charset=utf-8");
-        response_.setBody(data);
-    }
-    void html(const std::string& html) {
-        response_.addHeader("Content-Type", "text/html; charset=utf-8");
-        response_.setBody(html);
-    }
-    Context& header(const std::string& key, const std::string& value) {
-        response_.addHeader(key, value);
-        return *this;
-    }
+    HttpResponse& response();
+    
+    Context& status(int code);
+    
+    void json(const nlohmann::json& data);
+    
+    void string(const std::string& data);
+    
+    void html(const std::string& html);
+    
+    Context& header(const std::string& key, const std::string& value);
 
-    void setParams(const std::map<std::string, std::string>& params) ;
+    void setParams(const std::map<std::string, std::string>& params);
 
 private:
     const HttpRequest& request_;
