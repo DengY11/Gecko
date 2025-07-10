@@ -4,7 +4,7 @@ INCLUDES = -I.
 
 # 核心源文件（排除测试文件）
 SRC_DIR = src
-CORE_SOURCES = $(SRC_DIR)/http_request.cpp $(SRC_DIR)/http_response.cpp $(SRC_DIR)/router.cpp $(SRC_DIR)/server.cpp $(SRC_DIR)/thread_pool.cpp
+CORE_SOURCES = $(SRC_DIR)/http_request.cpp $(SRC_DIR)/http_response.cpp $(SRC_DIR)/router.cpp $(SRC_DIR)/server.cpp $(SRC_DIR)/thread_pool.cpp $(SRC_DIR)/logger.cpp
 CORE_OBJECTS = $(CORE_SOURCES:.cpp=.o)
 
 # 测试程序

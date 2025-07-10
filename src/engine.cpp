@@ -13,7 +13,7 @@ auto Engine::Static(const std::string &relativePath, const std::string &root)
 
 void Engine::Run(const ServerConfig& config) {
   printServerInfo(config);
-  Server server(config.port, config.thread_pool_size);
+  Server server(config);
   server.run([this](Context &ctx) -> void {
     this->handleRequest(ctx);
   });
@@ -63,17 +63,6 @@ void Engine::printServerInfo(const ServerConfig& config) {
   std::cout << "  工作线程数:     " << config.thread_pool_size << std::endl;
   std::cout << "  最大连接数:     " << config.max_connections << std::endl;
   std::cout << "  请求体大小限制: " << (config.max_request_body_size / 1024) << " KB" << std::endl;
-  std::cout << std::endl;
-  
-  // 日志配置
-  std::cout << "📋 日志配置:" << std::endl;
-  std::cout << "  日志等级:       " << logLevelToString(config.log_level) << std::endl;
-  std::cout << "  访问日志:       " << (config.enable_access_log ? "启用" : "禁用") << std::endl;
-  std::cout << "  错误日志:       " << (config.enable_error_log ? "启用" : "禁用") << std::endl;
-  std::cout << std::endl;
-  
-  // 性能配置
-  std::cout << "⚡ 性能配置:" << std::endl;
   std::cout << "  Keep-Alive超时: " << config.keep_alive_timeout << " 秒" << std::endl;
   std::cout << std::endl;
   
@@ -89,6 +78,7 @@ void Engine::printServerInfo(const ServerConfig& config) {
   std::cout << "  ✅ 高性能路由匹配" << std::endl;
   std::cout << "  ✅ Gin风格API" << std::endl;
   std::cout << "  ✅ epoll事件驱动" << std::endl;
+  std::cout << "  ✅ 独立Logger系统（可选）" << std::endl;
   std::cout << std::endl;
   
   std::cout << "按 Ctrl+C 停止服务器" << std::endl;

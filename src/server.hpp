@@ -3,6 +3,7 @@
 #include "http_request.hpp"
 #include "http_response.hpp"
 #include "thread_pool.hpp"
+#include "server_config.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -32,8 +33,20 @@ public:
     using RequestHandler = std::function<void(Context&)>;
 
     explicit Server(int port, size_t thread_pool_size = 0)
-        : port_(port), listen_fd_(-1), epoll_fd_(-1), 
+        : port_(port), host_("0.0.0.0"), listen_fd_(-1), epoll_fd_(-1), 
           thread_pool_(std::make_unique<ThreadPool>(thread_pool_size)) {
+        print_server_info();
+        epoll_fd_ = epoll_create1(0);
+        if(epoll_fd_ == -1){
+            throw std::runtime_error("epoll_create1 error");
+        }
+        setup_listen_socket();
+    }
+    
+    explicit Server(const ServerConfig& config)
+        : port_(config.port), host_(config.host), listen_fd_(-1), epoll_fd_(-1),
+          thread_pool_(std::make_unique<ThreadPool>(config.thread_pool_size)) {
+        print_server_info_with_config(config);
         epoll_fd_ = epoll_create1(0);
         if(epoll_fd_ == -1){
             throw std::runtime_error("epoll_create1 error");
@@ -58,6 +71,8 @@ protected:
     bool is_request_complete(const std::string& request_data) const;
 
 private:
+    void print_server_info();
+    void print_server_info_with_config(const ServerConfig& config);
     void setup_listen_socket();
     void handler_new_connection();
     void handler_client_data(int client_fd);
@@ -69,6 +84,7 @@ private:
 
     static constexpr int MAX_EVENTS = 100000;
     int port_;
+    std::string host_;
     int listen_fd_;
     int epoll_fd_;
     RequestHandler request_handler_;
