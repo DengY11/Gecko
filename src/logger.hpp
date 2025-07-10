@@ -51,7 +51,6 @@ public:
     void log(LogLevel level, const std::string &message);
     void set_log_level(LogLevel level);
     void set_output(LogOutput output, const std::string& filename = "log.txt");
-    void run();
 
 private:
     void log_worker_func();
