@@ -19,7 +19,7 @@ int main() {
         Gecko::Logger error_logger(Gecko::LogLevel::ERROR, 1, Gecko::LogOutput::FILE, "error.log");
         
         // 创建调试日志 - 只输出到控制台
-        Gecko::Logger debug_logger(Gecko::LogLevel::DEBUG, 1, Gecko::LogOutput::CONSOLE);
+        Gecko::Logger debug_logger(Gecko::LogLevel::ERROR, 1, Gecko::LogOutput::CONSOLE);
         
         std::cout << "✅ Logger系统配置完成:" << std::endl;
         std::cout << "  ├─ 访问日志: 同时输出到控制台和 access.log" << std::endl;
