@@ -224,35 +224,128 @@ void Server::handler_client_data(int client_fd) {
     
     conn_info->update_activity();
     
+    // 主线程只做一次快速读取
     const size_t BUFFER_SIZE = 8192;
     char buffer[BUFFER_SIZE];
-    std::string& request_data = conn_info->partial_request;
+    ssize_t bytes_read = read(client_fd, buffer, BUFFER_SIZE - 1);
     
-    while (true) {
-        ssize_t bytes_read = read(client_fd, buffer, BUFFER_SIZE - 1);
-        if (bytes_read > 0) {
-            buffer[bytes_read] = '\0';
-            request_data += buffer;
-            
-            if (is_request_complete(request_data)) {
-                // 处理完整请求
-                process_request_async(conn_info, std::move(request_data));
-                request_data.clear();
-                break;
-            }
-        } else if (bytes_read == 0) {
-            // 连接关闭
-            on_disconnect(client_fd);
+    if (bytes_read > 0) {
+        // 立即提交到工作线程进行深度处理
+        buffer[bytes_read] = '\0';
+        std::string initial_data(buffer, bytes_read);
+        
+        thread_pool_->enqueue([this, conn_info, initial_data = std::move(initial_data)]() {
+            process_data_in_worker(conn_info, initial_data);
+        });
+    } else if (bytes_read == 0) {
+        // 连接关闭
+        on_disconnect(client_fd);
+    } else {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            // 数据暂时不可用，下次epoll事件再处理
             return;
         } else {
+            handle_connection_error(client_fd, "Read error: " + std::string(strerror(errno)));
+        }
+    }
+}
+
+void Server::process_data_in_worker(std::shared_ptr<ConnectionInfo> conn_info, const std::string& initial_data) {
+    if (!conn_info || !conn_info->connected) {
+        return;
+    }
+    
+    // 将初始数据添加到部分请求缓存
+    conn_info->partial_request += initial_data;
+    
+    // 检查是否需要读取更多数据
+    if (!is_request_complete(conn_info->partial_request)) {
+        // 在工作线程中继续读取数据
+        if (!read_more_data_in_worker(conn_info)) {
+            return; // 读取失败或连接关闭
+        }
+    }
+    
+    // 检查请求是否完整
+    if (is_request_complete(conn_info->partial_request)) {
+        // 处理完整请求
+        process_complete_request_in_worker(conn_info);
+    }
+}
+
+bool Server::read_more_data_in_worker(std::shared_ptr<ConnectionInfo> conn_info) {
+    if (!conn_info || !conn_info->connected) {
+        return false;
+    }
+    
+    const size_t BUFFER_SIZE = 8192;
+    char buffer[BUFFER_SIZE];
+    
+    while (!is_request_complete(conn_info->partial_request)) {
+        ssize_t bytes_read = read(conn_info->fd, buffer, BUFFER_SIZE - 1);
+        
+        if (bytes_read > 0) {
+            buffer[bytes_read] = '\0';
+            conn_info->partial_request += buffer;
+            conn_info->update_activity();
+        } else if (bytes_read == 0) {
+            // 连接关闭
+            std::cerr << "❌ Connection closed while reading more data from " 
+                      << conn_info->peer_addr << std::endl;
+            return false;
+        } else {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                break;
+                // 数据暂时不可用，等待下次epoll事件
+                // 这种情况下请求还未完整，需要等待更多数据
+                return true;
             } else {
-                handle_connection_error(client_fd, "Read error: " + std::string(strerror(errno)));
-                return;
+                std::cerr << "❌ Read error from " << conn_info->peer_addr 
+                          << ": " << strerror(errno) << std::endl;
+                return false;
             }
         }
     }
+    
+    return true;
+}
+
+void Server::process_complete_request_in_worker(std::shared_ptr<ConnectionInfo> conn_info) {
+    if (!conn_info || !conn_info->connected) {
+        return;
+    }
+    
+    conn_info->request_count++;
+    total_requests_++;
+    
+    try {
+        HttpRequest request;
+        HttpRequestParser::parse(conn_info->partial_request, &request);
+        
+        Context ctx(request);
+        request_handler_(ctx);
+        HttpResponse response = ctx.response();
+        
+        std::string response_str = HttpResponseSerializer::serialize(response);
+        
+        // 确保连接仍然有效
+        if (conn_info->connected) {
+            send_response(conn_info->fd, response_str);
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "❌ Error processing request from " << conn_info->peer_addr 
+                  << ": " << e.what() << std::endl;
+        
+        if (conn_info->connected) {
+            send_error_response(conn_info->fd, 500, "Internal Server Error");
+        }
+    }
+    
+    // 清理请求数据
+    conn_info->partial_request.clear();
+    
+    // HTTP/1.0 默认关闭连接
+    // TODO: 支持HTTP/1.1的keep-alive
+    on_disconnect(conn_info->fd);
 }
 
 void Server::process_request_async(std::shared_ptr<ConnectionInfo> conn_info, std::string request_data) {

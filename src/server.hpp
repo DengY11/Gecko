@@ -146,6 +146,9 @@ private:
     
     // 请求处理
     void process_request_async(std::shared_ptr<ConnectionInfo> conn_info, std::string request_data);
+    void process_data_in_worker(std::shared_ptr<ConnectionInfo> conn_info, const std::string& initial_data);
+    bool read_more_data_in_worker(std::shared_ptr<ConnectionInfo> conn_info);
+    void process_complete_request_in_worker(std::shared_ptr<ConnectionInfo> conn_info);
     void handle_connection_error(int client_fd, const std::string& error_msg);
     void send_error_response(int client_fd, int status_code, const std::string& message);
     
