@@ -33,10 +33,6 @@ void Server::run(RequestHandler request_handler) {
     if (!this->request_handler_) {
         throw std::runtime_error("Cannot run server with a null handler");
     }
-    std::cout << "✅ Server successfully started!" << std::endl;
-    std::cout << "🌐 Listening on http://" << host_ << ":" << port_ << std::endl;
-    std::cout << "💡 Press Ctrl+C to stop the server" << std::endl;
-    std::cout << "📊 Ready to accept connections..." << std::endl;
     std::vector<struct epoll_event> events(MAX_EVENTS);
     while (true) {
         int num_events = epoll_wait(epoll_fd_, events.data(), MAX_EVENTS, -1);
