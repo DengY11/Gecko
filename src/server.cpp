@@ -102,7 +102,7 @@ void Server::run(RequestHandler request_handler) {
         // 定期清理过期连接
         cleanup_expired_connections();
         
-        int num_events = epoll_wait(epoll_fd_, events.data(), MAX_EVENTS, 1000); // 1秒超时
+        int num_events = epoll_wait(epoll_fd_, events.data(), MAX_EVENTS, 10); // 10ms超时，提高响应性
         if (num_events < 0) {
             if (errno == EINTR) {
                 continue;
@@ -114,11 +114,9 @@ void Server::run(RequestHandler request_handler) {
         for (int i = 0; i < num_events; ++i) {
             if (events[i].data.fd == listen_fd_) {
                 handler_new_connection();
-            } else if (events[i].events & EPOLLIN) {
-                handler_client_data(events[i].data.fd);
-            } else if (events[i].events & (EPOLLHUP | EPOLLERR)) {
-                on_disconnect(events[i].data.fd);
             }
+            // 移除数据事件处理，因为现在由IO线程池完全负责
+            // 错误事件也由IO线程池在各自的epoll中处理
         }
     }
 }
@@ -132,6 +130,25 @@ void Server::setup_listen_socket() {
     if (setsockopt(listen_fd_, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
         close(listen_fd_);
         throw std::runtime_error("Failed to set SO_REUSEADDR: " + std::string(strerror(errno)));
+    }
+    
+    // 启用端口复用，提高并发性能
+    if (setsockopt(listen_fd_, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
+        std::cerr << "⚠️ Failed to set SO_REUSEPORT: " << strerror(errno) << " (继续运行)" << std::endl;
+    }
+    
+    // 设置TCP_NODELAY，减少延迟
+    if (setsockopt(listen_fd_, IPPROTO_TCP, TCP_NODELAY, &opt, sizeof(opt)) < 0) {
+        std::cerr << "⚠️ Failed to set TCP_NODELAY: " << strerror(errno) << " (继续运行)" << std::endl;
+    }
+    
+    // 调整发送和接收缓冲区大小
+    int buffer_size = 64 * 1024; // 64KB
+    if (setsockopt(listen_fd_, SOL_SOCKET, SO_SNDBUF, &buffer_size, sizeof(buffer_size)) < 0) {
+        std::cerr << "⚠️ Failed to set SO_SNDBUF: " << strerror(errno) << " (继续运行)" << std::endl;
+    }
+    if (setsockopt(listen_fd_, SOL_SOCKET, SO_RCVBUF, &buffer_size, sizeof(buffer_size)) < 0) {
+        std::cerr << "⚠️ Failed to set SO_RCVBUF: " << strerror(errno) << " (继续运行)" << std::endl;
     }
     set_non_blockint(listen_fd_);
     struct sockaddr_in server_addr;
@@ -177,6 +194,11 @@ void Server::on_connection(int client_fd) {
     std::cout << "✅ New connection from " << peer_addr << " (fd: " << client_fd 
               << ", total: " << conn_manager_->get_active_count() << ")" << std::endl;
     #endif
+    
+    // 直接将新连接注册到IO线程池进行异步读取
+    io_thread_pool_->register_read(conn_info, [this](std::shared_ptr<ConnectionInfo> conn_info, const std::string& request_data) {
+        process_request_with_io_thread(conn_info, request_data);
+    });
 }
 
 void Server::on_disconnect(int client_fd) {
@@ -213,7 +235,7 @@ void Server::handler_new_connection() {
     }
     
     set_non_blockint(client_fd);
-    add_to_epoll(client_fd, EPOLLIN);
+    // 不再将新连接添加到主线程epoll，直接交给IO线程池管理
     on_connection(client_fd);
 }
 
@@ -226,11 +248,8 @@ void Server::handler_client_data(int client_fd) {
     
     conn_info->update_activity();
     
-    std::cout << "🔄 [主线程] 收到客户端数据事件，fd: " << client_fd << std::endl;
-    
     // 新的三线程架构：直接提交IO任务到IO线程池
-    io_thread_pool_->async_read(conn_info, [this](std::shared_ptr<ConnectionInfo> conn_info, const std::string& request_data) {
-        std::cout << "📥 [IO线程] 读取到数据，长度: " << request_data.length() << std::endl;
+    io_thread_pool_->register_read(conn_info, [this](std::shared_ptr<ConnectionInfo> conn_info, const std::string& request_data) {
         // 在IO线程中读取完整数据后，提交到工作线程处理业务逻辑
         process_request_with_io_thread(conn_info, request_data);
     });
@@ -244,18 +263,11 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
     conn_info->request_count++;
     total_requests_++;
     
-    std::cout << "🔄 [工作线程调度] 准备处理请求，fd: " << conn_info->fd << std::endl;
-    
     // 提交到工作线程处理业务逻辑
     thread_pool_->enqueue([this, conn_info, request_data]() {
-        std::cout << "🔧 [工作线程] 开始处理请求，fd: " << conn_info->fd << std::endl;
-        
         try {
             HttpRequest request;
             HttpRequestParser::parse(request_data, &request);
-            
-            std::cout << "📋 [工作线程] 解析请求: " << HttpMethodToString(request.getMethod()) 
-                      << " " << request.getUrl() << std::endl;
             
             // 检查是否支持keep-alive
             bool keep_alive = false;
@@ -282,8 +294,6 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
             
             std::string response_str = HttpResponseSerializer::serialize(response);
             
-            std::cout << "📤 [工作线程] 处理完成，准备写入响应，长度: " << response_str.length() << std::endl;
-            
             // 使用IO线程池异步发送响应
             if (conn_info->connected) {
                 handle_keep_alive_response(conn_info, response_str);
@@ -299,9 +309,8 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
                                            "Content-Length: 21\r\n\r\n"
                                            "Internal Server Error";
                 io_thread_pool_->async_write(conn_info, error_response, 
-                    [this](std::shared_ptr<ConnectionInfo> conn, bool success) {
+                    [this](std::shared_ptr<ConnectionInfo> conn, bool /*success*/) {
                         if (conn) {
-                            std::cout << "❌ [IO回调] 错误响应写入" << (success ? "成功" : "失败") << "，关闭连接，fd: " << conn->fd << std::endl;
                             on_disconnect(conn->fd);
                         }
                     });
@@ -316,8 +325,6 @@ void Server::handle_keep_alive_response(std::shared_ptr<ConnectionInfo> conn_inf
         return;
     }
     
-    std::cout << "📤 [响应处理] 提交写入任务到IO线程池，fd: " << conn_info->fd << std::endl;
-    
     // 使用带回调的IO线程池异步写入响应
     io_thread_pool_->async_write(conn_info, response_data, 
         [this, conn_info](std::shared_ptr<ConnectionInfo> conn, bool success) {
@@ -326,20 +333,12 @@ void Server::handle_keep_alive_response(std::shared_ptr<ConnectionInfo> conn_inf
             }
             
             if (success) {
-                std::cout << "✅ [IO回调] 响应写入成功，fd: " << conn->fd << std::endl;
-                
                 // 根据keep-alive状态决定是否关闭连接
-                if (conn->keep_alive) {
-                    std::cout << "💓 [连接管理] 保持连接活跃，fd: " << conn->fd << std::endl;
-                    // 保持连接，等待下一个请求
-                    io_thread_pool_->keep_alive(conn);
-                } else {
-                    std::cout << "🔐 [连接管理] 关闭连接，fd: " << conn->fd << std::endl;
+                if (!conn->keep_alive) {
                     // 关闭连接
                     on_disconnect(conn->fd);
                 }
             } else {
-                std::cout << "❌ [IO回调] 响应写入失败，强制关闭连接，fd: " << conn->fd << std::endl;
                 // 写入失败，强制关闭连接
                 on_disconnect(conn->fd);
             }
@@ -520,6 +519,7 @@ void Server::cleanup_expired_connections() {
     
     last_cleanup = now;
 }
+
 
 void Server::cleanup_all_connections() {
     running_ = false;

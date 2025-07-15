@@ -13,7 +13,7 @@ int main() {
         std::cout << "📝 配置Logger系统..." << std::endl;
         
         // 创建访问日志 - 输出到文件和控制台
-        Gecko::Logger access_logger(Gecko::LogLevel::INFO, 2, Gecko::LogOutput::BOTH, "access.log");
+        Gecko::Logger access_logger(Gecko::LogLevel::ERROR, 2, Gecko::LogOutput::BOTH, "access.log");
         
         // 创建错误日志 - 只输出到文件
         Gecko::Logger error_logger(Gecko::LogLevel::ERROR, 1, Gecko::LogOutput::FILE, "error.log");
@@ -277,8 +277,8 @@ int main() {
         Gecko::ServerConfig config = Gecko::ServerConfig()
             .setPort(13514)                           // 设置端口为13514
             .setThreadPoolSize(max_threads)           // 使用系统最大线程数
-            .setIOThreadCount(4)                      // 设置IO线程数为4
-            .setMaxConnections(10000)                 // 最大连接数
+            .setIOThreadCount(20)                      // 设置IO线程数为4
+            .setMaxConnections(1000000)                 // 最大连接数
             .setKeepAliveTimeout(30)                  // Keep-Alive超时
             .setMaxRequestBodySize(2 * 1024 * 1024);  // 2MB请求体限制
 

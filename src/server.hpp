@@ -22,6 +22,7 @@
 #include <sys/types.h>
 #include <sys/epoll.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstring>
@@ -130,6 +131,7 @@ public:
     // 连接统计信息
     size_t get_active_connections() const { return conn_manager_->get_active_count(); }
     size_t get_total_requests() const { return total_requests_.load(); }
+    
 
 protected:
     size_t find_content_length_in_headers(std::string_view headers_part) const;
@@ -183,6 +185,11 @@ private:
     // 统计信息
     std::atomic<size_t> total_requests_{0};
     std::atomic<size_t> total_connections_{0};
+    
+    // 性能监控
+    mutable std::mutex stats_mutex_;
+    std::chrono::steady_clock::time_point last_stats_time_;
+    size_t last_request_count_{0};
     
     // 服务器状态
     std::atomic<bool> running_{false};

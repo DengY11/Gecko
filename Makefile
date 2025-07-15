@@ -8,7 +8,7 @@ CORE_SOURCES = $(SRC_DIR)/http_request.cpp $(SRC_DIR)/http_response.cpp $(SRC_DI
 CORE_OBJECTS = $(CORE_SOURCES:.cpp=.o)
 
 # 测试程序
-TEST_PROGRAMS = example_gin_style
+TEST_PROGRAMS = example_gin_style test_cpu_intensive
 
 # 默认目标
 all: $(TEST_PROGRAMS)
@@ -20,6 +20,10 @@ all: $(TEST_PROGRAMS)
 # 编译Gin风格示例（更新了配置API）
 example_gin_style: example_gin_style.cpp $(CORE_OBJECTS) src/context.cpp src/engine.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ -pthread
+
+# 编译CPU密集型测试程序
+test_cpu_intensive: test_cpu_intensive.cpp $(CORE_OBJECTS) src/context.cpp src/engine.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ -pthread -lm
 
 # 清理
 clean:

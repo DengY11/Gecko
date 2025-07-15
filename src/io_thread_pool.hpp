@@ -18,37 +18,23 @@ namespace Gecko {
 
 struct ConnectionInfo;
 
-// IO任务类型
-enum class IOTaskType {
-    READ,       // 读取数据
-    WRITE,      // 写入数据
-    KEEPALIVE   // 保持连接活跃
+// IO操作类型
+enum class IOOperation {
+    READ,
+    WRITE
 };
 
-// IO任务结构
-struct IOTask {
-    IOTaskType type;
+// IO任务结构 - 简化版
+struct IOEvent {
+    int fd;
+    IOOperation operation;
     std::shared_ptr<ConnectionInfo> conn_info;
-    std::string data;  // 用于WRITE任务
-    std::function<void(std::shared_ptr<ConnectionInfo>, const std::string&)> read_callback;  // 读取完成后的回调
-    std::function<void(std::shared_ptr<ConnectionInfo>, bool)> write_callback;  // 写入完成后的回调
-    
-    IOTask(IOTaskType t, std::shared_ptr<ConnectionInfo> conn) 
-        : type(t), conn_info(conn) {}
-        
-    IOTask(IOTaskType t, std::shared_ptr<ConnectionInfo> conn, const std::string& d) 
-        : type(t), conn_info(conn), data(d) {}
-        
-    IOTask(IOTaskType t, std::shared_ptr<ConnectionInfo> conn, const std::string& d,
-           std::function<void(std::shared_ptr<ConnectionInfo>, bool)> cb) 
-        : type(t), conn_info(conn), data(d), write_callback(cb) {}
-        
-    IOTask(IOTaskType t, std::shared_ptr<ConnectionInfo> conn, 
-           std::function<void(std::shared_ptr<ConnectionInfo>, const std::string&)> cb) 
-        : type(t), conn_info(conn), read_callback(cb) {}
+    std::string write_data;  // 用于写操作
+    std::function<void(std::shared_ptr<ConnectionInfo>, const std::string&)> read_callback;
+    std::function<void(std::shared_ptr<ConnectionInfo>, bool)> write_callback;
 };
 
-// 专门的IO线程池
+// 专门的异步IO线程池 - Reactor模式
 class IOThreadPool {
 public:
     explicit IOThreadPool(size_t io_thread_count = 2);
@@ -60,9 +46,9 @@ public:
     IOThreadPool(IOThreadPool&&) = delete;
     IOThreadPool& operator=(IOThreadPool&&) = delete;
 
-    // 异步读取数据
-    void async_read(std::shared_ptr<ConnectionInfo> conn_info, 
-                   std::function<void(std::shared_ptr<ConnectionInfo>, const std::string&)> callback);
+    // 注册连接到IO线程进行读取监听
+    void register_read(std::shared_ptr<ConnectionInfo> conn_info, 
+                      std::function<void(std::shared_ptr<ConnectionInfo>, const std::string&)> callback);
     
     // 异步写入数据
     void async_write(std::shared_ptr<ConnectionInfo> conn_info, const std::string& data);
@@ -71,42 +57,65 @@ public:
     void async_write(std::shared_ptr<ConnectionInfo> conn_info, const std::string& data, 
                     std::function<void(std::shared_ptr<ConnectionInfo>, bool)> callback);
     
-    // 保持连接活跃
-    void keep_alive(std::shared_ptr<ConnectionInfo> conn_info);
-    
-    // 关闭连接
-    void close_connection(std::shared_ptr<ConnectionInfo> conn_info);
+    // 取消注册连接
+    void unregister_connection(std::shared_ptr<ConnectionInfo> conn_info);
     
     // 获取状态
-    size_t thread_count() const { return threads_.size(); }
-    size_t pending_tasks() const {
-        std::unique_lock<std::mutex> lock(queue_mutex_);
-        return task_queue_.size();
-    }
+    size_t thread_count() const { return io_threads_.size(); }
     
     // 停止IO线程池
     void stop();
 
 private:
-    void io_worker_thread();
-    void process_read_task(const IOTask& task);
-    void process_write_task(const IOTask& task);
-    void process_keepalive_task(const IOTask& task);
+    // 写入缓冲区结构
+    struct WriteBuffer {
+        std::string data;
+        size_t offset = 0;
+        std::function<void(std::shared_ptr<ConnectionInfo>, bool)> callback;
+        
+        bool is_complete() const { return offset >= data.length(); }
+        std::string_view remaining() const { return std::string_view(data).substr(offset); }
+    };
+
+    // IO线程数据结构
+    struct IOThread {
+        std::thread thread;
+        int epoll_fd;
+        int wakeup_fd[2];  // 用于唤醒epoll的管道
+        std::mutex events_mutex;
+        std::queue<IOEvent> pending_events;
+        std::unordered_map<int, std::shared_ptr<ConnectionInfo>> connections;
+        std::unordered_map<int, std::function<void(std::shared_ptr<ConnectionInfo>, const std::string&)>> read_callbacks;
+        std::unordered_map<int, std::shared_ptr<WriteBuffer>> write_buffers; // 写入缓冲区
+        std::atomic<bool> running{true};
+        
+        IOThread() : epoll_fd(-1) {
+            wakeup_fd[0] = wakeup_fd[1] = -1;
+        }
+        
+        ~IOThread() {
+            if (epoll_fd != -1) close(epoll_fd);
+            if (wakeup_fd[0] != -1) close(wakeup_fd[0]);
+            if (wakeup_fd[1] != -1) close(wakeup_fd[1]);
+        }
+    };
     
-    std::vector<std::thread> threads_;
-    std::queue<IOTask> task_queue_;
+    void io_reactor_loop(IOThread& io_thread);
+    void process_pending_events(IOThread& io_thread);
+    void handle_read_event(IOThread& io_thread, int fd);
+    void handle_write_event(IOThread& io_thread, const IOEvent& event);
+    void handle_write_ready(IOThread& io_thread, int fd);
+    bool try_write_immediate(IOThread& io_thread, int fd, std::shared_ptr<WriteBuffer> buffer);
+    void wakeup_thread(IOThread& io_thread);
+    int get_next_thread_index();
     
-    mutable std::mutex queue_mutex_;
-    std::condition_variable condition_;
+    std::vector<std::unique_ptr<IOThread>> io_threads_;
     std::atomic<bool> stop_flag_{false};
-    
-    // 每个IO线程的epoll fd
-    std::vector<int> epoll_fds_;
+    std::atomic<size_t> round_robin_index_{0};
     
     // 统计信息
     std::atomic<size_t> total_reads_{0};
     std::atomic<size_t> total_writes_{0};
-    std::atomic<size_t> total_connections_{0};
 };
 
 } // namespace Gecko
