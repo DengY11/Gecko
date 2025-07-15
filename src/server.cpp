@@ -68,7 +68,8 @@ void Server::print_server_info() {
     std::cout << "📝 Configuration:" << std::endl;
     std::cout << "   └─ Port: " << port_ << std::endl;
     std::cout << "   └─ Host: " << host_ << std::endl;
-    std::cout << "   └─ Thread Pool Size: " << thread_pool_->thread_count() << std::endl;
+    std::cout << "   └─ Worker Thread Pool Size: " << thread_pool_->thread_count() << std::endl;
+    std::cout << "   └─ IO Thread Pool Size: " << io_thread_pool_->thread_count() << std::endl;
     std::cout << "   └─ Max Connections: " << 10000 << std::endl;
     std::cout << "🚀 Server initializing..." << std::endl;
 }
@@ -78,7 +79,8 @@ void Server::print_server_info_with_config(const ServerConfig& config) {
     std::cout << "📝 Configuration:" << std::endl;
     std::cout << "   ├─ Port: " << config.port << std::endl;
     std::cout << "   ├─ Host: " << config.host << std::endl;
-    std::cout << "   ├─ Thread Pool Size: " << config.thread_pool_size << std::endl;
+    std::cout << "   ├─ Worker Thread Pool Size: " << config.thread_pool_size << std::endl;
+    std::cout << "   ├─ IO Thread Pool Size: " << config.io_thread_count << std::endl;
     std::cout << "   ├─ Max Connections: " << config.max_connections << std::endl;
     std::cout << "   ├─ Keep-Alive Timeout: " << config.keep_alive_timeout << "s" << std::endl;
     std::cout << "   └─ Max Request Body Size: " << (config.max_request_body_size / 1024) << "KB" << std::endl;
@@ -224,30 +226,124 @@ void Server::handler_client_data(int client_fd) {
     
     conn_info->update_activity();
     
-    // 主线程只做一次快速读取
-    const size_t BUFFER_SIZE = 8192;
-    char buffer[BUFFER_SIZE];
-    ssize_t bytes_read = read(client_fd, buffer, BUFFER_SIZE - 1);
+    std::cout << "🔄 [主线程] 收到客户端数据事件，fd: " << client_fd << std::endl;
     
-    if (bytes_read > 0) {
-        // 立即提交到工作线程进行深度处理
-        buffer[bytes_read] = '\0';
-        std::string initial_data(buffer, bytes_read);
-        
-        thread_pool_->enqueue([this, conn_info, initial_data = std::move(initial_data)]() {
-            process_data_in_worker(conn_info, initial_data);
-        });
-    } else if (bytes_read == 0) {
-        // 连接关闭
-        on_disconnect(client_fd);
-    } else {
-        if (errno == EAGAIN || errno == EWOULDBLOCK) {
-            // 数据暂时不可用，下次epoll事件再处理
-            return;
-        } else {
-            handle_connection_error(client_fd, "Read error: " + std::string(strerror(errno)));
-        }
+    // 新的三线程架构：直接提交IO任务到IO线程池
+    io_thread_pool_->async_read(conn_info, [this](std::shared_ptr<ConnectionInfo> conn_info, const std::string& request_data) {
+        std::cout << "📥 [IO线程] 读取到数据，长度: " << request_data.length() << std::endl;
+        // 在IO线程中读取完整数据后，提交到工作线程处理业务逻辑
+        process_request_with_io_thread(conn_info, request_data);
+    });
+}
+
+void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn_info, const std::string& request_data) {
+    if (!conn_info || !conn_info->connected) {
+        return;
     }
+    
+    conn_info->request_count++;
+    total_requests_++;
+    
+    std::cout << "🔄 [工作线程调度] 准备处理请求，fd: " << conn_info->fd << std::endl;
+    
+    // 提交到工作线程处理业务逻辑
+    thread_pool_->enqueue([this, conn_info, request_data]() {
+        std::cout << "🔧 [工作线程] 开始处理请求，fd: " << conn_info->fd << std::endl;
+        
+        try {
+            HttpRequest request;
+            HttpRequestParser::parse(request_data, &request);
+            
+            std::cout << "📋 [工作线程] 解析请求: " << HttpMethodToString(request.getMethod()) 
+                      << " " << request.getUrl() << std::endl;
+            
+            // 检查是否支持keep-alive
+            bool keep_alive = false;
+            auto headers = request.getHeaders();
+            auto connection_it = headers.find("Connection");
+            std::string connection_header = (connection_it != headers.end()) ? connection_it->second : "";
+            if (connection_header == "keep-alive" || 
+                (HttpVersionToString(request.getVersion()) == "HTTP/1.1" && connection_header != "close")) {
+                keep_alive = true;
+            }
+            conn_info->keep_alive = keep_alive;
+            
+            Context ctx(request);
+            request_handler_(ctx);
+            HttpResponse response = ctx.response();
+            
+            // 设置连接类型
+            if (keep_alive) {
+                response.addHeader("Connection", "keep-alive");
+                response.addHeader("Keep-Alive", "timeout=30, max=100");
+            } else {
+                response.addHeader("Connection", "close");
+            }
+            
+            std::string response_str = HttpResponseSerializer::serialize(response);
+            
+            std::cout << "📤 [工作线程] 处理完成，准备写入响应，长度: " << response_str.length() << std::endl;
+            
+            // 使用IO线程池异步发送响应
+            if (conn_info->connected) {
+                handle_keep_alive_response(conn_info, response_str);
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "❌ Error processing request from " << conn_info->peer_addr 
+                      << ": " << e.what() << std::endl;
+            
+            if (conn_info->connected) {
+                std::string error_response = "HTTP/1.1 500 Internal Server Error\r\n"
+                                           "Content-Type: text/plain\r\n"
+                                           "Connection: close\r\n"
+                                           "Content-Length: 21\r\n\r\n"
+                                           "Internal Server Error";
+                io_thread_pool_->async_write(conn_info, error_response, 
+                    [this](std::shared_ptr<ConnectionInfo> conn, bool success) {
+                        if (conn) {
+                            std::cout << "❌ [IO回调] 错误响应写入" << (success ? "成功" : "失败") << "，关闭连接，fd: " << conn->fd << std::endl;
+                            on_disconnect(conn->fd);
+                        }
+                    });
+                conn_info->keep_alive = false;
+            }
+        }
+    });
+}
+
+void Server::handle_keep_alive_response(std::shared_ptr<ConnectionInfo> conn_info, const std::string& response_data) {
+    if (!conn_info || !conn_info->connected) {
+        return;
+    }
+    
+    std::cout << "📤 [响应处理] 提交写入任务到IO线程池，fd: " << conn_info->fd << std::endl;
+    
+    // 使用带回调的IO线程池异步写入响应
+    io_thread_pool_->async_write(conn_info, response_data, 
+        [this, conn_info](std::shared_ptr<ConnectionInfo> conn, bool success) {
+            if (!conn || !conn->connected) {
+                return;
+            }
+            
+            if (success) {
+                std::cout << "✅ [IO回调] 响应写入成功，fd: " << conn->fd << std::endl;
+                
+                // 根据keep-alive状态决定是否关闭连接
+                if (conn->keep_alive) {
+                    std::cout << "💓 [连接管理] 保持连接活跃，fd: " << conn->fd << std::endl;
+                    // 保持连接，等待下一个请求
+                    io_thread_pool_->keep_alive(conn);
+                } else {
+                    std::cout << "🔐 [连接管理] 关闭连接，fd: " << conn->fd << std::endl;
+                    // 关闭连接
+                    on_disconnect(conn->fd);
+                }
+            } else {
+                std::cout << "❌ [IO回调] 响应写入失败，强制关闭连接，fd: " << conn->fd << std::endl;
+                // 写入失败，强制关闭连接
+                on_disconnect(conn->fd);
+            }
+        });
 }
 
 void Server::process_data_in_worker(std::shared_ptr<ConnectionInfo> conn_info, const std::string& initial_data) {

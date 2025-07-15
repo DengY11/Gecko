@@ -277,11 +277,18 @@ int main() {
         Gecko::ServerConfig config = Gecko::ServerConfig()
             .setPort(13514)                           // 设置端口为13514
             .setThreadPoolSize(max_threads)           // 使用系统最大线程数
+            .setIOThreadCount(4)                      // 设置IO线程数为4
             .setMaxConnections(10000)                 // 最大连接数
             .setKeepAliveTimeout(30)                  // Keep-Alive超时
             .setMaxRequestBodySize(2 * 1024 * 1024);  // 2MB请求体限制
 
         std::cout << "📝 架构特性展示:" << std::endl;
+        std::cout << "  ✅ 真正的三线程架构（主线程+IO线程+工作线程）" << std::endl;
+        std::cout << "  ✅ 专门的IO线程池处理网络IO" << std::endl;
+        std::cout << "  ✅ HTTP/1.1 Keep-Alive支持" << std::endl;
+        std::cout << "  ✅ 工作线程不再被IO阻塞" << std::endl;
+        std::cout << "  ✅ 高CPU利用率和并发性能" << std::endl;
+        std::cout << "  ✅ 异步IO处理" << std::endl;
         std::cout << "  ✅ Gin风格的Context API" << std::endl;
         std::cout << "  ✅ 洋葱模型中间件" << std::endl;
         std::cout << "  ✅ 链式方法调用" << std::endl;
@@ -293,7 +300,9 @@ int main() {
         std::cout << "  📁 访问日志: access.log（同时显示在控制台）" << std::endl;
         std::cout << "  📁 错误日志: error.log（访问 /error-test?simulate=error 测试）" << std::endl;
         std::cout << "  🖥️  调试日志: 仅显示在控制台" << std::endl;
-        std::cout << "📊 系统检测到 " << max_threads << " 个CPU核心，将启动对应数量的工作线程" << std::endl;
+        std::cout << "📊 系统检测到 " << max_threads << " 个CPU核心" << std::endl;
+        std::cout << "🧵 将启动 " << max_threads << " 个工作线程和 4 个IO线程" << std::endl;
+        std::cout << "🔄 新架构：主线程(epoll) -> IO线程(网络IO) -> 工作线程(业务逻辑)" << std::endl;
         std::cout << "\n按 Ctrl+C 停止服务器\n" << std::endl;
 
         // 使用新的配置API启动服务器

@@ -3,6 +3,7 @@
 #include "http_request.hpp"
 #include "http_response.hpp"
 #include "thread_pool.hpp"
+#include "io_thread_pool.hpp"
 #include "server_config.hpp"
 #include <iostream>
 #include <string>
@@ -42,6 +43,7 @@ struct ConnectionInfo {
     std::atomic<bool> connected{true};
     std::atomic<size_t> request_count{0};
     std::string partial_request;  // 存储部分请求数据
+    bool keep_alive{true};        // 是否保持连接
     
     ConnectionInfo(int fd, const std::string& peer, const std::string& local)
         : fd(fd), peer_addr(peer), local_addr(local),
@@ -86,9 +88,10 @@ class Server{
 public:
     using RequestHandler = std::function<void(Context&)>;
 
-    explicit Server(int port, size_t thread_pool_size = 0)
+    explicit Server(int port, size_t thread_pool_size = 0, size_t io_thread_count = 2)
         : port_(port), host_("0.0.0.0"), listen_fd_(-1), epoll_fd_(-1), 
           thread_pool_(std::make_unique<ThreadPool>(thread_pool_size)),
+          io_thread_pool_(std::make_unique<IOThreadPool>(io_thread_count)),
           conn_manager_(std::make_unique<ConnectionManager>()) {
         print_server_info();
         epoll_fd_ = epoll_create1(0);
@@ -101,6 +104,7 @@ public:
     explicit Server(const ServerConfig& config)
         : port_(config.port), host_(config.host), listen_fd_(-1), epoll_fd_(-1),
           thread_pool_(std::make_unique<ThreadPool>(config.thread_pool_size)),
+          io_thread_pool_(std::make_unique<IOThreadPool>(config.io_thread_count)),
           conn_manager_(std::make_unique<ConnectionManager>(config.max_connections, 
                                                           std::chrono::seconds(config.keep_alive_timeout))) {
         print_server_info_with_config(config);
@@ -144,7 +148,11 @@ private:
     void cleanup_expired_connections();
     void cleanup_all_connections();
     
-    // 请求处理
+    // 新的三线程架构处理函数
+    void process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn_info, const std::string& request_data);
+    void handle_keep_alive_response(std::shared_ptr<ConnectionInfo> conn_info, const std::string& response_data);
+    
+    // 已弃用的函数（保留以防编译错误）
     void process_request_async(std::shared_ptr<ConnectionInfo> conn_info, std::string request_data);
     void process_data_in_worker(std::shared_ptr<ConnectionInfo> conn_info, const std::string& initial_data);
     bool read_more_data_in_worker(std::shared_ptr<ConnectionInfo> conn_info);
@@ -169,6 +177,7 @@ private:
     int epoll_fd_;
     RequestHandler request_handler_;
     std::unique_ptr<ThreadPool> thread_pool_;
+    std::unique_ptr<IOThreadPool> io_thread_pool_;  // 新增：IO线程池
     std::unique_ptr<ConnectionManager> conn_manager_;
     
     // 统计信息

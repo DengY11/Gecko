@@ -4,7 +4,7 @@ INCLUDES = -I.
 
 # 核心源文件（排除测试文件）
 SRC_DIR = src
-CORE_SOURCES = $(SRC_DIR)/http_request.cpp $(SRC_DIR)/http_response.cpp $(SRC_DIR)/router.cpp $(SRC_DIR)/server.cpp $(SRC_DIR)/thread_pool.cpp $(SRC_DIR)/logger.cpp
+CORE_SOURCES = $(SRC_DIR)/http_request.cpp $(SRC_DIR)/http_response.cpp $(SRC_DIR)/router.cpp $(SRC_DIR)/server.cpp $(SRC_DIR)/thread_pool.cpp $(SRC_DIR)/io_thread_pool.cpp $(SRC_DIR)/logger.cpp
 CORE_OBJECTS = $(CORE_SOURCES:.cpp=.o)
 
 # 测试程序
@@ -44,14 +44,15 @@ help:
 	@echo "  2. make"
 	@echo "  3. ./example_gin_style"
 	@echo "  4. 在浏览器访问 http://localhost:13514"
-	@echo "  5. 测试各个端点，观察多线程处理"
+	@echo "  5. 测试各个端点，观察三线程架构处理"
 	@echo "  6. 按 Ctrl+C 停止服务器"
 	@echo ""
 	@echo "最新特性："
-	@echo "  ✅ 多线程请求处理（使用系统最大线程数）"
-	@echo "  ✅ 配置化服务器启动"
-	@echo "  ✅ 灵活的日志系统设计"
-	@echo "  ✅ 线程池优化"
-	@echo "  ✅ 响应中包含线程ID信息"
+	@echo "  ✅ 真正的三线程架构（主线程+IO线程+工作线程）"
+	@echo "  ✅ 专门的IO线程池处理网络IO"
+	@echo "  ✅ HTTP/1.1 Keep-Alive支持"
+	@echo "  ✅ 工作线程不再被IO阻塞"
+	@echo "  ✅ 高CPU利用率和并发性能"
+	@echo "  ✅ 异步IO处理"
 
 .PHONY: all clean help 
