@@ -12,7 +12,7 @@ struct ServerConfig {
     int port = 8080;                    // 监听端口
     std::string host = "0.0.0.0";      // 监听地址
     size_t thread_pool_size = 0;       // 工作线程数，0表示使用硬件并发数
-    size_t io_thread_count = 8;        // IO线程数，默认8个（提高IO并发）
+    size_t io_thread_count = 16;       // IO线程数，默认16个（提高IO并发）
         
     int max_connections = 10000;        // 最大连接数
     int keep_alive_timeout = 30;        // Keep-Alive超时时间（秒）

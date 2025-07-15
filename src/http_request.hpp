@@ -11,7 +11,7 @@ enum class HttpMethod { GET, POST, HEAD, PUT, DELETE, UNKNOWN };
 auto stringToHttpMethod(std::string method) -> HttpMethod;
 auto HttpMethodToString(HttpMethod method) -> std::string;
 
-enum class HttpVersion { HTTP_1_0, UNKNOWN };
+enum class HttpVersion { HTTP_1_0, HTTP_1_1, UNKNOWN };
 
 auto stringToHttpVersion(std::string version) -> HttpVersion;
 auto HttpVersionToString(HttpVersion version) -> std::string;
@@ -55,12 +55,12 @@ public:
         parseQueryParams(); 
     }
     void setVersion(HttpVersion version) { this->version = version; }
-    void setHeaders(HttpHeaderMap headers) { this->headers = headers; }
+    //void setHeaders(HttpHeaderMap headers) { this->headers = headers; }
     void setHeaders(const HttpHeaderMap &headers) { this->headers = headers; }
     void setHeaders(HttpHeaderMap &&headers) {
         this->headers = std::move(headers);
     }
-    void setBody(HttpBody body) { this->body = body; }
+    //void setBody(HttpBody body) { this->body = body; }
     void setBody(const HttpBody &body) { this->body = body; }
     void setBody(HttpBody &&body) { this->body = std::move(body); }
     std::string getQueryParam(const std::string& key) const {

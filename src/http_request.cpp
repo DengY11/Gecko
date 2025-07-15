@@ -53,7 +53,8 @@ auto HttpMethodToString(HttpMethod method) -> std::string {
 
 auto stringToHttpVersion(std::string version) -> HttpVersion {
     static const std::map<std::string, HttpVersion> versions = {
-        {"HTTP/1.0", HttpVersion::HTTP_1_0}};
+        {"HTTP/1.0", HttpVersion::HTTP_1_0},
+        {"HTTP/1.1", HttpVersion::HTTP_1_1}};
     if (versions.find(version) != versions.end()) {
         return versions.at(version);
     }
@@ -62,7 +63,8 @@ auto stringToHttpVersion(std::string version) -> HttpVersion {
 
 auto HttpVersionToString(HttpVersion version) -> std::string {
     static const std::map<HttpVersion, std::string> versions = {
-        {HttpVersion::HTTP_1_0, "HTTP/1.0"}};
+        {HttpVersion::HTTP_1_0, "HTTP/1.0"},
+        {HttpVersion::HTTP_1_1, "HTTP/1.1"}};
     if (versions.find(version) != versions.end()) {
         return versions.at(version);
     }

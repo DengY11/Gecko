@@ -143,7 +143,7 @@ class Server{
 public:
     using RequestHandler = std::function<void(Context&)>;
 
-    explicit Server(int port, size_t thread_pool_size = 0, size_t io_thread_count = 2)
+    explicit Server(int port, size_t thread_pool_size = 0, size_t io_thread_count = 0)
         : port_(port), host_("0.0.0.0"), listen_fd_(-1), epoll_fd_(-1), 
           thread_pool_(std::make_unique<ThreadPool>(thread_pool_size)),
           io_thread_pool_(std::make_unique<IOThreadPool>(io_thread_count)),
@@ -224,12 +224,7 @@ private:
     void process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn_info, const std::string& request_data);
     void handle_keep_alive_response(std::shared_ptr<ConnectionInfo> conn_info, const std::string& response_data);
     
-    // 已弃用的函数（保留以防编译错误）
-    void process_request_async(std::shared_ptr<ConnectionInfo> conn_info, std::string request_data);
-    void process_data_in_worker(std::shared_ptr<ConnectionInfo> conn_info, const std::string& initial_data);
-    bool read_more_data_in_worker(std::shared_ptr<ConnectionInfo> conn_info);
-    void process_complete_request_in_worker(std::shared_ptr<ConnectionInfo> conn_info);
-    void handle_connection_error(int client_fd, const std::string& error_msg);
+    // 错误处理函数
     void send_error_response(int client_fd, int status_code, const std::string& message);
     
     // 网络工具函数

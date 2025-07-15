@@ -1,5 +1,6 @@
 #include "server.hpp"
 #include "context.hpp"
+#include "fast_http_parser.hpp"
 #include <algorithm>
 #include <cctype>
 #include <string_view>
@@ -126,10 +127,14 @@ void Server::run(RequestHandler request_handler) {
     start_performance_monitoring(std::chrono::seconds(10));
     
     while (running_) {
-        // 定期清理过期连接
-        cleanup_expired_connections();
+        // 定期清理过期连接（每1000次循环执行一次，避免频繁调用）
+        static int cleanup_counter = 0;
+        if (++cleanup_counter >= 1000) {
+            cleanup_expired_connections();
+            cleanup_counter = 0;
+        }
         
-        int num_events = epoll_wait(epoll_fd_, events.data(), MAX_EVENTS, 10); // 10ms超时，提高响应性
+        int num_events = epoll_wait(epoll_fd_, events.data(), MAX_EVENTS, 1); // 1ms超时，极大提升响应性
         if (num_events < 0) {
             if (errno == EINTR) {
                 continue;
@@ -299,8 +304,15 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
     // 提交到工作线程处理业务逻辑
     thread_pool_->enqueue([this, conn_info, request_data, request_start_time]() {
         try {
+            // 使用快速解析器进行零拷贝解析
+            FastHttpRequest fast_request;
+            if (!FastHttpParser::parse(request_data, fast_request)) {
+                throw std::runtime_error("Failed to parse HTTP request");
+            }
+            
+            // 只在需要时才转换为HttpRequest
             HttpRequest request;
-            HttpRequestParser::parse(request_data, &request);
+            HttpRequestAdapter::convert(fast_request, request);
             
             // 检查是否支持keep-alive
             bool keep_alive = false;
@@ -396,149 +408,7 @@ void Server::handle_keep_alive_response(std::shared_ptr<ConnectionInfo> conn_inf
         });
 }
 
-void Server::process_data_in_worker(std::shared_ptr<ConnectionInfo> conn_info, const std::string& initial_data) {
-    if (!conn_info || !conn_info->connected) {
-        return;
-    }
-    
-    // 将初始数据添加到部分请求缓存
-    conn_info->partial_request += initial_data;
-    
-    // 检查是否需要读取更多数据
-    if (!is_request_complete(conn_info->partial_request)) {
-        // 在工作线程中继续读取数据
-        if (!read_more_data_in_worker(conn_info)) {
-            return; // 读取失败或连接关闭
-        }
-    }
-    
-    // 检查请求是否完整
-    if (is_request_complete(conn_info->partial_request)) {
-        // 处理完整请求
-        process_complete_request_in_worker(conn_info);
-    }
-}
 
-bool Server::read_more_data_in_worker(std::shared_ptr<ConnectionInfo> conn_info) {
-    if (!conn_info || !conn_info->connected) {
-        return false;
-    }
-    
-    const size_t BUFFER_SIZE = 8192;
-    char buffer[BUFFER_SIZE];
-    
-    while (!is_request_complete(conn_info->partial_request)) {
-        ssize_t bytes_read = read(conn_info->fd, buffer, BUFFER_SIZE - 1);
-        
-        if (bytes_read > 0) {
-            buffer[bytes_read] = '\0';
-            conn_info->partial_request += buffer;
-            conn_info->update_activity();
-        } else if (bytes_read == 0) {
-            // 连接关闭
-            std::cerr << "❌ Connection closed while reading more data from " 
-                      << conn_info->peer_addr << std::endl;
-            return false;
-        } else {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                // 数据暂时不可用，等待下次epoll事件
-                // 这种情况下请求还未完整，需要等待更多数据
-                return true;
-            } else {
-                std::cerr << "❌ Read error from " << conn_info->peer_addr 
-                          << ": " << strerror(errno) << std::endl;
-                return false;
-            }
-        }
-    }
-    
-    return true;
-}
-
-void Server::process_complete_request_in_worker(std::shared_ptr<ConnectionInfo> conn_info) {
-    if (!conn_info || !conn_info->connected) {
-        return;
-    }
-    
-    conn_info->request_count++;
-    total_requests_++;
-    
-    try {
-        HttpRequest request;
-        HttpRequestParser::parse(conn_info->partial_request, &request);
-        
-        Context ctx(request);
-        request_handler_(ctx);
-        HttpResponse response = ctx.response();
-        
-        std::string response_str = HttpResponseSerializer::serialize(response);
-        
-        // 确保连接仍然有效
-        if (conn_info->connected) {
-            send_response(conn_info->fd, response_str);
-        }
-    } catch (const std::exception& e) {
-        std::cerr << "❌ Error processing request from " << conn_info->peer_addr 
-                  << ": " << e.what() << std::endl;
-        
-        if (conn_info->connected) {
-            send_error_response(conn_info->fd, 500, "Internal Server Error");
-        }
-    }
-    
-    // 清理请求数据
-    conn_info->partial_request.clear();
-    
-    // HTTP/1.0 默认关闭连接
-    // TODO: 支持HTTP/1.1的keep-alive
-    on_disconnect(conn_info->fd);
-}
-
-void Server::process_request_async(std::shared_ptr<ConnectionInfo> conn_info, std::string request_data) {
-    if (!conn_info || !conn_info->connected) {
-        return;
-    }
-    
-    conn_info->request_count++;
-    total_requests_++;
-    
-    thread_pool_->enqueue([this, conn_info, request_data = std::move(request_data)]() {
-        try {
-            HttpRequest request;
-            HttpRequestParser::parse(request_data, &request);
-            
-            Context ctx(request);
-            request_handler_(ctx);
-            HttpResponse response = ctx.response();
-            
-            std::string response_str = HttpResponseSerializer::serialize(response);
-            
-            // 确保连接仍然有效
-            if (conn_info->connected) {
-                send_response(conn_info->fd, response_str);
-            }
-        } catch (const std::exception& e) {
-            std::cerr << "❌ Error processing request from " << conn_info->peer_addr 
-                      << ": " << e.what() << std::endl;
-            
-            if (conn_info->connected) {
-                send_error_response(conn_info->fd, 500, "Internal Server Error");
-            }
-        }
-
-        // HTTP/1.0 默认关闭连接
-        // TODO: 支持HTTP/1.1的keep-alive
-        on_disconnect(conn_info->fd);
-    });
-}
-
-void Server::handle_connection_error(int client_fd, const std::string& error_msg) {
-    auto conn_info = conn_manager_->get_connection(client_fd);
-    if (conn_info) {
-        std::cerr << "❌ Connection error from " << conn_info->peer_addr << ": " << error_msg << std::endl;
-    }
-    on_disconnect(client_fd);
-}
 
 void Server::send_error_response(int client_fd, int status_code, const std::string& message) {
     std::ostringstream response;

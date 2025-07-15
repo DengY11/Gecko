@@ -7,12 +7,14 @@
 #include <cerrno>
 #include <cstring>
 #include <unistd.h>
+#include <charconv>
+#include <string_view>
 
 namespace Gecko {
 
 IOThreadPool::IOThreadPool(size_t io_thread_count) : stop_flag_(false) {
     if (io_thread_count == 0) {
-        io_thread_count = 2; // 默认2个IO线程
+        io_thread_count = std::max(4u, std::thread::hardware_concurrency() / 2); // 默认使用CPU核心数的一半，最少4个
     }
     
     std::cout << "🔄 创建异步IO线程池，IO线程数量: " << io_thread_count << std::endl;
@@ -150,7 +152,7 @@ void IOThreadPool::io_reactor_loop(IOThread& io_thread) {
         process_pending_events(io_thread);
         
         // 等待epoll事件（有事件处理或超时检查）
-        int timeout = (io_thread.pending_events.empty()) ? 10 : 0; // 有待处理事件时非阻塞，否则10ms超时
+        int timeout = (io_thread.pending_events.empty()) ? 1 : 0; // 有待处理事件时非阻塞，否则1ms超时
         int num_events = epoll_wait(io_thread.epoll_fd, events, max_events, timeout);
         
         if (num_events < 0) {
@@ -255,43 +257,71 @@ void IOThreadPool::handle_read_event(IOThread& io_thread, int fd) {
         return;
     }
     
-    // 非阻塞读取
-    const size_t BUFFER_SIZE = 8192;
+    // 高性能非阻塞读取
+    const size_t BUFFER_SIZE = 16384; // 增大缓冲区到16KB
     char buffer[BUFFER_SIZE];
     std::string complete_data;
+    complete_data.reserve(8192); // 预分配内存
     
     while (true) {
-        ssize_t bytes_read = read(fd, buffer, BUFFER_SIZE - 1);
+        ssize_t bytes_read = read(fd, buffer, BUFFER_SIZE);
         
         if (bytes_read > 0) {
-            buffer[bytes_read] = '\0';
-            complete_data += buffer;
+            complete_data.append(buffer, bytes_read); // 避免字符串拷贝
             conn_info->update_activity();
             total_reads_++;
             
-            // 检查是否已经读取完整请求
-            if (complete_data.find("\r\n\r\n") != std::string::npos) {
-                // 检查Content-Length
-                size_t header_end = complete_data.find("\r\n\r\n");
-                std::string headers = complete_data.substr(0, header_end);
+            // 优化的请求完整性检查
+            const char* data_ptr = complete_data.data();
+            size_t data_size = complete_data.size();
+            
+            // 快速查找双CRLF
+            const char* header_end_ptr = nullptr;
+            for (size_t i = 0; i + 3 < data_size; ++i) {
+                if (data_ptr[i] == '\r' && data_ptr[i+1] == '\n' && 
+                    data_ptr[i+2] == '\r' && data_ptr[i+3] == '\n') {
+                    header_end_ptr = data_ptr + i;
+                    break;
+                }
+            }
+            
+            if (header_end_ptr) {
+                size_t header_size = header_end_ptr - data_ptr;
+                size_t body_start = header_size + 4;
                 
+                // 快速解析Content-Length
                 size_t content_length = 0;
-                size_t pos = headers.find("Content-Length:");
-                if (pos != std::string::npos) {
-                    pos += 15;
-                    while (pos < headers.length() && std::isspace(headers[pos])) pos++;
-                    size_t end_pos = pos;
-                    while (end_pos < headers.length() && std::isdigit(headers[end_pos])) end_pos++;
-                    if (end_pos > pos) {
-                        content_length = std::stoul(headers.substr(pos, end_pos - pos));
+                std::string_view headers_view(data_ptr, header_size);
+                
+                // 使用大小写不敏感的查找
+                size_t cl_pos = headers_view.find("content-length:");
+                if (cl_pos == std::string_view::npos) {
+                    cl_pos = headers_view.find("Content-Length:");
+                }
+                
+                if (cl_pos != std::string_view::npos) {
+                    size_t value_start = cl_pos + 15;
+                    while (value_start < headers_view.size() && 
+                           std::isspace(headers_view[value_start])) {
+                        value_start++;
+                    }
+                    
+                    size_t value_end = value_start;
+                    while (value_end < headers_view.size() && 
+                           std::isdigit(headers_view[value_end])) {
+                        value_end++;
+                    }
+                    
+                    if (value_end > value_start) {
+                        std::string_view cl_value = headers_view.substr(value_start, value_end - value_start);
+                        std::from_chars(cl_value.data(), cl_value.data() + cl_value.size(), content_length);
                     }
                 }
                 
-                size_t current_body_size = complete_data.length() - header_end - 4;
+                size_t current_body_size = data_size - body_start;
                 if (current_body_size >= content_length) {
                     // 请求完整，调用回调处理
                     callback(conn_info, complete_data);
-                    // 不return，让连接继续在epoll中监听下一个请求
                     return;
                 }
             }
