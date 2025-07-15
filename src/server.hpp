@@ -36,48 +36,6 @@ namespace Gecko {
 
 class Context;
 
-// 简单的内存池实现 - 用于减少频繁分配
-template<typename T, size_t PoolSize = 1024>
-class MemoryPool {
-public:
-    MemoryPool() {
-        for (size_t i = 0; i < PoolSize; ++i) {
-            free_objects_.push(reinterpret_cast<T*>(pool_ + i * sizeof(T)));
-        }
-    }
-    
-    ~MemoryPool() = default;
-    
-    T* allocate() {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (free_objects_.empty()) {
-            return nullptr; // 池已满，回退到标准分配
-        }
-        T* obj = free_objects_.top();
-        free_objects_.pop();
-        return obj;
-    }
-    
-    void deallocate(T* obj) {
-        if (!obj) return;
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (free_objects_.size() < PoolSize) {
-            obj->~T(); // 显式析构
-            free_objects_.push(obj);
-        }
-    }
-    
-    size_t available() const {
-        std::lock_guard<std::mutex> lock(mutex_);
-        return free_objects_.size();
-    }
-    
-private:
-    alignas(T) char pool_[PoolSize * sizeof(T)];
-    std::stack<T*> free_objects_;
-    mutable std::mutex mutex_;
-};
-
 // 连接信息结构体 - 参考Drogon的TcpConnection概念
 struct ConnectionInfo {
     int fd;

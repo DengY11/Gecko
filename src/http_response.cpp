@@ -33,15 +33,12 @@ auto HttpResponseSerializer::serialize(const HttpResponse &response)
     serializedResponse += " " + std::to_string(response.getStatusCode());
     serializedResponse += " " + response.getReasonPhrase() + "\r\n";
     
-    // 创建头部映射的副本以便添加Content-Length
     auto headers = response.getHeaders();
     
-    // 自动设置Content-Length（如果尚未设置）
     if (headers.find("Content-Length") == headers.end() && headers.find("content-length") == headers.end()) {
         headers["Content-Length"] = std::to_string(response.getBody().length());
     }
     
-    // 输出所有头部
     for (const auto &header : headers) {
         serializedResponse += header.first + ": " + header.second + "\r\n";
     }

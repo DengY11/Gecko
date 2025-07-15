@@ -12,10 +12,9 @@
 
 namespace Gecko {
 
-// 高性能的请求缓冲区
 class RequestBuffer {
 public:
-    static constexpr size_t DEFAULT_SIZE = 16384; // 16KB
+    static constexpr size_t DEFAULT_SIZE = 163840; // 160KB
     
     RequestBuffer(size_t size = DEFAULT_SIZE) : capacity_(size), size_(0) {
         data_ = std::make_unique<char[]>(capacity_);
@@ -38,7 +37,7 @@ public:
     
     bool append(const char* src, size_t len) {
         if (size_ + len > capacity_) {
-            return false; // 缓冲区不足
+            return false; 
         }
         std::memcpy(data_.get() + size_, src, len);
         size_ += len;
@@ -55,7 +54,6 @@ private:
     size_t size_;
 };
 
-// 池化的请求对象
 class PooledRequest {
 public:
     PooledRequest() : buffer_(std::make_unique<RequestBuffer>()) {}
@@ -68,8 +66,6 @@ public:
     
     RequestBuffer* get_buffer() { return buffer_.get(); }
     FastHttpRequest& get_fast_request() { return fast_request_; }
-    
-    // 懒加载的HttpRequest转换
     HttpRequest& get_http_request() {
         if (!http_request_valid_) {
             HttpRequestAdapter::convert(fast_request_, http_request_);
@@ -92,7 +88,7 @@ private:
 // 高性能请求池
 class RequestPool {
 public:
-    static constexpr size_t DEFAULT_POOL_SIZE = 2048; // 预分配2048个请求对象
+    static constexpr size_t DEFAULT_POOL_SIZE = 20480; 
     
     explicit RequestPool(size_t pool_size = DEFAULT_POOL_SIZE) 
         : pool_size_(pool_size), allocated_count_(0) {

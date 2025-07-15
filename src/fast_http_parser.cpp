@@ -14,36 +14,30 @@ bool FastHttpParser::parse(std::string_view data, FastHttpRequest& request) {
     request.raw_data = data.data();
     request.raw_size = data.size();
     
-    // 查找请求行结束位置
     const char* request_line_end = find_crlf(data.data(), data.data() + data.size());
     if (!request_line_end) {
-        return false; // 没有找到请求行结束
+        return false; 
     }
     
-    // 解析请求行
     std::string_view request_line(data.data(), request_line_end - data.data());
     if (!parse_request_line(request_line, request)) {
         return false;
     }
     
-    // 查找头部结束位置
-    const char* headers_start = request_line_end + 2; // 跳过CRLF
+    const char* headers_start = request_line_end + 2; 
     const char* headers_end = find_double_crlf(headers_start, data.data() + data.size());
     if (!headers_end) {
-        return false; // 没有找到头部结束
+        return false; 
     }
     
-    // 解析头部
     std::string_view headers_block(headers_start, headers_end - headers_start);
     if (!parse_headers(headers_block, request)) {
         return false;
     }
     
-    // 解析查询参数
     parse_query_params(request.url, request);
     
-    // 解析请求体
-    const char* body_start = headers_end + 4; // 跳过\r\n\r\n
+    const char* body_start = headers_end + 4; 
     size_t content_length = parse_content_length(request.headers);
     
     if (content_length > 0) {
@@ -51,7 +45,7 @@ bool FastHttpParser::parse(std::string_view data, FastHttpRequest& request) {
         if (available_body_size >= content_length) {
             request.body = std::string_view(body_start, content_length);
         } else {
-            return false; // 请求体不完整
+            return false; 
         }
     }
     
@@ -59,20 +53,16 @@ bool FastHttpParser::parse(std::string_view data, FastHttpRequest& request) {
 }
 
 bool FastHttpParser::parse_request_line(std::string_view line, FastHttpRequest& request) {
-    // 查找第一个空格（方法和URL之间）
     size_t first_space = line.find(' ');
     if (first_space == std::string_view::npos) return false;
     
-    // 查找第二个空格（URL和版本之间）
     size_t second_space = line.find(' ', first_space + 1);
     if (second_space == std::string_view::npos) return false;
     
-    // 提取方法、URL和版本
     std::string_view method_str = line.substr(0, first_space);
     request.url = line.substr(first_space + 1, second_space - first_space - 1);
     request.version = line.substr(second_space + 1);
     
-    // 解析方法
     request.method = parse_method(method_str);
     
     return request.method != FastHttpMethod::UNKNOWN && 
@@ -84,30 +74,23 @@ bool FastHttpParser::parse_headers(std::string_view headers_block, FastHttpReque
     const char* end = headers_block.data() + headers_block.size();
     
     while (current < end) {
-        // 查找当前行的结束
         const char* line_end = find_crlf(current, end);
         if (!line_end) {
-            // 最后一行可能没有CRLF
             line_end = end;
         }
         
         std::string_view line(current, line_end - current);
         if (line.empty()) {
-            break; // 空行表示头部结束
+            break; 
         }
-        
-        // 查找冒号
         size_t colon_pos = line.find(':');
         if (colon_pos == std::string_view::npos) {
-            return false; // 无效的头部行
+            return false; 
         }
-        
         std::string_view key = trim(line.substr(0, colon_pos));
         std::string_view value = trim(line.substr(colon_pos + 1));
         
         request.headers[key] = value;
-        
-        // 移动到下一行
         current = line_end;
         if (current < end && current[0] == '\r') current++;
         if (current < end && current[0] == '\n') current++;
@@ -119,19 +102,16 @@ bool FastHttpParser::parse_headers(std::string_view headers_block, FastHttpReque
 void FastHttpParser::parse_query_params(std::string_view url, FastHttpRequest& request) {
     size_t query_start = url.find('?');
     if (query_start == std::string_view::npos) {
-        return; // 没有查询参数
+        return; 
     }
     
     std::string_view query_string = url.substr(query_start + 1);
-    
-    // 解析查询参数
     size_t start = 0;
     while (start < query_string.size()) {
         size_t end = query_string.find('&', start);
         if (end == std::string_view::npos) {
             end = query_string.size();
         }
-        
         std::string_view param = query_string.substr(start, end - start);
         if (!param.empty()) {
             size_t eq_pos = param.find('=');
@@ -149,13 +129,10 @@ void FastHttpParser::parse_query_params(std::string_view url, FastHttpRequest& r
 }
 
 size_t FastHttpParser::parse_content_length(const FastHeaderMap& headers) {
-    // 查找Content-Length头部
     for (const auto& [key, value] : headers) {
-        if (key.size() == 14 && // "content-length"的长度
+        if (key.size() == 14 && 
             std::equal(key.begin(), key.end(), "content-length",
                       [](char a, char b) { return std::tolower(a) == std::tolower(b); })) {
-            
-            // 使用std::from_chars进行快速数字解析
             size_t result = 0;
             auto [ptr, ec] = std::from_chars(value.data(), value.data() + value.size(), result);
             if (ec == std::errc{}) {
@@ -167,9 +144,7 @@ size_t FastHttpParser::parse_content_length(const FastHeaderMap& headers) {
     return 0;
 }
 
-// HttpRequestAdapter实现
 void HttpRequestAdapter::convert(const FastHttpRequest& fast_req, HttpRequest& request) {
-    // 转换方法
     switch (fast_req.method) {
         case FastHttpMethod::GET:    request.setMethod(HttpMethod::GET); break;
         case FastHttpMethod::POST:   request.setMethod(HttpMethod::POST); break;
@@ -179,10 +154,7 @@ void HttpRequestAdapter::convert(const FastHttpRequest& fast_req, HttpRequest& r
         default: request.setMethod(HttpMethod::UNKNOWN); break;
     }
     
-    // 转换URL（需要转换为字符串）
     request.setUrl(std::string(fast_req.url));
-    
-         // 转换版本
      if (fast_req.version == "HTTP/1.0") {
          request.setVersion(HttpVersion::HTTP_1_0);
      } else if (fast_req.version == "HTTP/1.1") {
@@ -191,14 +163,11 @@ void HttpRequestAdapter::convert(const FastHttpRequest& fast_req, HttpRequest& r
          request.setVersion(HttpVersion::UNKNOWN);
      }
     
-    // 转换头部（需要转换为字符串）
     HttpHeaderMap headers;
     for (const auto& [key, value] : fast_req.headers) {
         headers[std::string(key)] = std::string(value);
     }
     request.setHeaders(std::move(headers));
-    
-    // 转换请求体
     request.setBody(std::string(fast_req.body));
 }
 
