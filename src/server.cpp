@@ -337,7 +337,9 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
                 response.addHeader("Connection", "close");
             }
             
-            std::string response_str = HttpResponseSerializer::serialize(response);
+            // 使用优化的序列化方法，预分配内存减少拷贝
+            std::string response_str;
+            response.serializeTo(response_str);
             
             // 记录响应时间
             auto request_end_time = std::chrono::steady_clock::now();
@@ -366,12 +368,15 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
                       << ": " << e.what() << std::endl;
             
             if (conn_info->connected) {
-                std::string error_response = "HTTP/1.1 500 Internal Server Error\r\n"
-                                           "Content-Type: text/plain\r\n"
-                                           "Connection: close\r\n"
-                                           "Content-Length: 21\r\n\r\n"
-                                           "Internal Server Error";
-                io_thread_pool_->async_write(conn_info, error_response, 
+                // 优化：直接构建错误响应，避免字符串连接
+                HttpResponse error_response = HttpResponse::stockResponse(500);
+                error_response.setBody("Internal Server Error");
+                error_response.addHeader("Content-Type", "text/plain");
+                error_response.addHeader("Connection", "close");
+                
+                std::string error_response_str;
+                error_response.serializeTo(error_response_str);
+                io_thread_pool_->async_write(conn_info, error_response_str, 
                     [this](std::shared_ptr<ConnectionInfo> conn, bool /*success*/) {
                         if (conn) {
                             on_disconnect(conn->fd);
