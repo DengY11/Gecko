@@ -16,7 +16,9 @@
 #include <unordered_map>
 #include <atomic>
 #include <mutex>
+#include <shared_mutex>
 #include <chrono>
+#include <stack>
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -33,6 +35,48 @@
 namespace Gecko {
 
 class Context;
+
+// 简单的内存池实现 - 用于减少频繁分配
+template<typename T, size_t PoolSize = 1024>
+class MemoryPool {
+public:
+    MemoryPool() {
+        for (size_t i = 0; i < PoolSize; ++i) {
+            free_objects_.push(reinterpret_cast<T*>(pool_ + i * sizeof(T)));
+        }
+    }
+    
+    ~MemoryPool() = default;
+    
+    T* allocate() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (free_objects_.empty()) {
+            return nullptr; // 池已满，回退到标准分配
+        }
+        T* obj = free_objects_.top();
+        free_objects_.pop();
+        return obj;
+    }
+    
+    void deallocate(T* obj) {
+        if (!obj) return;
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (free_objects_.size() < PoolSize) {
+            obj->~T(); // 显式析构
+            free_objects_.push(obj);
+        }
+    }
+    
+    size_t available() const {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return free_objects_.size();
+    }
+    
+private:
+    alignas(T) char pool_[PoolSize * sizeof(T)];
+    std::stack<T*> free_objects_;
+    mutable std::mutex mutex_;
+};
 
 // 连接信息结构体 - 参考Drogon的TcpConnection概念
 struct ConnectionInfo {
@@ -66,7 +110,10 @@ class ConnectionManager {
 public:
     ConnectionManager(size_t max_connections = 10000, 
                      std::chrono::seconds keep_alive_timeout = std::chrono::seconds(60))
-        : max_connections_(max_connections), keep_alive_timeout_(keep_alive_timeout) {}
+        : max_connections_(max_connections), keep_alive_timeout_(keep_alive_timeout) {
+        // 预分配连接槽位，减少动态分配
+        connections_.reserve(max_connections);
+    }
     
     std::shared_ptr<ConnectionInfo> add_connection(int fd, const std::string& peer_addr, 
                                                   const std::string& local_addr);
@@ -77,12 +124,19 @@ public:
     size_t get_active_count() const { return active_connections_.load(); }
     bool can_accept_connection() const { return active_connections_.load() < max_connections_; }
     
+    // 新增：批量操作接口
+    void batch_remove_connections(const std::vector<int>& fds);
+    void get_connection_stats(size_t& active, size_t& total_ever_created) const;
+    
 private:
     size_t max_connections_;
     std::chrono::seconds keep_alive_timeout_;
-    std::mutex connections_mutex_;
+    
+    // 优化：使用读写锁提高并发性能
+    mutable std::shared_mutex connections_mutex_;
     std::unordered_map<int, std::shared_ptr<ConnectionInfo>> connections_;
     std::atomic<size_t> active_connections_{0};
+    std::atomic<size_t> total_connections_created_{0};
 };
 
 class Server{
@@ -132,6 +186,22 @@ public:
     size_t get_active_connections() const { return conn_manager_->get_active_count(); }
     size_t get_total_requests() const { return total_requests_.load(); }
     
+    // 新增：性能监控接口
+    struct PerformanceStats {
+        size_t requests_per_second = 0;
+        size_t active_connections = 0;
+        size_t total_requests = 0;
+        size_t total_connections = 0;
+        double avg_response_time_ms = 0.0;
+        size_t io_thread_load = 0;
+        size_t worker_thread_load = 0;
+        std::chrono::steady_clock::time_point timestamp;
+    };
+    
+    PerformanceStats get_performance_stats() const;
+    void print_performance_stats() const;
+    void start_performance_monitoring(std::chrono::seconds interval = std::chrono::seconds(10));
+    void stop_performance_monitoring();
 
 protected:
     size_t find_content_length_in_headers(std::string_view headers_part) const;
@@ -185,6 +255,17 @@ private:
     // 统计信息
     std::atomic<size_t> total_requests_{0};
     std::atomic<size_t> total_connections_{0};
+    
+    // 新增：详细性能统计
+    std::atomic<size_t> successful_requests_{0};
+    std::atomic<size_t> failed_requests_{0};
+    std::atomic<double> total_response_time_ms_{0.0};
+    mutable std::atomic<size_t> last_requests_snapshot_{0};
+    mutable std::chrono::steady_clock::time_point last_stats_snapshot_;
+    
+    // 性能监控线程
+    std::unique_ptr<std::thread> performance_monitor_thread_;
+    std::atomic<bool> performance_monitoring_{false};
     
     // 性能监控
     mutable std::mutex stats_mutex_;

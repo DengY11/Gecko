@@ -5,6 +5,7 @@
 #include <string_view>
 #include <thread>
 #include <sstream>
+#include <iomanip>
 
 namespace Gecko {
 
@@ -12,7 +13,7 @@ namespace Gecko {
 std::shared_ptr<ConnectionInfo> ConnectionManager::add_connection(int fd, 
                                                                 const std::string& peer_addr, 
                                                                 const std::string& local_addr) {
-    std::lock_guard<std::mutex> lock(connections_mutex_);
+    std::unique_lock<std::shared_mutex> lock(connections_mutex_);
     
     if (active_connections_.load() >= max_connections_) {
         return nullptr;
@@ -21,12 +22,13 @@ std::shared_ptr<ConnectionInfo> ConnectionManager::add_connection(int fd,
     auto conn_info = std::make_shared<ConnectionInfo>(fd, peer_addr, local_addr);
     connections_[fd] = conn_info;
     active_connections_++;
+    total_connections_created_++;
     
     return conn_info;
 }
 
 void ConnectionManager::remove_connection(int fd) {
-    std::lock_guard<std::mutex> lock(connections_mutex_);
+    std::unique_lock<std::shared_mutex> lock(connections_mutex_);
     auto it = connections_.find(fd);
     if (it != connections_.end()) {
         it->second->connected = false;
@@ -36,7 +38,7 @@ void ConnectionManager::remove_connection(int fd) {
 }
 
 void ConnectionManager::update_activity(int fd) {
-    std::lock_guard<std::mutex> lock(connections_mutex_);
+    std::shared_lock<std::shared_mutex> lock(connections_mutex_);
     auto it = connections_.find(fd);
     if (it != connections_.end()) {
         it->second->update_activity();
@@ -44,14 +46,15 @@ void ConnectionManager::update_activity(int fd) {
 }
 
 std::shared_ptr<ConnectionInfo> ConnectionManager::get_connection(int fd) {
-    std::lock_guard<std::mutex> lock(connections_mutex_);
+    std::shared_lock<std::shared_mutex> lock(connections_mutex_);
     auto it = connections_.find(fd);
     return (it != connections_.end()) ? it->second : nullptr;
 }
 
 std::vector<int> ConnectionManager::get_expired_connections() {
-    std::lock_guard<std::mutex> lock(connections_mutex_);
+    std::shared_lock<std::shared_mutex> lock(connections_mutex_);
     std::vector<int> expired;
+    expired.reserve(connections_.size() / 10); // 预估10%过期率
     
     for (const auto& [fd, conn_info] : connections_) {
         if (conn_info->is_expired(keep_alive_timeout_)) {
@@ -60,6 +63,27 @@ std::vector<int> ConnectionManager::get_expired_connections() {
     }
     
     return expired;
+}
+
+// 新增：批量移除连接
+void ConnectionManager::batch_remove_connections(const std::vector<int>& fds) {
+    if (fds.empty()) return;
+    
+    std::unique_lock<std::shared_mutex> lock(connections_mutex_);
+    for (int fd : fds) {
+        auto it = connections_.find(fd);
+        if (it != connections_.end()) {
+            it->second->connected = false;
+            connections_.erase(it);
+            active_connections_--;
+        }
+    }
+}
+
+// 新增：获取连接统计信息
+void ConnectionManager::get_connection_stats(size_t& active, size_t& total_ever_created) const {
+    active = active_connections_.load();
+    total_ever_created = total_connections_created_.load();
 }
 
 // Server 实现
@@ -98,6 +122,9 @@ void Server::run(RequestHandler request_handler) {
     
     std::cout << "🚀 Server started on " << host_ << ":" << port_ << std::endl;
     
+    // 启动性能监控
+    start_performance_monitoring(std::chrono::seconds(10));
+    
     while (running_) {
         // 定期清理过期连接
         cleanup_expired_connections();
@@ -119,6 +146,9 @@ void Server::run(RequestHandler request_handler) {
             // 错误事件也由IO线程池在各自的epoll中处理
         }
     }
+    
+    // 停止性能监控
+    stop_performance_monitoring();
 }
 
 void Server::setup_listen_socket() {
@@ -263,8 +293,11 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
     conn_info->request_count++;
     total_requests_++;
     
+    // 记录请求开始时间
+    auto request_start_time = std::chrono::steady_clock::now();
+    
     // 提交到工作线程处理业务逻辑
-    thread_pool_->enqueue([this, conn_info, request_data]() {
+    thread_pool_->enqueue([this, conn_info, request_data, request_start_time]() {
         try {
             HttpRequest request;
             HttpRequestParser::parse(request_data, &request);
@@ -294,11 +327,29 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
             
             std::string response_str = HttpResponseSerializer::serialize(response);
             
+            // 记录响应时间
+            auto request_end_time = std::chrono::steady_clock::now();
+            auto response_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(
+                request_end_time - request_start_time).count() / 1000.0;
+            
+            // 更新统计信息
+            successful_requests_++;
+            
+            // 更新平均响应时间（使用原子操作）
+            double current_total = total_response_time_ms_.load();
+            while (!total_response_time_ms_.compare_exchange_weak(current_total, 
+                                                                current_total + response_time_ms)) {
+                // 继续尝试直到成功
+            }
+            
             // 使用IO线程池异步发送响应
             if (conn_info->connected) {
                 handle_keep_alive_response(conn_info, response_str);
             }
         } catch (const std::exception& e) {
+            // 记录失败请求
+            failed_requests_++;
+            
             std::cerr << "❌ Error processing request from " << conn_info->peer_addr 
                       << ": " << e.what() << std::endl;
             
@@ -510,11 +561,15 @@ void Server::cleanup_expired_connections() {
     }
     
     auto expired = conn_manager_->get_expired_connections();
-    for (int fd : expired) {
+    if (!expired.empty()) {
         #ifdef DEBUG    
-        std::cout << "🧹 Cleaning up expired connection (fd: " << fd << ")" << std::endl;
+        std::cout << "🧹 Cleaning up " << expired.size() << " expired connections" << std::endl;
         #endif
-        on_disconnect(fd);
+        
+        // 逐个关闭过期连接（on_disconnect会自动从连接管理器中移除）
+        for (int fd : expired) {
+            on_disconnect(fd);
+        }
     }
     
     last_cleanup = now;
@@ -542,6 +597,87 @@ void Server::cleanup_all_connections() {
     #ifdef DEBUG
     std::cout << "🧹 All connections cleaned up" << std::endl;
     #endif
+}
+
+// 新增：性能监控实现
+Server::PerformanceStats Server::get_performance_stats() const {
+    PerformanceStats stats;
+    stats.timestamp = std::chrono::steady_clock::now();
+    stats.active_connections = conn_manager_->get_active_count();
+    stats.total_requests = total_requests_.load();
+    stats.total_connections = total_connections_.load();
+    
+    // 计算每秒请求数
+    auto current_requests = total_requests_.load();
+    auto current_time = std::chrono::steady_clock::now();
+    auto last_snapshot_requests = last_requests_snapshot_.load();
+    
+    if (last_snapshot_requests > 0) {
+        auto time_diff = std::chrono::duration_cast<std::chrono::milliseconds>(
+            current_time - last_stats_snapshot_).count();
+        if (time_diff > 0) {
+            stats.requests_per_second = static_cast<size_t>(
+                (current_requests - last_snapshot_requests) * 1000.0 / time_diff);
+        }
+    }
+    
+    // 更新快照
+    last_requests_snapshot_ = current_requests;
+    last_stats_snapshot_ = current_time;
+    
+    // 计算平均响应时间
+    auto successful = successful_requests_.load();
+    if (successful > 0) {
+        stats.avg_response_time_ms = total_response_time_ms_.load() / successful;
+    }
+    
+    // 获取IO线程池和工作线程池负载 (简化实现)
+    stats.io_thread_load = io_thread_pool_->thread_count();
+    stats.worker_thread_load = thread_pool_->thread_count();
+    
+    return stats;
+}
+
+void Server::print_performance_stats() const {
+    auto stats = get_performance_stats();
+    
+    std::cout << "🔍 ========== 性能监控 ==========" << std::endl;
+    std::cout << "📊 当前连接数: " << stats.active_connections << std::endl;
+    std::cout << "📈 每秒请求数: " << stats.requests_per_second << " req/s" << std::endl;
+    std::cout << "📋 总请求数: " << stats.total_requests << std::endl;
+    std::cout << "🔗 总连接数: " << stats.total_connections << std::endl;
+    std::cout << "⏱️  平均响应时间: " << std::fixed << std::setprecision(2) 
+              << stats.avg_response_time_ms << " ms" << std::endl;
+    std::cout << "🔄 IO线程数: " << stats.io_thread_load << std::endl;
+    std::cout << "🧵 工作线程数: " << stats.worker_thread_load << std::endl;
+    std::cout << "================================" << std::endl;
+}
+
+void Server::start_performance_monitoring(std::chrono::seconds interval) {
+    if (performance_monitoring_) {
+        return; // 已经在运行
+    }
+    
+    performance_monitoring_ = true;
+    performance_monitor_thread_ = std::make_unique<std::thread>([this, interval]() {
+        while (performance_monitoring_) {
+            std::this_thread::sleep_for(interval);
+            if (performance_monitoring_) {
+                print_performance_stats();
+            }
+        }
+    });
+    
+    std::cout << "📊 性能监控已启动（每 " << interval.count() << " 秒输出一次）" << std::endl;
+}
+
+void Server::stop_performance_monitoring() {
+    performance_monitoring_ = false;
+    if (performance_monitor_thread_ && performance_monitor_thread_->joinable()) {
+        performance_monitor_thread_->join();
+    }
+    performance_monitor_thread_.reset();
+    std::cout << "📊 性能监控已停止" << std::endl;
 }
 
 // 工具函数
