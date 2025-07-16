@@ -21,6 +21,7 @@ HttpResponse HttpResponse::stockResponse(int statusCode) {
     return response;
 }
 
+//TODO:性能优化
 void HttpResponse::addHeader(const std::string &key, const std::string &value,
                              bool overwrite) {
     if (!overwrite && headers.find(key) != headers.end()) {

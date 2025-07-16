@@ -4,6 +4,7 @@
 #include <string>
 #include <cstddef>
 #include <thread>
+#include "http_request.hpp"
 
 namespace Gecko {
 
@@ -17,6 +18,8 @@ struct ServerConfig {
     int max_connections = 10000;        // 最大连接数
     int keep_alive_timeout = 30;        // Keep-Alive超时时间（秒）
     size_t max_request_body_size = 1024 * 1024; // 最大请求体大小（1MB）
+    HttpVersion http_version = HttpVersion::HTTP_1_1;
+
     
     ServerConfig() {
         if (thread_pool_size == 0) {

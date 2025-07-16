@@ -320,11 +320,12 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
             auto connection_it = headers.find("Connection");
             std::string connection_header = (connection_it != headers.end()) ? connection_it->second : "";
             if (connection_header == "keep-alive" || 
-                (HttpVersionToString(request.getVersion()) == "HTTP/1.1" && connection_header != "close")) {
+                (request.getVersion() == HttpVersion::HTTP_1_1 && connection_header != "close")) {
                 keep_alive = true;
             }
             conn_info->keep_alive = keep_alive;
             
+            //TODO: 这是一个可以池化优化的地方我觉得
             Context ctx(request);
             request_handler_(ctx);
             HttpResponse response = ctx.response();
