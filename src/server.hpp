@@ -36,7 +36,6 @@ namespace Gecko {
 
 class Context;
 
-// 连接信息结构体 - 参考Drogon的TcpConnection概念
 struct ConnectionInfo {
     int fd;
     std::string peer_addr;
@@ -119,7 +118,10 @@ public:
           thread_pool_(std::make_unique<ThreadPool>(config.thread_pool_size)),
           io_thread_pool_(std::make_unique<IOThreadPool>(config.io_thread_count)),
           conn_manager_(std::make_unique<ConnectionManager>(config.max_connections, 
-                                                          std::chrono::seconds(config.keep_alive_timeout))) {
+                                                          std::chrono::seconds(config.keep_alive_timeout))),
+          enable_performance_monitoring_(config.enable_performance_monitor),
+          performance_monitor_interval_(config.performance_monitor_interval)
+        {
         print_server_info_with_config(config);
         epoll_fd_ = epoll_create1(0);
         if(epoll_fd_ == -1){
@@ -140,11 +142,9 @@ public:
 
     void run(RequestHandler request_handler);
     
-    // 连接统计信息
     size_t get_active_connections() const { return conn_manager_->get_active_count(); }
     size_t get_total_requests() const { return total_requests_.load(); }
     
-    // 新增：性能监控接口
     struct PerformanceStats {
         size_t requests_per_second = 0;
         size_t active_connections = 0;
@@ -170,7 +170,6 @@ private:
     void print_server_info_with_config(const ServerConfig& config);
     void setup_listen_socket();
     
-    // 连接处理 - 参考Drogon的onConnection
     void on_connection(int client_fd);
     void on_disconnect(int client_fd);
     void handler_new_connection();
@@ -217,6 +216,8 @@ private:
     mutable std::chrono::steady_clock::time_point last_stats_snapshot_;
     
     // 性能监控线程
+    bool enable_performance_monitoring_ = false;
+    std::chrono::seconds performance_monitor_interval_;
     std::unique_ptr<std::thread> performance_monitor_thread_;
     std::atomic<bool> performance_monitoring_{false};
     

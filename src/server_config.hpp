@@ -18,7 +18,9 @@ struct ServerConfig {
     int max_connections = 10000;        // 最大连接数
     int keep_alive_timeout = 30;        // Keep-Alive超时时间（秒）
     size_t max_request_body_size = 1024 * 1024; // 最大请求体大小（1MB）
-    HttpVersion http_version = HttpVersion::HTTP_1_1;
+
+    bool enable_performance_monitor = false;
+    std::chrono::seconds performance_monitor_interval = std::chrono::seconds(10); // 性能监控interval
 
     
     ServerConfig() {
@@ -72,6 +74,13 @@ struct ServerConfig {
         this->max_request_body_size = size;
         return *this;
     }
+
+    ServerConfig& enablePerformanceMonitoring() {
+        this->enable_performance_monitor = true;
+        return *this;
+    }
+
+
 };
 
 } // namespace Gecko

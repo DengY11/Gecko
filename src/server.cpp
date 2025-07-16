@@ -89,8 +89,8 @@ void ConnectionManager::get_connection_stats(size_t& active, size_t& total_ever_
 
 // Server 实现
 void Server::print_server_info() {
-    std::cout << "🦎 Gecko Web Framework" << std::endl;
-    std::cout << "📝 Configuration:" << std::endl;
+    std::cout << " Gecko Web Framework" << std::endl;
+    std::cout << " Configuration:" << std::endl;
     std::cout << "   └─ Port: " << port_ << std::endl;
     std::cout << "   └─ Host: " << host_ << std::endl;
     std::cout << "   └─ Worker Thread Pool Size: " << thread_pool_->thread_count() << std::endl;
@@ -100,8 +100,8 @@ void Server::print_server_info() {
 }
 
 void Server::print_server_info_with_config(const ServerConfig& config) {
-    std::cout << "🦎 Gecko Web Framework" << std::endl;
-    std::cout << "📝 Configuration:" << std::endl;
+    std::cout << " Gecko Web Framework" << std::endl;
+    std::cout << " Configuration:" << std::endl;
     std::cout << "   ├─ Port: " << config.port << std::endl;
     std::cout << "   ├─ Host: " << config.host << std::endl;
     std::cout << "   ├─ Worker Thread Pool Size: " << config.thread_pool_size << std::endl;
@@ -109,7 +109,7 @@ void Server::print_server_info_with_config(const ServerConfig& config) {
     std::cout << "   ├─ Max Connections: " << config.max_connections << std::endl;
     std::cout << "   ├─ Keep-Alive Timeout: " << config.keep_alive_timeout << "s" << std::endl;
     std::cout << "   └─ Max Request Body Size: " << (config.max_request_body_size / 1024) << "KB" << std::endl;
-    std::cout << "🚀 Server initializing..." << std::endl;
+    std::cout << " Server initializing..." << std::endl;
 }
 
 void Server::run(RequestHandler request_handler) {
@@ -122,12 +122,11 @@ void Server::run(RequestHandler request_handler) {
     std::vector<struct epoll_event> events(MAX_EVENTS);
     
     std::cout << "🚀 Server started on " << host_ << ":" << port_ << std::endl;
-    
-    // 启动性能监控
-    start_performance_monitoring(std::chrono::seconds(10));
+    if(this->enable_performance_monitoring_){ 
+        start_performance_monitoring(this->performance_monitor_interval_);
+    }
     
     while (running_) {
-        // 定期清理过期连接（每1000次循环执行一次，避免频繁调用）
         static int cleanup_counter = 0;
         if (++cleanup_counter >= 1000) {
             cleanup_expired_connections();
@@ -147,12 +146,9 @@ void Server::run(RequestHandler request_handler) {
             if (events[i].data.fd == listen_fd_) {
                 handler_new_connection();
             }
-            // 移除数据事件处理，因为现在由IO线程池完全负责
-            // 错误事件也由IO线程池在各自的epoll中处理
         }
     }
     
-    // 停止性能监控
     stop_performance_monitoring();
 }
 
@@ -167,7 +163,6 @@ void Server::setup_listen_socket() {
         throw std::runtime_error("Failed to set SO_REUSEADDR: " + std::string(strerror(errno)));
     }
     
-    // 启用端口复用，提高并发性能
     if (setsockopt(listen_fd_, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
         std::cerr << "⚠️ Failed to set SO_REUSEPORT: " << strerror(errno) << " (继续运行)" << std::endl;
     }
@@ -270,7 +265,6 @@ void Server::handler_new_connection() {
     }
     
     set_non_blockint(client_fd);
-    // 不再将新连接添加到主线程epoll，直接交给IO线程池管理
     on_connection(client_fd);
 }
 
@@ -283,9 +277,7 @@ void Server::handler_client_data(int client_fd) {
     
     conn_info->update_activity();
     
-    // 新的三线程架构：直接提交IO任务到IO线程池
     io_thread_pool_->register_read(conn_info, [this](std::shared_ptr<ConnectionInfo> conn_info, const std::string& request_data) {
-        // 在IO线程中读取完整数据后，提交到工作线程处理业务逻辑
         process_request_with_io_thread(conn_info, request_data);
     });
 }
@@ -298,19 +290,14 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
     conn_info->request_count++;
     total_requests_++;
     
-    // 记录请求开始时间
     auto request_start_time = std::chrono::steady_clock::now();
-    
-    // 提交到工作线程处理业务逻辑
     thread_pool_->enqueue([this, conn_info, request_data, request_start_time]() {
         try {
-            // 使用快速解析器进行零拷贝解析
             FastHttpRequest fast_request;
             if (!FastHttpParser::parse(request_data, fast_request)) {
                 throw std::runtime_error("Failed to parse HTTP request");
             }
-            
-            // 只在需要时才转换为HttpRequest
+            //TODO:这个地方可以池化
             HttpRequest request;
             HttpRequestAdapter::convert(fast_request, request);
             
@@ -325,12 +312,11 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
             }
             conn_info->keep_alive = keep_alive;
             
-            //TODO: 这是一个可以池化优化的地方我觉得
+            //TODO: 这是一个可以池化优化的地方
             Context ctx(request);
             request_handler_(ctx);
             HttpResponse response = ctx.response();
             
-            // 设置连接类型
             if (keep_alive) {
                 response.addHeader("Connection", "keep-alive");
                 response.addHeader("Keep-Alive", "timeout=30, max=100");
@@ -338,26 +324,20 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
                 response.addHeader("Connection", "close");
             }
             
-            // 使用优化的序列化方法，预分配内存减少拷贝
             std::string response_str;
             response.serializeTo(response_str);
             
-            // 记录响应时间
             auto request_end_time = std::chrono::steady_clock::now();
             auto response_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(
                 request_end_time - request_start_time).count() / 1000.0;
             
-            // 更新统计信息
             successful_requests_++;
             
-            // 更新平均响应时间（使用原子操作）
             double current_total = total_response_time_ms_.load();
             while (!total_response_time_ms_.compare_exchange_weak(current_total, 
                                                                 current_total + response_time_ms)) {
-                // 继续尝试直到成功
             }
             
-            // 使用IO线程池异步发送响应
             if (conn_info->connected) {
                 handle_keep_alive_response(conn_info, response_str);
             }
@@ -369,7 +349,6 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
                       << ": " << e.what() << std::endl;
             
             if (conn_info->connected) {
-                // 优化：直接构建错误响应，避免字符串连接
                 HttpResponse error_response = HttpResponse::stockResponse(500);
                 error_response.setBody("Internal Server Error");
                 error_response.addHeader("Content-Type", "text/plain");
@@ -394,7 +373,6 @@ void Server::handle_keep_alive_response(std::shared_ptr<ConnectionInfo> conn_inf
         return;
     }
     
-    // 使用带回调的IO线程池异步写入响应
     io_thread_pool_->async_write(conn_info, response_data, 
         [this, conn_info](std::shared_ptr<ConnectionInfo> conn, bool success) {
             if (!conn || !conn->connected) {
@@ -402,13 +380,10 @@ void Server::handle_keep_alive_response(std::shared_ptr<ConnectionInfo> conn_inf
             }
             
             if (success) {
-                // 根据keep-alive状态决定是否关闭连接
                 if (!conn->keep_alive) {
-                    // 关闭连接
                     on_disconnect(conn->fd);
                 }
             } else {
-                // 写入失败，强制关闭连接
                 on_disconnect(conn->fd);
             }
         });
@@ -442,7 +417,6 @@ void Server::cleanup_expired_connections() {
         std::cout << "🧹 Cleaning up " << expired.size() << " expired connections" << std::endl;
         #endif
         
-        // 逐个关闭过期连接（on_disconnect会自动从连接管理器中移除）
         for (int fd : expired) {
             on_disconnect(fd);
         }
@@ -475,7 +449,6 @@ void Server::cleanup_all_connections() {
     #endif
 }
 
-// 新增：性能监控实现
 Server::PerformanceStats Server::get_performance_stats() const {
     PerformanceStats stats;
     stats.timestamp = std::chrono::steady_clock::now();
@@ -483,7 +456,6 @@ Server::PerformanceStats Server::get_performance_stats() const {
     stats.total_requests = total_requests_.load();
     stats.total_connections = total_connections_.load();
     
-    // 计算每秒请求数
     auto current_requests = total_requests_.load();
     auto current_time = std::chrono::steady_clock::now();
     auto last_snapshot_requests = last_requests_snapshot_.load();
@@ -497,17 +469,14 @@ Server::PerformanceStats Server::get_performance_stats() const {
         }
     }
     
-    // 更新快照
     last_requests_snapshot_ = current_requests;
     last_stats_snapshot_ = current_time;
     
-    // 计算平均响应时间
     auto successful = successful_requests_.load();
     if (successful > 0) {
         stats.avg_response_time_ms = total_response_time_ms_.load() / successful;
     }
     
-    // 获取IO线程池和工作线程池负载 (简化实现)
     stats.io_thread_load = io_thread_pool_->thread_count();
     stats.worker_thread_load = thread_pool_->thread_count();
     
@@ -517,15 +486,15 @@ Server::PerformanceStats Server::get_performance_stats() const {
 void Server::print_performance_stats() const {
     auto stats = get_performance_stats();
     
-    std::cout << "🔍 ========== 性能监控 ==========" << std::endl;
-    std::cout << "📊 当前连接数: " << stats.active_connections << std::endl;
-    std::cout << "📈 每秒请求数: " << stats.requests_per_second << " req/s" << std::endl;
-    std::cout << "📋 总请求数: " << stats.total_requests << std::endl;
-    std::cout << "🔗 总连接数: " << stats.total_connections << std::endl;
-    std::cout << "⏱️  平均响应时间: " << std::fixed << std::setprecision(2) 
+    std::cout << " ========== 性能监控 ==========" << std::endl;
+    std::cout << " 当前连接数: " << stats.active_connections << std::endl;
+    std::cout << " 每秒请求数: " << stats.requests_per_second << " req/s" << std::endl;
+    std::cout << " 总请求数: " << stats.total_requests << std::endl;
+    std::cout << " 总连接数: " << stats.total_connections << std::endl;
+    std::cout << " 平均响应时间: " << std::fixed << std::setprecision(2) 
               << stats.avg_response_time_ms << " ms" << std::endl;
-    std::cout << "🔄 IO线程数: " << stats.io_thread_load << std::endl;
-    std::cout << "🧵 工作线程数: " << stats.worker_thread_load << std::endl;
+    std::cout << " IO线程数: " << stats.io_thread_load << std::endl;
+    std::cout << " 工作线程数: " << stats.worker_thread_load << std::endl;
     std::cout << "================================" << std::endl;
 }
 
@@ -544,7 +513,7 @@ void Server::start_performance_monitoring(std::chrono::seconds interval) {
         }
     });
     
-    std::cout << "📊 性能监控已启动（每 " << interval.count() << " 秒输出一次）" << std::endl;
+    std::cout << " 性能监控已启动（每 " << interval.count() << " 秒输出一次）" << std::endl;
 }
 
 void Server::stop_performance_monitoring() {
@@ -553,7 +522,7 @@ void Server::stop_performance_monitoring() {
         performance_monitor_thread_->join();
     }
     performance_monitor_thread_.reset();
-    std::cout << "📊 性能监控已停止" << std::endl;
+    std::cout << " 性能监控已停止" << std::endl;
 }
 
 // 工具函数
