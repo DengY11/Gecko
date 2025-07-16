@@ -58,16 +58,14 @@ void Engine::printServerInfo(const ServerConfig &config) {
     std::cout << " 监听地址:       " << config.host << std::endl;
     std::cout << " 工作线程数:     " << config.thread_pool_size << std::endl;
     std::cout << " 最大连接数:     " << config.max_connections << std::endl;
-    std::cout << " 请求体大小限制: " << (config.max_request_bod
-                                                _size / 1024) << " KB" << std::endl;
+    std::cout << " 请求体大小限制: " << (config.max_request_body_size / 1024) << " KB" << std::endl;
     std::cout << " Keep-Alive超时: " << config.keep_alive_timeout << 
-        秒" << std::endl;
+        "秒" << std::endl;
         std::cout << std::endl;
 
     // 启动提示
     std::cout << "服务器启动中..." << std::endl;
-    std::cout << "访问地址: 
-        ttp://" << (config.host == "0.0.0.0" ? "localhost" : conf << ":"
+    std::cout << "访问地址: http://" << (config.host == "0.0.0.0" ? "localhost" : config.host) << ":"
         << config.port << std::endl;
     std::cout << std::endl;
 
