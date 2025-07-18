@@ -144,7 +144,14 @@ void Server::run(RequestHandler request_handler) {
         
         for (int i = 0; i < num_events; ++i) {
             if (events[i].data.fd == listen_fd_) {
-                handler_new_connection();
+                switch (accept_strategy_) {
+                    case ServerConfig::AcceptStrategy::SINGLE:
+                        handler_new_connection();
+                        break;
+                    case ServerConfig::AcceptStrategy::BATCH_SIMPLE:
+                        handler_batch_accept(i, num_events, events.data());
+                        break;
+                }
             }
         }
     }
@@ -267,6 +274,55 @@ void Server::handler_new_connection() {
     set_non_blockint(client_fd);
     on_connection(client_fd);
 }
+
+void Server::handler_batch_accept(int& event_index, int num_events, const struct epoll_event* events) {
+    int accepted_count = 0;
+    while (accepted_count < max_batch_accept_) {
+        struct sockaddr_in client_addr;
+        socklen_t client_len = sizeof(client_addr);
+        int client_fd = accept(listen_fd_, (struct sockaddr*)&client_addr, &client_len);
+        if (client_fd < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                break;
+            } else {
+                perror("batch accept error");
+                break;
+            }
+        }
+        
+        if (!conn_manager_->can_accept_connection()) {
+            send_error_response(client_fd, 503, "Service Unavailable");
+            close(client_fd);
+            break; 
+        }
+        
+        set_non_blockint(client_fd);
+        on_connection(client_fd);
+        accepted_count++;
+    }
+    
+    if (accepted_count > 0) {
+        int skipped_events = 0;
+        for (int j = event_index + 1; j < num_events; ++j) {
+            if (events[j].data.fd == listen_fd_) {
+                skipped_events++;
+            } else {
+                break;  
+            }
+        }
+        
+        event_index += skipped_events;
+        
+        #ifdef DEBUG
+        std::cout << "📦 批量接受了 " << accepted_count << " 个连接";
+        if (skipped_events > 0) {
+            std::cout << ", 跳过了 " << skipped_events << " 个重复listen事件";
+        }
+        std::cout << std::endl;
+        #endif
+    }
+}
+
 
 void Server::handler_client_data(int client_fd) {
     auto conn_info = conn_manager_->get_connection(client_fd);

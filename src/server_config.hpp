@@ -8,7 +8,6 @@
 
 namespace Gecko {
 
-// 服务器配置结构体 - 纯粹的服务器配置，不包含logger
 struct ServerConfig {
     int port = 8080;                    // 监听端口
     std::string host = "0.0.0.0";      // 监听地址
@@ -22,6 +21,12 @@ struct ServerConfig {
     bool enable_performance_monitor = false;
     std::chrono::seconds performance_monitor_interval = std::chrono::seconds(10); // 性能监控interval
 
+    enum class AcceptStrategy {
+        SINGLE,          // 单个accept（原始方式）
+        BATCH_SIMPLE,    // 简单批量accept
+    };
+    AcceptStrategy accept_strategy = AcceptStrategy::BATCH_SIMPLE;
+    int max_batch_accept = 128;  // 批量accept的最大数量
     
     ServerConfig() {
         if (thread_pool_size == 0) {

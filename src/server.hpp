@@ -120,7 +120,9 @@ public:
           conn_manager_(std::make_unique<ConnectionManager>(config.max_connections, 
                                                           std::chrono::seconds(config.keep_alive_timeout))),
           enable_performance_monitoring_(config.enable_performance_monitor),
-          performance_monitor_interval_(config.performance_monitor_interval)
+          performance_monitor_interval_(config.performance_monitor_interval),
+          accept_strategy_(config.accept_strategy),
+          max_batch_accept_(config.max_batch_accept)
         {
         print_server_info_with_config(config);
         epoll_fd_ = epoll_create1(0);
@@ -173,6 +175,7 @@ private:
     void on_connection(int client_fd);
     void on_disconnect(int client_fd);
     void handler_new_connection();
+    void handler_batch_accept(int& event_index, int num_events, const struct epoll_event* events);
     void handler_client_data(int client_fd);
     void cleanup_expired_connections();
     void cleanup_all_connections();
@@ -220,6 +223,10 @@ private:
     std::chrono::seconds performance_monitor_interval_;
     std::unique_ptr<std::thread> performance_monitor_thread_;
     std::atomic<bool> performance_monitoring_{false};
+    
+    // Accept策略配置
+    ServerConfig::AcceptStrategy accept_strategy_{ServerConfig::AcceptStrategy::BATCH_SIMPLE};
+    int max_batch_accept_{128};
     
     // 性能监控
     mutable std::mutex stats_mutex_;

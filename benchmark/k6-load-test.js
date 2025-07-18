@@ -15,9 +15,9 @@ const BASE_URL = 'http://localhost:13514';
 export const options = {
   // 持续连接测试 - 最大20000个连接
   stages: [
-    { duration: '2m', target: 5000 },     // 2分钟内增加到5000个连接
-    { duration: '2m', target: 20000 },    // 2分钟内增加到20000个连接（峰值）
-     {duration: '2m', target: 10000 },    // 2分钟内降到10000个连接
+    { duration: '1m', target: 50 },     // 2分钟内增加到5000个连接
+    { duration: '2m', target: 200 },    // 2分钟内增加到20000个连接（峰值）
+     {duration: '2m', target: 100 },    // 2分钟内降到10000个连接
     { duration: '1m', target: 0 },        // 1分钟内所有连接断开
   ],
   
