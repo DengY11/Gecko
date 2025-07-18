@@ -280,7 +280,8 @@ int main() {
             .setIOThreadCount(20)                      // 设置IO线程数为4
             .setMaxConnections(1000000)                 // 最大连接数
             .setKeepAliveTimeout(30)                  // Keep-Alive超时
-            .setMaxRequestBodySize(2 * 1024 * 1024);  // 2MB请求体限制
+            .setMaxRequestBodySize(2 * 1024 * 1024)   // 2MB请求体限制
+            .enablePerformanceMonitoring();
 
         std::cout << "📝 架构特性展示:" << std::endl;
         std::cout << "  ✅ 真正的三线程架构（主线程+IO线程+工作线程）" << std::endl;

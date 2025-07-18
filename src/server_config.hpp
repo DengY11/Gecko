@@ -80,8 +80,9 @@ struct ServerConfig {
         return *this;
     }
 
-    ServerConfig& enablePerformanceMonitoring() {
+    ServerConfig& enablePerformanceMonitoring(int interval = 10) {
         this->enable_performance_monitor = true;
+        this->performance_monitor_interval = std::chrono::seconds(interval);
         return *this;
     }
 
