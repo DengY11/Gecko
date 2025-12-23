@@ -1,10 +1,10 @@
-Start testing: Dec 24 02:36 CST
+Start testing: Dec 24 02:47 CST
 ----------------------------------------------------------
 1/6 Testing: router_tests
 1/6 Test: router_tests
 Command: "/home/dylan/code/GeckoWebFramework/build/router_tests"
 Directory: /home/dylan/code/GeckoWebFramework/build
-"router_tests" start time: Dec 24 02:36 CST
+"router_tests" start time: Dec 24 02:47 CST
 Output:
 ----------------------------------------------------------
 all tests passed
@@ -12,7 +12,7 @@ all tests passed
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"router_tests" end time: Dec 24 02:36 CST
+"router_tests" end time: Dec 24 02:47 CST
 "router_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -20,16 +20,16 @@ Test Passed.
 2/6 Test: http_basic_tests
 Command: "/home/dylan/code/GeckoWebFramework/build/http_basic_tests"
 Directory: /home/dylan/code/GeckoWebFramework/build
-"http_basic_tests" start time: Dec 24 02:36 CST
+"http_basic_tests" start time: Dec 24 02:47 CST
 Output:
 ----------------------------------------------------------
 [FAIL] POST request test failed: Content-Length is invalid
 [FAIL] PUT request test failed: Content-Length is invalid
 <end of output>
-Test time =   0.00 sec
+Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"http_basic_tests" end time: Dec 24 02:36 CST
+"http_basic_tests" end time: Dec 24 02:47 CST
 "http_basic_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -37,14 +37,14 @@ Test Passed.
 3/6 Test: http_constructors_tests
 Command: "/home/dylan/code/GeckoWebFramework/build/http_constructors_tests"
 Directory: /home/dylan/code/GeckoWebFramework/build
-"http_constructors_tests" start time: Dec 24 02:36 CST
+"http_constructors_tests" start time: Dec 24 02:47 CST
 Output:
 ----------------------------------------------------------
 <end of output>
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"http_constructors_tests" end time: Dec 24 02:36 CST
+"http_constructors_tests" end time: Dec 24 02:47 CST
 "http_constructors_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -52,14 +52,14 @@ Test Passed.
 4/6 Test: http_error_tests
 Command: "/home/dylan/code/GeckoWebFramework/build/http_error_tests"
 Directory: /home/dylan/code/GeckoWebFramework/build
-"http_error_tests" start time: Dec 24 02:36 CST
+"http_error_tests" start time: Dec 24 02:47 CST
 Output:
 ----------------------------------------------------------
 <end of output>
-Test time =   0.01 sec
+Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"http_error_tests" end time: Dec 24 02:36 CST
+"http_error_tests" end time: Dec 24 02:47 CST
 "http_error_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -67,14 +67,14 @@ Test Passed.
 5/6 Test: http_special_case_tests
 Command: "/home/dylan/code/GeckoWebFramework/build/http_special_case_tests"
 Directory: /home/dylan/code/GeckoWebFramework/build
-"http_special_case_tests" start time: Dec 24 02:36 CST
+"http_special_case_tests" start time: Dec 24 02:47 CST
 Output:
 ----------------------------------------------------------
 <end of output>
-Test time =   0.01 sec
+Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"http_special_case_tests" end time: Dec 24 02:36 CST
+"http_special_case_tests" end time: Dec 24 02:47 CST
 "http_special_case_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -82,7 +82,7 @@ Test Passed.
 6/6 Test: performance_tests
 Command: "/home/dylan/code/GeckoWebFramework/build/performance_tests"
 Directory: /home/dylan/code/GeckoWebFramework/build
-"performance_tests" start time: Dec 24 02:36 CST
+"performance_tests" start time: Dec 24 02:47 CST
 Output:
 ----------------------------------------------------------
 [START] HTTP parser performance tests
@@ -111,26 +111,26 @@ Version match: [OK]
 Body match: [OK]
 [OK] Parsed results match
 === Benchmark: baseline parser ===
-Baseline parser: 300000 requests parsed in 2578851 microseconds
-Avg per request: 8.59617 microseconds
-Throughput: 116331 req/s
+Baseline parser: 300000 requests parsed in 2866920 microseconds
+Avg per request: 9.5564 microseconds
+Throughput: 104642 req/s
 
 === Benchmark: fast parser ===
-Fast parser: 300000 requests parsed in 1056502 microseconds
-Avg per request: 3.52167 microseconds
-Throughput: 283956 req/s
+Fast parser: 300000 requests parsed in 1072827 microseconds
+Avg per request: 3.57609 microseconds
+Throughput: 279635 req/s
 
 === Benchmark: conversion ===
-Conversion: 100000 iterations took 364376 microseconds
-Average per conversion: 3.64376 microseconds
+Conversion: 100000 iterations took 414843 microseconds
+Average per conversion: 4.14843 microseconds
 
 [STATS] Performance tests finished
 <end of output>
-Test time =   4.00 sec
+Test time =   4.36 sec
 ----------------------------------------------------------
 Test Passed.
-"performance_tests" end time: Dec 24 02:36 CST
+"performance_tests" end time: Dec 24 02:47 CST
 "performance_tests" time elapsed: 00:00:04
 ----------------------------------------------------------
 
-End testing: Dec 24 02:36 CST
+End testing: Dec 24 02:47 CST

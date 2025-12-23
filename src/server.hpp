@@ -99,6 +99,7 @@ private:
 class Server{
 public:
     using RequestHandler = std::function<void(Context&)>;
+    struct CooperativeRequestState;
 
     explicit Server(int port, size_t thread_pool_size = 0, size_t io_thread_count = 0)
         : port_(port), host_("0.0.0.0"), listen_fd_(-1), epoll_fd_(-1), 
@@ -115,7 +116,9 @@ public:
     
     explicit Server(const ServerConfig& config)
         : port_(config.port), host_(config.host), listen_fd_(-1), epoll_fd_(-1),
-          thread_pool_(std::make_unique<ThreadPool>(config.thread_pool_size)),
+          thread_pool_(std::make_unique<ThreadPool>(config.thread_pool_size,
+                                                    config.enable_cooperative_tasks,
+                                                    config.cooperative_task_time_slice)),
           io_thread_pool_(std::make_unique<IOThreadPool>(config.io_thread_count)),
           conn_manager_(std::make_unique<ConnectionManager>(config.max_connections, 
                                                           std::chrono::seconds(config.keep_alive_timeout))),
@@ -124,6 +127,14 @@ public:
           accept_strategy_(config.accept_strategy),
           max_batch_accept_(config.max_batch_accept)
         {
+        if (config.enable_cooperative_tasks) {
+            use_cooperative_workers_ = true;
+            cooperative_time_slice_ = config.cooperative_task_time_slice;
+            cooperative_priority_ = (config.cooperative_task_priority > 0)
+                ? ThreadPool::TaskPriority::HIGH
+                : (config.cooperative_task_priority < 0 ? ThreadPool::TaskPriority::LOW
+                                                        : ThreadPool::TaskPriority::NORMAL);
+        }
         print_server_info_with_config(config);
         epoll_fd_ = epoll_create1(0);
         if(epoll_fd_ == -1){
@@ -196,6 +207,8 @@ private:
     /* Utility helpers */
     std::string get_peer_address(int fd) const;
     std::string get_local_address(int fd) const;
+    bool process_cooperative_request(const std::shared_ptr<CooperativeRequestState>& state,
+                                     ThreadPool::TaskContext& ctx);
 
     static constexpr int MAX_EVENTS = 100000;
     int port_;
@@ -235,8 +248,13 @@ private:
     
     /* Server lifecycle state */
     std::atomic<bool> running_{false};
+
+    /* Cooperative scheduling */
+    bool use_cooperative_workers_{false};
+    ThreadPool::TaskPriority cooperative_priority_{ThreadPool::TaskPriority::NORMAL};
+    std::chrono::milliseconds cooperative_time_slice_{2};
 };
 
 }
 
-#endif
+#endif 

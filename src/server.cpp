@@ -10,6 +10,35 @@
 
 namespace Gecko {
 
+struct Server::CooperativeRequestState {
+    enum class Phase {
+        Parse,
+        Convert,
+        BuildContext,
+        Handle,
+        Serialize,
+        Write,
+        Done,
+        Failed
+    };
+
+    explicit CooperativeRequestState(std::shared_ptr<ConnectionInfo> conn, std::string data)
+        : conn_info(std::move(conn)),
+          request_data(std::move(data)),
+          request_start_time(std::chrono::steady_clock::now()) {}
+
+    std::shared_ptr<ConnectionInfo> conn_info;
+    std::string request_data;
+    FastHttpRequest fast_request;
+    HttpRequest request;
+    std::unique_ptr<Context> ctx;
+    HttpResponse response;
+    std::string serialized_response;
+    bool keep_alive{false};
+    Phase phase{Phase::Parse};
+    std::chrono::steady_clock::time_point request_start_time;
+};
+
 /* ConnectionManager implementation */
 std::shared_ptr<ConnectionInfo> ConnectionManager::add_connection(int fd, 
                                                                 const std::string& peer_addr, 
@@ -338,6 +367,108 @@ void Server::handler_client_data(int client_fd) {
     });
 }
 
+bool Server::process_cooperative_request(const std::shared_ptr<CooperativeRequestState>& state,
+                                         ThreadPool::TaskContext& ctx_slot) {
+    if (!state || !state->conn_info || !state->conn_info->connected) {
+        return true;
+    }
+
+    while (true) {
+        try {
+            switch (state->phase) {
+            case CooperativeRequestState::Phase::Parse: {
+                if (!FastHttpParser::parse(state->request_data, state->fast_request)) {
+                    throw std::runtime_error("Failed to parse HTTP request");
+                }
+                state->phase = CooperativeRequestState::Phase::Convert;
+                if (ctx_slot.should_yield()) return false;
+                continue;
+            }
+            case CooperativeRequestState::Phase::Convert: {
+                HttpRequestAdapter::convert(state->fast_request, state->request);
+                auto headers = state->request.getHeaders();
+                auto connection_it = headers.find("Connection");
+                std::string connection_header = (connection_it != headers.end()) ? connection_it->second : "";
+                state->keep_alive = (connection_header == "keep-alive" || 
+                    (state->request.getVersion() == HttpVersion::HTTP_1_1 && connection_header != "close"));
+                state->conn_info->keep_alive = state->keep_alive;
+
+                state->phase = CooperativeRequestState::Phase::BuildContext;
+                if (ctx_slot.should_yield()) return false;
+                continue;
+            }
+            case CooperativeRequestState::Phase::BuildContext: {
+                state->ctx = std::make_unique<Context>(state->request);
+                state->phase = CooperativeRequestState::Phase::Handle;
+                if (ctx_slot.should_yield()) return false;
+                continue;
+            }
+            case CooperativeRequestState::Phase::Handle: {
+                request_handler_(*state->ctx);
+                state->response = state->ctx->response();
+                state->phase = CooperativeRequestState::Phase::Serialize;
+                if (ctx_slot.should_yield()) return false;
+                continue;
+            }
+            case CooperativeRequestState::Phase::Serialize: {
+                if (state->keep_alive) {
+                    state->response.addHeader("Connection", "keep-alive");
+                    state->response.addHeader("Keep-Alive", "timeout=30, max=100");
+                } else {
+                    state->response.addHeader("Connection", "close");
+                }
+                state->response.serializeTo(state->serialized_response);
+                state->phase = CooperativeRequestState::Phase::Write;
+                if (ctx_slot.should_yield()) return false;
+                continue;
+            }
+            case CooperativeRequestState::Phase::Write: {
+                if (state->conn_info->connected) {
+                    handle_keep_alive_response(state->conn_info, state->serialized_response);
+                }
+
+                successful_requests_++;
+                auto request_end_time = std::chrono::steady_clock::now();
+                auto response_time_ms = std::chrono::duration_cast<std::chrono::microseconds>(
+                    request_end_time - state->request_start_time).count() / 1000.0;
+                double current_total = total_response_time_ms_.load();
+                while (!total_response_time_ms_.compare_exchange_weak(current_total, 
+                                                                   current_total + response_time_ms)) {
+                }
+                state->phase = CooperativeRequestState::Phase::Done;
+                return true;
+            }
+            case CooperativeRequestState::Phase::Done:
+            case CooperativeRequestState::Phase::Failed:
+                return true;
+            }
+        } catch (const std::exception& e) {
+            failed_requests_++;
+            std::cerr << "[ERROR] Error processing request from " << state->conn_info->peer_addr 
+                      << ": " << e.what() << std::endl;
+
+            if (state->conn_info->connected) {
+                HttpResponse error_response = HttpResponse::stockResponse(500);
+                error_response.setBody("Internal Server Error");
+                error_response.addHeader("Content-Type", "text/plain");
+                error_response.addHeader("Connection", "close");
+                
+                std::string error_response_str;
+                error_response.serializeTo(error_response_str);
+                io_thread_pool_->async_write(state->conn_info, error_response_str, 
+                    [this](std::shared_ptr<ConnectionInfo> conn, bool /*success*/) {
+                        if (conn) {
+                            on_disconnect(conn->fd);
+                        }
+                    });
+                state->conn_info->keep_alive = false;
+            }
+            state->phase = CooperativeRequestState::Phase::Failed;
+            return true;
+        }
+    }
+}
+
 void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn_info, const std::string& request_data) {
     if (!conn_info || !conn_info->connected) {
         return;
@@ -346,6 +477,17 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
     conn_info->request_count++;
     total_requests_++;
     
+    if (use_cooperative_workers_) {
+        auto state = std::make_shared<CooperativeRequestState>(conn_info, request_data);
+        thread_pool_->enqueue_cooperative(
+            [this, state](ThreadPool::TaskContext& ctx_slot) {
+                return process_cooperative_request(state, ctx_slot);
+            },
+            cooperative_priority_,
+            cooperative_time_slice_);
+        return;
+    }
+
     auto request_start_time = std::chrono::steady_clock::now();
     thread_pool_->enqueue([this, conn_info, request_data, request_start_time]() {
         try {

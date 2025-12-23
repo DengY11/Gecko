@@ -20,6 +20,9 @@ struct ServerConfig {
 
     bool enable_performance_monitor = false;
     std::chrono::seconds performance_monitor_interval = std::chrono::seconds(10); /* Monitor interval */
+    bool enable_cooperative_tasks = false;
+    std::chrono::milliseconds cooperative_task_time_slice{2}; /* Default time slice for cooperative scheduling */
+    int cooperative_task_priority = 0; /* -1 low, 0 normal, 1 high */
 
     enum class AcceptStrategy {
         SINGLE,          /* Single accept */
@@ -83,6 +86,13 @@ struct ServerConfig {
     ServerConfig& enablePerformanceMonitoring(int interval = 10) {
         this->enable_performance_monitor = true;
         this->performance_monitor_interval = std::chrono::seconds(interval);
+        return *this;
+    }
+
+    ServerConfig& enableCooperativeScheduling(int time_slice_ms = 2, int priority = 0) {
+        this->enable_cooperative_tasks = true;
+        this->cooperative_task_time_slice = std::chrono::milliseconds(time_slice_ms);
+        this->cooperative_task_priority = priority;
         return *this;
     }
 
