@@ -36,6 +36,21 @@ public:
         return *this;
     }
 
+    Engine& PATCH(const std::string& path, HandlerFunc handler) {
+        router_.insert(HttpMethod::PATCH, path, handler);
+        return *this;
+    }
+
+    Engine& OPTIONS(const std::string& path, HandlerFunc handler) {
+        router_.insert(HttpMethod::OPTIONS, path, handler);
+        return *this;
+    }
+
+    Engine& AddRoute(HttpMethod method, const std::string& path, HandlerFunc handler) {
+        router_.insert(method, path, handler);
+        return *this;
+    }
+
     Engine& HEAD(const std::string& path, HandlerFunc handler) {
         router_.insert(HttpMethod::HEAD, path, handler);
         return *this;

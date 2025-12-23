@@ -155,6 +155,21 @@ void test_param_routes() {
     
 }
 
+void test_additional_methods() {
+    Gecko::Router router;
+    
+    router.insert(Gecko::HttpMethod::PATCH, "/users/:id", wrap_response_handler(handlerUpdateUser));
+    router.insert(Gecko::HttpMethod::OPTIONS, "/users", wrap_response_handler(handlerUsers));
+    
+    auto patch_result = router.find(Gecko::HttpMethod::PATCH, "/users/42");
+    assert(patch_result.has_value());
+    assert(patch_result->params["id"] == "42");
+    
+    auto options_result = router.find(Gecko::HttpMethod::OPTIONS, "/users");
+    assert(options_result.has_value());
+    assert(options_result->params.empty());
+}
+
 void test_mixed_routes() {
     Gecko::Router router;
     
@@ -328,6 +343,7 @@ int main() {
     test_split_path();
     test_static_routes();
     test_param_routes();
+    test_additional_methods();
     test_mixed_routes();
     test_multiple_params();
     test_route_conflicts();

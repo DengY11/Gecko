@@ -86,7 +86,7 @@ void test_null_pointer() {
 
 void test_unknown_method() {
     std::string raw_request = 
-        "PATCH /api/users/1 HTTP/1.0\r\n"  /* PATCH not supported */
+        "TRACE /api/users/1 HTTP/1.0\r\n"  /* TRACE not supported */
         "Host: api.example.com\r\n"
         "\r\n";
     

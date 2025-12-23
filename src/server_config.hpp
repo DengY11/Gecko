@@ -23,6 +23,8 @@ struct ServerConfig {
     bool enable_cooperative_tasks = false;
     std::chrono::milliseconds cooperative_task_time_slice{2}; /* Default time slice for cooperative scheduling */
     int cooperative_task_priority = 0; /* -1 low, 0 normal, 1 high */
+    size_t cooperative_max_slices = 200; /* Max slice requeues before failing */
+    int cooperative_request_timeout_ms = 200; /* Per-request deadline in cooperative mode */
 
     enum class AcceptStrategy {
         SINGLE,          /* Single accept */
@@ -89,10 +91,18 @@ struct ServerConfig {
         return *this;
     }
 
-    ServerConfig& enableCooperativeScheduling(int time_slice_ms = 2, int priority = 0) {
+    ServerConfig& enableCooperativeScheduling(int time_slice_ms = 2, int priority = 0,
+                                              size_t max_slices = 200, int request_timeout_ms = 200) {
         this->enable_cooperative_tasks = true;
         this->cooperative_task_time_slice = std::chrono::milliseconds(time_slice_ms);
         this->cooperative_task_priority = priority;
+        this->cooperative_max_slices = max_slices;
+        this->cooperative_request_timeout_ms = request_timeout_ms;
+        return *this;
+    }
+    ServerConfig& setCooperativeLimits(size_t max_slices, int request_timeout_ms) {
+        this->cooperative_max_slices = max_slices;
+        this->cooperative_request_timeout_ms = request_timeout_ms;
         return *this;
     }
 

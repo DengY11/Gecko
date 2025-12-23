@@ -6,6 +6,11 @@
 /home/dylan/code/GeckoWebFramework/build/CMakeFiles/http_error_tests.dir
 /home/dylan/code/GeckoWebFramework/build/CMakeFiles/http_special_case_tests.dir
 /home/dylan/code/GeckoWebFramework/build/CMakeFiles/performance_tests.dir
+/home/dylan/code/GeckoWebFramework/build/CMakeFiles/cooperative_thread_pool_tests.dir
 /home/dylan/code/GeckoWebFramework/build/CMakeFiles/test.dir
 /home/dylan/code/GeckoWebFramework/build/CMakeFiles/edit_cache.dir
 /home/dylan/code/GeckoWebFramework/build/CMakeFiles/rebuild_cache.dir
+/home/dylan/code/GeckoWebFramework/build/CMakeFiles/list_install_components.dir
+/home/dylan/code/GeckoWebFramework/build/CMakeFiles/install.dir
+/home/dylan/code/GeckoWebFramework/build/CMakeFiles/install/local.dir
+/home/dylan/code/GeckoWebFramework/build/CMakeFiles/install/strip.dir

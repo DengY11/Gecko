@@ -31,7 +31,9 @@ auto stringToHttpMethod(std::string method) -> HttpMethod {
         {"POST", HttpMethod::POST},
         {"HEAD", HttpMethod::HEAD},
         {"PUT", HttpMethod::PUT},
-        {"DELETE", HttpMethod::DELETE}};
+        {"DELETE", HttpMethod::DELETE},
+        {"PATCH", HttpMethod::PATCH},
+        {"OPTIONS", HttpMethod::OPTIONS}};
     if (methods.find(method) != methods.end()) {
         return methods.at(method);
     }
@@ -44,7 +46,9 @@ auto HttpMethodToString(HttpMethod method) -> std::string {
         {HttpMethod::POST, "POST"},
         {HttpMethod::HEAD, "HEAD"},
         {HttpMethod::PUT, "PUT"},
-        {HttpMethod::DELETE, "DELETE"}};
+        {HttpMethod::DELETE, "DELETE"},
+        {HttpMethod::PATCH, "PATCH"},
+        {HttpMethod::OPTIONS, "OPTIONS"}};
     if (methods.find(method) != methods.end()) {
         return methods.at(method);
     }

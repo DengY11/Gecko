@@ -2,6 +2,13 @@
 
 A lightweight C++17 web framework with Gin-style routing, middleware chaining, and dedicated IO/worker thread pools.
 
+## Architecture / 架构概览
+- 主线程负责 accept + epoll；`IOThreadPool` 做异步读写/epoll；`ThreadPool` 运行业务处理与序列化。
+- 路由与中间件：`Engine` 注册路由与洋葱模型中间件，`Router` 做静态/参数匹配。
+- 可选协作式调度：`enableCooperativeScheduling` 将任务切片运行，支持优先级、时间片、最大切片次数与超时，避免长任务阻塞。
+- 性能监控：周期性打印连接数、QPS、队列深度、协作重排/丢弃计数。
+- 可扩展组件：预留 `Engine::Static` 静态文件服务；`ServerConfig` 链式调优端口、线程、背压阈值等。
+
 ## Build (CMake)
 - Prereqs: CMake >= 3.16, a C++17 compiler, pthreads, and the header-only `nlohmann_json` (e.g. `nlohmann-json` package).
 - Configure: `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`
@@ -10,10 +17,10 @@ A lightweight C++17 web framework with Gin-style routing, middleware chaining, a
 - Run tests: `ctest --test-dir build` (router, HTTP parser, performance suites). The old Makefile has been replaced by CMake.
 
 ## API Quick Reference / API 快速参考
-- `Engine::GET/POST/PUT/DELETE/HEAD(path, handler)` — Register HTTP routes; 注册对应的路由处理器。
+- `Engine::GET/POST/PUT/DELETE/HEAD/PATCH/OPTIONS(path, handler)` or `Engine::AddRoute(method, path, handler)` — Register HTTP routes; 注册对应的路由处理器。
 - `Engine::Use(middleware)` — Add middleware `(Context&, std::function<void()>)`; 添加中间件，可调用 `next()` 继续链路。
 - `Engine::Run(...)` — Start with `ServerConfig`, port, or `"host:port"`; 使用配置或端口启动服务器。
-- `ServerConfig::setPort/setHost/setThreadPoolSize/setIOThreadCount/setMaxConnections/setKeepAliveTimeout/setMaxRequestBodySize/enablePerformanceMonitoring(interval)` — Fluent runtime tuning; 链式设置端口、线程数、连接数、超时、性能监控等。
+- `ServerConfig::setPort/setHost/setThreadPoolSize/setIOThreadCount/setMaxConnections/setKeepAliveTimeout/setMaxRequestBodySize/enablePerformanceMonitoring(interval)/enableCooperativeScheduling(timeSliceMs, priority, maxSlices, timeoutMs)` — Fluent runtime tuning; 链式设置端口、线程数、连接数、超时、性能监控、协作式调度等。
 - `Context` helpers — `param`, `query`, `header`, `status(code)`, `json(...)`, `string(...)`, `html(...)`, `header(key, value)`, `set/has/get` for per-request data; 路由上下文访问参数/查询/请求头，设置响应与自定义数据。
 
 ## Minimal Example / 最简示例

@@ -22,9 +22,13 @@ struct Server::CooperativeRequestState {
         Failed
     };
 
-    explicit CooperativeRequestState(std::shared_ptr<ConnectionInfo> conn, std::string data)
+    explicit CooperativeRequestState(std::shared_ptr<ConnectionInfo> conn, std::string data,
+                                     size_t max_slices,
+                                     std::chrono::steady_clock::time_point deadline)
         : conn_info(std::move(conn)),
           request_data(std::move(data)),
+          max_slices(max_slices),
+          deadline(deadline),
           request_start_time(std::chrono::steady_clock::now()) {}
 
     std::shared_ptr<ConnectionInfo> conn_info;
@@ -36,7 +40,10 @@ struct Server::CooperativeRequestState {
     std::string serialized_response;
     bool keep_alive{false};
     Phase phase{Phase::Parse};
+    size_t max_slices{0};
+    std::chrono::steady_clock::time_point deadline;
     std::chrono::steady_clock::time_point request_start_time;
+    size_t slices_used{0};
 };
 
 /* ConnectionManager implementation */
@@ -373,6 +380,39 @@ bool Server::process_cooperative_request(const std::shared_ptr<CooperativeReques
         return true;
     }
 
+    auto should_stop = [&]() {
+        bool timeout_reached = cooperative_request_timeout_.count() > 0 &&
+            std::chrono::steady_clock::now() >= state->deadline;
+        bool slice_limit = state->slices_used >= state->max_slices;
+        return timeout_reached || slice_limit;
+    };
+
+    auto fail_and_reply = [&](int status, const std::string& message) {
+        cooperative_dropped_++;
+        HttpResponse error_response = HttpResponse::stockResponse(status);
+        error_response.setBody(message);
+        error_response.addHeader("Content-Type", "text/plain");
+        error_response.addHeader("Connection", "close");
+        std::string error_response_str;
+        error_response.serializeTo(error_response_str);
+        io_thread_pool_->async_write(state->conn_info, error_response_str, 
+            [this](std::shared_ptr<ConnectionInfo> conn, bool /*success*/) {
+                if (conn) {
+                    on_disconnect(conn->fd);
+                }
+            });
+    };
+
+    auto handle_yield = [&]() -> bool {
+        state->slices_used++;
+        if (should_stop()) {
+            fail_and_reply(503, "Service Unavailable");
+            return true; /* treat as finished */
+        }
+        cooperative_reschedules_++;
+        return false; /* requeue */
+    };
+
     while (true) {
         try {
             switch (state->phase) {
@@ -381,7 +421,10 @@ bool Server::process_cooperative_request(const std::shared_ptr<CooperativeReques
                     throw std::runtime_error("Failed to parse HTTP request");
                 }
                 state->phase = CooperativeRequestState::Phase::Convert;
-                if (ctx_slot.should_yield()) return false;
+                if (ctx_slot.should_yield()) {
+                    if (handle_yield()) return true;
+                    return false;
+                }
                 continue;
             }
             case CooperativeRequestState::Phase::Convert: {
@@ -394,20 +437,29 @@ bool Server::process_cooperative_request(const std::shared_ptr<CooperativeReques
                 state->conn_info->keep_alive = state->keep_alive;
 
                 state->phase = CooperativeRequestState::Phase::BuildContext;
-                if (ctx_slot.should_yield()) return false;
+                if (ctx_slot.should_yield()) {
+                    if (handle_yield()) return true;
+                    return false;
+                }
                 continue;
             }
             case CooperativeRequestState::Phase::BuildContext: {
                 state->ctx = std::make_unique<Context>(state->request);
                 state->phase = CooperativeRequestState::Phase::Handle;
-                if (ctx_slot.should_yield()) return false;
+                if (ctx_slot.should_yield()) {
+                    if (handle_yield()) return true;
+                    return false;
+                }
                 continue;
             }
             case CooperativeRequestState::Phase::Handle: {
                 request_handler_(*state->ctx);
                 state->response = state->ctx->response();
                 state->phase = CooperativeRequestState::Phase::Serialize;
-                if (ctx_slot.should_yield()) return false;
+                if (ctx_slot.should_yield()) {
+                    if (handle_yield()) return true;
+                    return false;
+                }
                 continue;
             }
             case CooperativeRequestState::Phase::Serialize: {
@@ -419,7 +471,10 @@ bool Server::process_cooperative_request(const std::shared_ptr<CooperativeReques
                 }
                 state->response.serializeTo(state->serialized_response);
                 state->phase = CooperativeRequestState::Phase::Write;
-                if (ctx_slot.should_yield()) return false;
+                if (ctx_slot.should_yield()) {
+                    if (handle_yield()) return true;
+                    return false;
+                }
                 continue;
             }
             case CooperativeRequestState::Phase::Write: {
@@ -466,6 +521,14 @@ bool Server::process_cooperative_request(const std::shared_ptr<CooperativeReques
             state->phase = CooperativeRequestState::Phase::Failed;
             return true;
         }
+
+        state->slices_used++;
+        if (should_stop()) {
+            fail_and_reply(503, "Service Unavailable");
+            return true;
+        }
+        cooperative_reschedules_++;
+        return false;
     }
 }
 
@@ -478,7 +541,13 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
     total_requests_++;
     
     if (use_cooperative_workers_) {
-        auto state = std::make_shared<CooperativeRequestState>(conn_info, request_data);
+        auto now = std::chrono::steady_clock::now();
+        auto deadline = (cooperative_request_timeout_.count() > 0)
+            ? now + cooperative_request_timeout_
+            : std::chrono::steady_clock::time_point::max();
+        auto state = std::make_shared<CooperativeRequestState>(conn_info, request_data,
+                                                               cooperative_max_slices_,
+                                                               deadline);
         thread_pool_->enqueue_cooperative(
             [this, state](ThreadPool::TaskContext& ctx_slot) {
                 return process_cooperative_request(state, ctx_slot);
@@ -677,6 +746,9 @@ Server::PerformanceStats Server::get_performance_stats() const {
     
     stats.io_thread_load = io_thread_pool_->thread_count();
     stats.worker_thread_load = thread_pool_->thread_count();
+    stats.cooperative_reschedules = cooperative_reschedules_.load();
+    stats.cooperative_dropped = cooperative_dropped_.load();
+    stats.pending_worker_tasks = thread_pool_->pending_tasks();
     
     return stats;
 }
@@ -693,6 +765,9 @@ void Server::print_performance_stats() const {
               << stats.avg_response_time_ms << " ms" << std::endl;
     std::cout << " IO threads: " << stats.io_thread_load << std::endl;
     std::cout << " Worker threads: " << stats.worker_thread_load << std::endl;
+    std::cout << " Worker queue depth: " << stats.pending_worker_tasks << std::endl;
+    std::cout << " Cooperative reschedules: " << stats.cooperative_reschedules << std::endl;
+    std::cout << " Cooperative drops: " << stats.cooperative_dropped << std::endl;
     std::cout << "================================" << std::endl;
 }
 

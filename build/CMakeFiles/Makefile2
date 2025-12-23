@@ -71,6 +71,7 @@ all: CMakeFiles/http_constructors_tests.dir/all
 all: CMakeFiles/http_error_tests.dir/all
 all: CMakeFiles/http_special_case_tests.dir/all
 all: CMakeFiles/performance_tests.dir/all
+all: CMakeFiles/cooperative_thread_pool_tests.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -86,6 +87,7 @@ clean: CMakeFiles/http_constructors_tests.dir/clean
 clean: CMakeFiles/http_error_tests.dir/clean
 clean: CMakeFiles/http_special_case_tests.dir/clean
 clean: CMakeFiles/performance_tests.dir/clean
+clean: CMakeFiles/cooperative_thread_pool_tests.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -95,7 +97,7 @@ clean: CMakeFiles/performance_tests.dir/clean
 CMakeFiles/gecko.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=3,4,5,6,7,8,9,10,11,12,13 "Built target gecko"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=5,6,7,8,9,10,11,12,13,14,15 "Built target gecko"
 .PHONY : CMakeFiles/gecko.dir/all
 
 # Build rule for subdir invocation for target.
@@ -121,7 +123,7 @@ CMakeFiles/gecko.dir/clean:
 CMakeFiles/example_gin_style.dir/all: CMakeFiles/gecko.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_gin_style.dir/build.make CMakeFiles/example_gin_style.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_gin_style.dir/build.make CMakeFiles/example_gin_style.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=1,2 "Built target example_gin_style"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=3,4 "Built target example_gin_style"
 .PHONY : CMakeFiles/example_gin_style.dir/all
 
 # Build rule for subdir invocation for target.
@@ -147,7 +149,7 @@ CMakeFiles/example_gin_style.dir/clean:
 CMakeFiles/router_tests.dir/all: CMakeFiles/gecko.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/router_tests.dir/build.make CMakeFiles/router_tests.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/router_tests.dir/build.make CMakeFiles/router_tests.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=24,25 "Built target router_tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=26,27 "Built target router_tests"
 .PHONY : CMakeFiles/router_tests.dir/all
 
 # Build rule for subdir invocation for target.
@@ -173,7 +175,7 @@ CMakeFiles/router_tests.dir/clean:
 CMakeFiles/http_basic_tests.dir/all: CMakeFiles/gecko.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/http_basic_tests.dir/build.make CMakeFiles/http_basic_tests.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/http_basic_tests.dir/build.make CMakeFiles/http_basic_tests.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=14,15 "Built target http_basic_tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=16,17 "Built target http_basic_tests"
 .PHONY : CMakeFiles/http_basic_tests.dir/all
 
 # Build rule for subdir invocation for target.
@@ -199,7 +201,7 @@ CMakeFiles/http_basic_tests.dir/clean:
 CMakeFiles/http_constructors_tests.dir/all: CMakeFiles/gecko.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/http_constructors_tests.dir/build.make CMakeFiles/http_constructors_tests.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/http_constructors_tests.dir/build.make CMakeFiles/http_constructors_tests.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=16,17 "Built target http_constructors_tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=18,19 "Built target http_constructors_tests"
 .PHONY : CMakeFiles/http_constructors_tests.dir/all
 
 # Build rule for subdir invocation for target.
@@ -225,7 +227,7 @@ CMakeFiles/http_constructors_tests.dir/clean:
 CMakeFiles/http_error_tests.dir/all: CMakeFiles/gecko.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/http_error_tests.dir/build.make CMakeFiles/http_error_tests.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/http_error_tests.dir/build.make CMakeFiles/http_error_tests.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=18,19 "Built target http_error_tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=20,21 "Built target http_error_tests"
 .PHONY : CMakeFiles/http_error_tests.dir/all
 
 # Build rule for subdir invocation for target.
@@ -251,7 +253,7 @@ CMakeFiles/http_error_tests.dir/clean:
 CMakeFiles/http_special_case_tests.dir/all: CMakeFiles/gecko.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/http_special_case_tests.dir/build.make CMakeFiles/http_special_case_tests.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/http_special_case_tests.dir/build.make CMakeFiles/http_special_case_tests.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=20,21 "Built target http_special_case_tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=22,23 "Built target http_special_case_tests"
 .PHONY : CMakeFiles/http_special_case_tests.dir/all
 
 # Build rule for subdir invocation for target.
@@ -277,7 +279,7 @@ CMakeFiles/http_special_case_tests.dir/clean:
 CMakeFiles/performance_tests.dir/all: CMakeFiles/gecko.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=22,23 "Built target performance_tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=24,25 "Built target performance_tests"
 .PHONY : CMakeFiles/performance_tests.dir/all
 
 # Build rule for subdir invocation for target.
@@ -295,6 +297,32 @@ performance_tests: CMakeFiles/performance_tests.dir/rule
 CMakeFiles/performance_tests.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/clean
 .PHONY : CMakeFiles/performance_tests.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/cooperative_thread_pool_tests.dir
+
+# All Build rule for target.
+CMakeFiles/cooperative_thread_pool_tests.dir/all: CMakeFiles/gecko.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cooperative_thread_pool_tests.dir/build.make CMakeFiles/cooperative_thread_pool_tests.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cooperative_thread_pool_tests.dir/build.make CMakeFiles/cooperative_thread_pool_tests.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=1,2 "Built target cooperative_thread_pool_tests"
+.PHONY : CMakeFiles/cooperative_thread_pool_tests.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/cooperative_thread_pool_tests.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dylan/code/GeckoWebFramework/build/CMakeFiles 13
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/cooperative_thread_pool_tests.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dylan/code/GeckoWebFramework/build/CMakeFiles 0
+.PHONY : CMakeFiles/cooperative_thread_pool_tests.dir/rule
+
+# Convenience name for target.
+cooperative_thread_pool_tests: CMakeFiles/cooperative_thread_pool_tests.dir/rule
+.PHONY : cooperative_thread_pool_tests
+
+# clean rule for target.
+CMakeFiles/cooperative_thread_pool_tests.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cooperative_thread_pool_tests.dir/build.make CMakeFiles/cooperative_thread_pool_tests.dir/clean
+.PHONY : CMakeFiles/cooperative_thread_pool_tests.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

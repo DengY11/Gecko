@@ -134,6 +134,8 @@ public:
                 ? ThreadPool::TaskPriority::HIGH
                 : (config.cooperative_task_priority < 0 ? ThreadPool::TaskPriority::LOW
                                                         : ThreadPool::TaskPriority::NORMAL);
+            cooperative_max_slices_ = config.cooperative_max_slices;
+            cooperative_request_timeout_ = std::chrono::milliseconds(config.cooperative_request_timeout_ms);
         }
         print_server_info_with_config(config);
         epoll_fd_ = epoll_create1(0);
@@ -166,6 +168,9 @@ public:
         double avg_response_time_ms = 0.0;
         size_t io_thread_load = 0;
         size_t worker_thread_load = 0;
+        size_t cooperative_reschedules = 0;
+        size_t cooperative_dropped = 0;
+        size_t pending_worker_tasks = 0;
         std::chrono::steady_clock::time_point timestamp;
     };
     
@@ -253,6 +258,10 @@ private:
     bool use_cooperative_workers_{false};
     ThreadPool::TaskPriority cooperative_priority_{ThreadPool::TaskPriority::NORMAL};
     std::chrono::milliseconds cooperative_time_slice_{2};
+    size_t cooperative_max_slices_{200};
+    std::chrono::milliseconds cooperative_request_timeout_{200};
+    std::atomic<size_t> cooperative_reschedules_{0};
+    std::atomic<size_t> cooperative_dropped_{0};
 };
 
 }

@@ -95,6 +95,51 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
+
 # The main all target
 all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/dylan/code/GeckoWebFramework/build/CMakeFiles /home/dylan/code/GeckoWebFramework/build//CMakeFiles/progress.marks
@@ -229,6 +274,19 @@ performance_tests: cmake_check_build_system
 performance_tests/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/build
 .PHONY : performance_tests/fast
+
+#=============================================================================
+# Target rules for targets named cooperative_thread_pool_tests
+
+# Build rule for target.
+cooperative_thread_pool_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 cooperative_thread_pool_tests
+.PHONY : cooperative_thread_pool_tests
+
+# fast build rule for target.
+cooperative_thread_pool_tests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cooperative_thread_pool_tests.dir/build.make CMakeFiles/cooperative_thread_pool_tests.dir/build
+.PHONY : cooperative_thread_pool_tests/fast
 
 example_gin_style.o: example_gin_style.cpp.o
 .PHONY : example_gin_style.o
@@ -614,6 +672,30 @@ tests/performance/performance_test.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/performance_tests.dir/build.make CMakeFiles/performance_tests.dir/tests/performance/performance_test.cpp.s
 .PHONY : tests/performance/performance_test.cpp.s
 
+tests/performance/test_thread_pool_cooperative.o: tests/performance/test_thread_pool_cooperative.cpp.o
+.PHONY : tests/performance/test_thread_pool_cooperative.o
+
+# target to build an object file
+tests/performance/test_thread_pool_cooperative.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cooperative_thread_pool_tests.dir/build.make CMakeFiles/cooperative_thread_pool_tests.dir/tests/performance/test_thread_pool_cooperative.cpp.o
+.PHONY : tests/performance/test_thread_pool_cooperative.cpp.o
+
+tests/performance/test_thread_pool_cooperative.i: tests/performance/test_thread_pool_cooperative.cpp.i
+.PHONY : tests/performance/test_thread_pool_cooperative.i
+
+# target to preprocess a source file
+tests/performance/test_thread_pool_cooperative.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cooperative_thread_pool_tests.dir/build.make CMakeFiles/cooperative_thread_pool_tests.dir/tests/performance/test_thread_pool_cooperative.cpp.i
+.PHONY : tests/performance/test_thread_pool_cooperative.cpp.i
+
+tests/performance/test_thread_pool_cooperative.s: tests/performance/test_thread_pool_cooperative.cpp.s
+.PHONY : tests/performance/test_thread_pool_cooperative.s
+
+# target to generate assembly for a file
+tests/performance/test_thread_pool_cooperative.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cooperative_thread_pool_tests.dir/build.make CMakeFiles/cooperative_thread_pool_tests.dir/tests/performance/test_thread_pool_cooperative.cpp.s
+.PHONY : tests/performance/test_thread_pool_cooperative.cpp.s
+
 tests/router/test_router.o: tests/router/test_router.cpp.o
 .PHONY : tests/router/test_router.o
 
@@ -645,8 +727,13 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... test"
+	@echo "... cooperative_thread_pool_tests"
 	@echo "... example_gin_style"
 	@echo "... gecko"
 	@echo "... http_basic_tests"
@@ -703,6 +790,9 @@ help:
 	@echo "... tests/performance/performance_test.o"
 	@echo "... tests/performance/performance_test.i"
 	@echo "... tests/performance/performance_test.s"
+	@echo "... tests/performance/test_thread_pool_cooperative.o"
+	@echo "... tests/performance/test_thread_pool_cooperative.i"
+	@echo "... tests/performance/test_thread_pool_cooperative.s"
 	@echo "... tests/router/test_router.o"
 	@echo "... tests/router/test_router.i"
 	@echo "... tests/router/test_router.s"

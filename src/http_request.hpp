@@ -6,7 +6,7 @@
 
 namespace Gecko {
 
-enum class HttpMethod { GET, POST, HEAD, PUT, DELETE, UNKNOWN };
+enum class HttpMethod { GET, POST, HEAD, PUT, DELETE, PATCH, OPTIONS, UNKNOWN };
 
 auto stringToHttpMethod(std::string method) -> HttpMethod;
 auto HttpMethodToString(HttpMethod method) -> std::string;

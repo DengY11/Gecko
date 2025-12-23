@@ -100,5 +100,11 @@
   "command": "/usr/bin/c++  -I/home/dylan/code/GeckoWebFramework/src -std=c++17 -o CMakeFiles/performance_tests.dir/tests/performance/performance_test.cpp.o -c /home/dylan/code/GeckoWebFramework/tests/performance/performance_test.cpp",
   "file": "/home/dylan/code/GeckoWebFramework/tests/performance/performance_test.cpp",
   "output": "CMakeFiles/performance_tests.dir/tests/performance/performance_test.cpp.o"
+},
+{
+  "directory": "/home/dylan/code/GeckoWebFramework/build",
+  "command": "/usr/bin/c++  -I/home/dylan/code/GeckoWebFramework/src -std=c++17 -o CMakeFiles/cooperative_thread_pool_tests.dir/tests/performance/test_thread_pool_cooperative.cpp.o -c /home/dylan/code/GeckoWebFramework/tests/performance/test_thread_pool_cooperative.cpp",
+  "file": "/home/dylan/code/GeckoWebFramework/tests/performance/test_thread_pool_cooperative.cpp",
+  "output": "CMakeFiles/cooperative_thread_pool_tests.dir/tests/performance/test_thread_pool_cooperative.cpp.o"
 }
 ]

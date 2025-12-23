@@ -172,10 +172,14 @@ void test_utility_functions() {
     /* Validate HTTP method helpers */
     assert(Gecko::stringToHttpMethod("GET") == Gecko::HttpMethod::GET);
     assert(Gecko::stringToHttpMethod("POST") == Gecko::HttpMethod::POST);
+    assert(Gecko::stringToHttpMethod("PATCH") == Gecko::HttpMethod::PATCH);
+    assert(Gecko::stringToHttpMethod("OPTIONS") == Gecko::HttpMethod::OPTIONS);
     assert(Gecko::stringToHttpMethod("INVALID") == Gecko::HttpMethod::UNKNOWN);
     
     assert(Gecko::HttpMethodToString(Gecko::HttpMethod::GET) == "GET");
     assert(Gecko::HttpMethodToString(Gecko::HttpMethod::POST) == "POST");
+    assert(Gecko::HttpMethodToString(Gecko::HttpMethod::PATCH) == "PATCH");
+    assert(Gecko::HttpMethodToString(Gecko::HttpMethod::OPTIONS) == "OPTIONS");
     assert(Gecko::HttpMethodToString(Gecko::HttpMethod::UNKNOWN) == "UNKNOWN");
     
     /* Validate HTTP version helpers */
