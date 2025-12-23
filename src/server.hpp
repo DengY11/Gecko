@@ -44,8 +44,8 @@ struct ConnectionInfo {
     std::chrono::steady_clock::time_point creation_time;
     std::atomic<bool> connected{true};
     std::atomic<size_t> request_count{0};
-    std::string partial_request;  // 存储部分请求数据
-    bool keep_alive{true};        // 是否保持连接
+    std::string partial_request;  /* Partial request data */
+    bool keep_alive{true};        /* Keep connection alive */
     
     ConnectionInfo(int fd, const std::string& peer, const std::string& local)
         : fd(fd), peer_addr(peer), local_addr(local),
@@ -62,13 +62,13 @@ struct ConnectionInfo {
     }
 };
 
-// 连接管理器 - 参考Drogon的HttpConnectionLimit
+/* Connection manager inspired by Drogon's HttpConnectionLimit */
 class ConnectionManager {
 public:
     ConnectionManager(size_t max_connections = 10000, 
                      std::chrono::seconds keep_alive_timeout = std::chrono::seconds(60))
         : max_connections_(max_connections), keep_alive_timeout_(keep_alive_timeout) {
-        // 预分配连接槽位，减少动态分配
+        /* Pre-allocate slots to avoid allocations */
         connections_.reserve(max_connections);
     }
     
@@ -81,7 +81,7 @@ public:
     size_t get_active_count() const { return active_connections_.load(); }
     bool can_accept_connection() const { return active_connections_.load() < max_connections_; }
     
-    // 新增：批量操作接口
+    /* Batch operations */
     void batch_remove_connections(const std::vector<int>& fds);
     void get_connection_stats(size_t& active, size_t& total_ever_created) const;
     
@@ -89,7 +89,7 @@ private:
     size_t max_connections_;
     std::chrono::seconds keep_alive_timeout_;
     
-    // 优化：使用读写锁提高并发性能
+    /* Use shared mutex for better concurrency */
     mutable std::shared_mutex connections_mutex_;
     std::unordered_map<int, std::shared_ptr<ConnectionInfo>> connections_;
     std::atomic<size_t> active_connections_{0};
@@ -180,20 +180,20 @@ private:
     void cleanup_expired_connections();
     void cleanup_all_connections();
     
-    // 新的三线程架构处理函数
+    /* Three-thread architecture handlers */
     void process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn_info, const std::string& request_data);
     void handle_keep_alive_response(std::shared_ptr<ConnectionInfo> conn_info, const std::string& response_data);
     
-    // 错误处理函数
+    /* Error helpers */
     void send_error_response(int client_fd, int status_code, const std::string& message);
     
-    // 网络工具函数
+    /* Network helpers */
     void set_non_blockint(int fd);
     void add_to_epoll(int fd,uint32_t events);
     void remove_from_epoll(int fd);
     void send_response(int client_fd, const std::string& response);
     
-    // 工具函数
+    /* Utility helpers */
     std::string get_peer_address(int fd) const;
     std::string get_local_address(int fd) const;
 
@@ -204,36 +204,36 @@ private:
     int epoll_fd_;
     RequestHandler request_handler_;
     std::unique_ptr<ThreadPool> thread_pool_;
-    std::unique_ptr<IOThreadPool> io_thread_pool_;  // 新增：IO线程池
+    std::unique_ptr<IOThreadPool> io_thread_pool_;  /* IO thread pool */
     std::unique_ptr<ConnectionManager> conn_manager_;
     
-    // 统计信息
+    /* Basic stats */
     std::atomic<size_t> total_requests_{0};
     std::atomic<size_t> total_connections_{0};
     
-    // 新增：详细性能统计
+    /* Detailed performance stats */
     std::atomic<size_t> successful_requests_{0};
     std::atomic<size_t> failed_requests_{0};
     std::atomic<double> total_response_time_ms_{0.0};
     mutable std::atomic<size_t> last_requests_snapshot_{0};
     mutable std::chrono::steady_clock::time_point last_stats_snapshot_;
     
-    // 性能监控线程
+    /* Performance monitoring */
     bool enable_performance_monitoring_ = false;
     std::chrono::seconds performance_monitor_interval_;
     std::unique_ptr<std::thread> performance_monitor_thread_;
     std::atomic<bool> performance_monitoring_{false};
     
-    // Accept策略配置
+    /* Accept strategy */
     ServerConfig::AcceptStrategy accept_strategy_{ServerConfig::AcceptStrategy::BATCH_SIMPLE};
     int max_batch_accept_{128};
     
-    // 性能监控
+    /* Snapshot state */
     mutable std::mutex stats_mutex_;
     std::chrono::steady_clock::time_point last_stats_time_;
     size_t last_request_count_{0};
     
-    // 服务器状态
+    /* Server lifecycle state */
     std::atomic<bool> running_{false};
 };
 

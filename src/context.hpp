@@ -19,10 +19,10 @@ public:
     : request_(req), response_(HttpResponse::stockResponse(200)) {}
     const HttpRequest &request() const { return request_; }
 
-    // get router params
+    /* Get router params */
     const std::string &param(const std::string &key) const;
 
-    // get query params
+    /* Get query parameter value */
     std::string query(const std::string &key) const;
 
     std::string header(const std::string &key) const;

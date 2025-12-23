@@ -7,13 +7,13 @@ ThreadPool::ThreadPool(size_t thread_count) : stop_(false) {
     if (thread_count == 0) {
         thread_count = std::thread::hardware_concurrency();
         if (thread_count == 0) {
-            thread_count = 4; // 默认4个线程
+            thread_count = 4; /* Default to four threads */
         }
     }
     
-    std::cout << "🧵 创建线程池，线程数量: " << thread_count << std::endl;
+    std::cout << "[THREAD] Creating thread pool, thread count: " << thread_count << std::endl;
     
-    // 创建工作线程
+    /* Spawn worker threads */
     for (size_t i = 0; i < thread_count; ++i) {
         threads_.emplace_back([this] {
             while (true) {
@@ -22,28 +22,28 @@ ThreadPool::ThreadPool(size_t thread_count) : stop_(false) {
                 {
                     std::unique_lock<std::mutex> lock(queue_mutex_);
                     
-                    // 等待任务或停止信号
+                    /* Wait for work or stop signal */
                     condition_.wait(lock, [this] {
                         return stop_ || !tasks_.empty();
                     });
                     
-                    // 如果收到停止信号且任务队列为空，退出
+                    /* Exit when stopping and queue is empty */
                     if (stop_ && tasks_.empty()) {
                         return;
                     }
                     
-                    // 获取任务
+                    /* Pull next task */
                     task = std::move(tasks_.front());
                     tasks_.pop();
                 }
                 
-                // 执行任务
+                /* Execute task */
                 try {
                     task();
                 } catch (const std::exception& e) {
-                    std::cerr << "线程池任务执行异常: " << e.what() << std::endl;
+                std::cerr << "Thread pool task threw an exception: " << e.what() << std::endl;
                 } catch (...) {
-                    std::cerr << "线程池任务执行未知异常" << std::endl;
+                    std::cerr << "Thread pool task threw an unknown exception" << std::endl;
                 }
             }
         });
@@ -56,17 +56,17 @@ ThreadPool::~ThreadPool() {
         stop_ = true;
     }
     
-    // 通知所有线程
+    /* Wake up all threads */
     condition_.notify_all();
     
-    // 等待所有线程完成
+    /* Join all threads */
     for (std::thread& thread : threads_) {
         if (thread.joinable()) {
             thread.join();
         }
     }
     
-    std::cout << "🧵 线程池已关闭" << std::endl;
+    std::cout << "[THREAD] Thread pool stopped" << std::endl;
 }
 
-} // namespace Gecko 
+} /* namespace Gecko */

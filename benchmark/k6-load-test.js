@@ -2,45 +2,45 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { Rate, Trend, Counter } from 'k6/metrics';
 
-// 自定义指标
+/* Custom metrics */
 const errorRate = new Rate('errors');
 const apiResponseTimes = new Trend('api_response_times');
 const requestCounter = new Counter('requests_total');
 const connectionsActive = new Counter('connections_active');
 
-// 服务器配置
+/* Server configuration */
 const BASE_URL = 'http://localhost:13514';
 
-// 测试配置 - 专注于连接持续性
+/* Load test config focused on connection longevity */
 export const options = {
-  // 持续连接测试 - 最大20000个连接
+  /* Sustained connection stages (up to 20k) */
   stages: [
-    { duration: '2m', target: 10000 },     // 2分钟内增加到5000个连接
-    { duration: '2m', target: 50000 },    // 2分钟内增加到20000个连接（峰值）
-     {duration: '2m', target: 30000 },    // 2分钟内降到10000个连接
-    { duration: '1m', target: 0 },        // 1分钟内所有连接断开
+    { duration: '2m', target: 10000 },     /* Ramp to 10k connections */
+    { duration: '2m', target: 50000 },    /* Peak at 50k virtual users */
+     {duration: '2m', target: 30000 },    /* Drop down to 30k */
+    { duration: '1m', target: 0 },        /* Drain all connections */
   ],
   
-  // 连接持续性相关的阈值
+  /* Thresholds for long-lived connections */
   thresholds: {
-    http_req_duration: ['p(95)<2000'],    // 95%的请求延迟应该小于2秒
-    http_req_failed: ['rate<0.02'],       // 错误率应该小于2%
-    errors: ['rate<0.05'],                // 自定义错误率应该小于5%
-    api_response_times: ['p(99)<5000'],   // 99%的API响应时间应该小于5秒
-    requests_total: ['count>100000'],     // 总请求数应该超过10万
+    http_req_duration: ['p(95)<2000'],    /* 95% under 2s */
+    http_req_failed: ['rate<0.02'],       /* Failures under 2% */
+    errors: ['rate<0.05'],                /* Custom errors under 5% */
+    api_response_times: ['p(99)<5000'],   /* 99% responses under 5s */
+    requests_total: ['count>100000'],     /* Exceed 100k requests */
   },
   
-  // 连接复用配置 - 模拟真实浏览器行为
+  /* Connection reuse to mimic browsers */
   userAgent: 'K6-Gecko-LoadTester/1.0',
-  noConnectionReuse: false,              // 启用连接复用测试Keep-Alive
+  noConnectionReuse: false,              /* Keep-Alive enabled */
   maxRedirects: 4,
-  batch: 1,                              // 每次只发送一个请求，模拟真实场景
-  // httpDebug: 'full',                  // 关闭调试输出，提高性能
+  batch: 1,                              /* Single request per batch */
+  /* httpDebug: 'full',                  Disable for less noise */
 };
 
-// 简化场景配置 - 专注于持续连接
+/* Scenario definitions tuned for connection persistence */
 export const scenarios = {
-  // 默认场景：持续连接持续请求
+  /* Default scenario: continuous connections and requests */
   continuous_load: {
     executor: 'ramping-vus',
     startVUs: 0,
@@ -49,29 +49,29 @@ export const scenarios = {
       { duration: '3m', target: 10000 },
       { duration: '3m', target: 15000 },
       { duration: '2m', target: 20000 },
-      { duration: '10m', target: 20000 },  // 核心：保持20000个连接10分钟
+      { duration: '10m', target: 20000 },  /* Hold 20k connections for 10min */
       { duration: '4m', target: 0 },
     ],
-    gracefulRampDown: '1m',               // 优雅关闭时间
+    gracefulRampDown: '1m',               /* Graceful shutdown */
   }
 };
 
-// 测试数据
+/* Test data */
 const testUsers = ['alice', 'bob', 'charlie', 'diana', 'eve', 'frank', 'grace', 'henry'];
 const searchQueries = ['gecko', 'framework', 'performance', 'benchmark', 'test', 'api', 'web', 'server'];
 
 export default function() {
-  // 每个虚拟用户（连接）会持续发送多个请求
-  const requestsPerConnection = Math.floor(Math.random() * 5) + 3; // 每个连接发送3-7个请求
+  /* Each virtual connection issues multiple requests */
+  const requestsPerConnection = Math.floor(Math.random() * 5) + 3; /* 3-7 requests */
   
   for (let i = 0; i < requestsPerConnection; i++) {
-    // 随机选择测试场景，模拟真实用户行为
+    /* Randomize scenarios to mimic user behavior */
     const testScenarios = [
-      testPingAPI,       // 40% - 最轻量级
-      testHomePage,      // 25% - 常见请求
-      testUserAPI,       // 20% - 业务请求
-      testHelloAPI,      // 10% - 参数化请求
-      testSearchAPI,     // 5%  - 复杂请求
+      testPingAPI,       /* 40% lightweight */
+      testHomePage,      /* 25% home page */
+      testUserAPI,       /* 20% API */
+      testHelloAPI,      /* 10% parameterized */
+      testSearchAPI,     /* 5% complex */
     ];
     
     const weights = [40, 25, 20, 10, 5];
@@ -86,15 +86,15 @@ export default function() {
       }
     }
     
-    // 模拟用户在请求之间的思考时间
-    sleep(Math.random() * 0.3 + 0.1); // 0.1-0.4秒的间隔
+    /* Think time between requests */
+    sleep(Math.random() * 0.3 + 0.1); /* 0.1-0.4s */
   }
   
-  // 连接结束前的长暂停，模拟用户阅读内容的时间
-  sleep(Math.random() * 2 + 1); // 1-3秒的暂停
+  /* Pause before disconnect to mimic reading time */
+  sleep(Math.random() * 2 + 1); /* 1-3s pause */
 }
 
-// 测试Ping API - 最轻量级，用于保活检测
+/* Ping endpoint keeps the connection alive */
 function testPingAPI() {
   const response = http.get(`${BASE_URL}/ping`, {
     headers: {
@@ -112,7 +112,7 @@ function testPingAPI() {
   updateMetrics(success, response);
 }
 
-// 测试首页
+/* Home page test */
 function testHomePage() {
   const response = http.get(`${BASE_URL}/`, {
     headers: {
@@ -130,7 +130,7 @@ function testHomePage() {
   updateMetrics(success, response);
 }
 
-// 测试用户API
+/* User API test */
 function testUserAPI() {
   const userIds = ['123', '456', '赵敏'];
   const userId = userIds[Math.floor(Math.random() * userIds.length)];
@@ -150,7 +150,7 @@ function testUserAPI() {
   updateMetrics(success, response);
 }
 
-// 测试Hello API
+/* Hello API test */
 function testHelloAPI() {
   const name = testUsers[Math.floor(Math.random() * testUsers.length)];
   const response = http.get(`${BASE_URL}/hello/${name}`, {
@@ -169,7 +169,7 @@ function testHelloAPI() {
   updateMetrics(success, response);
 }
 
-// 测试搜索API
+/* Search API test */
 function testSearchAPI() {
   const query = searchQueries[Math.floor(Math.random() * searchQueries.length)];
   const type = Math.random() > 0.5 ? 'framework' : 'library';
@@ -189,48 +189,48 @@ function testSearchAPI() {
   updateMetrics(success, response);
 }
 
-// 统一的指标更新函数
+/* Shared metrics updater */
 function updateMetrics(success, response) {
   errorRate.add(!success);
   apiResponseTimes.add(response.timings.duration);
   requestCounter.add(1);
   
-  // 记录连接信息
+  /* Track active connection info */
   if (response.status >= 200 && response.status < 300) {
     connectionsActive.add(1);
   }
 }
 
-// 设置阶段
+/* Setup phase */
 export function setup() {
-  console.log('🚀 开始Gecko Web Framework持续连接压力测试');
-  console.log(`📊 目标服务器: ${BASE_URL}`);
-  console.log('🔗 测试模式: 最大20000个持续连接，每个连接发送多个请求');
+  console.log('[START] 开始Gecko Web Framework持续连接压力测试');
+  console.log(`[STATS] 目标服务器: ${BASE_URL}`);
+  console.log('[LINK] 测试模式: 最大20000个持续连接，每个连接发送多个请求');
   console.log('⏱️  预计测试时间: 约28分钟');
   
-  // 预热服务器
-  console.log('🔥 预热服务器...');
+  /* Warm up server */
+  console.log('[WARMUP] 预热服务器...');
   const warmupResponse = http.get(`${BASE_URL}/ping`);
   if (warmupResponse.status !== 200) {
     throw new Error(`服务器预热失败，状态码: ${warmupResponse.status}`);
   }
   
-  console.log('✅ 服务器预热完成，开始正式测试...');
+  console.log('[OK] 服务器预热完成，开始正式测试...');
   return { 
     startTime: new Date(),
     serverVersion: warmupResponse.headers['Server'] || 'Unknown'
   };
 }
 
-// 拆卸阶段
+/* Teardown phase */
 export function teardown(data) {
   const endTime = new Date();
   const duration = (endTime - data.startTime) / 1000;
   const minutes = Math.floor(duration / 60);
   const seconds = Math.floor(duration % 60);
   
-  console.log('🏁 Gecko Web Framework持续连接测试完成');
+  console.log('[DONE] Gecko Web Framework持续连接测试完成');
   console.log(`⏰ 总测试时间: ${minutes}分${seconds}秒`);
-  console.log(`🖥️  服务器版本: ${data.serverVersion}`);
+  console.log(`[HOST]  服务器版本: ${data.serverVersion}`);
   console.log('�� 详细统计数据请查看K6报告');
 } 

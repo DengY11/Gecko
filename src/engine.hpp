@@ -41,13 +41,13 @@ public:
         return *this;
     }
 
-    // === middleware support ===
+    /* Middleware support */
     Engine& Use(MiddlewareFunc middleware) {
         middlewares_.push_back(middleware);
         return *this;
     }
 
-    // === static file service ===
+    /* Static file service */
     Engine& Static(const std::string& relativePath, const std::string& root); 
 
     void Run(const ServerConfig& config);

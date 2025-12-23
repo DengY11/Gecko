@@ -14,7 +14,7 @@ namespace Gecko {
 
 class RequestBuffer {
 public:
-    static constexpr size_t DEFAULT_SIZE = 163840; // 160KB
+    static constexpr size_t DEFAULT_SIZE = 163840; /* 160KB */
     
     RequestBuffer(size_t size = DEFAULT_SIZE) : capacity_(size), size_(0) {
         data_ = std::make_unique<char[]>(capacity_);
@@ -85,7 +85,7 @@ private:
     bool http_request_valid_ = false;
 };
 
-// 高性能请求池
+/* High-performance request pool */
 class RequestPool {
 public:
     static constexpr size_t DEFAULT_POOL_SIZE = 20480; 
@@ -93,7 +93,7 @@ public:
     explicit RequestPool(size_t pool_size = DEFAULT_POOL_SIZE) 
         : pool_size_(pool_size), allocated_count_(0) {
         
-        // 预分配所有请求对象
+        /* Pre-allocate request objects */
         for (size_t i = 0; i < pool_size; ++i) {
             available_requests_.push(std::make_unique<PooledRequest>());
         }
@@ -109,7 +109,7 @@ public:
             available_requests_.pop();
             request->reset();
         } else {
-            // 池已空，创建新对象
+            /* Pool exhausted, create new request */
             request = std::make_unique<PooledRequest>();
             pool_misses_++;
         }
@@ -128,10 +128,10 @@ public:
             request->reset();
             available_requests_.push(std::move(request));
         }
-        // 如果池已满，直接丢弃对象
+        /* Drop request if pool is full */
     }
     
-    // 统计信息
+    /* Statistics */
     size_t available_count() const {
         std::lock_guard<std::mutex> lock(mutex_);
         return available_requests_.size();
@@ -159,7 +159,7 @@ private:
     std::stack<std::unique_ptr<PooledRequest>> available_requests_;
 };
 
-// RAII请求管理器
+/* RAII request guard */
 class RequestManager {
 public:
     RequestManager(std::shared_ptr<RequestPool> pool) 
@@ -171,7 +171,7 @@ public:
         }
     }
     
-    // 禁止拷贝，允许移动
+    /* Non-copyable, movable */
     RequestManager(const RequestManager&) = delete;
     RequestManager& operator=(const RequestManager&) = delete;
     
@@ -198,6 +198,6 @@ private:
     std::unique_ptr<PooledRequest> request_;
 };
 
-} // namespace Gecko
+} /* namespace Gecko */
 
-#endif // REQUEST_POOL_HPP 
+#endif /* REQUEST_POOL_HPP */

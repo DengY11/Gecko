@@ -50,22 +50,22 @@ public:
     void addHeader(const std::string &key, const std::string &value,
                    bool overwrite = true);
 
-    // 优化：返回引用避免拷贝
+    /* Return references to avoid copies */
     HttpVersion getVersion() const { return version; }
     int getStatusCode() const { return statusCode; }
     std::string_view getReasonPhrase() const { return reasonPhrase; }
-    const HttpHeaderMap& getHeaders() const { return headers; }  // 返回const引用
-    std::string_view getBody() const { return body; }  // 使用string_view
+    const HttpHeaderMap& getHeaders() const { return headers; }  /* Return const reference */
+    std::string_view getBody() const { return body; }  /* Expose via string_view */
 
-    // 新增：预估序列化后的大小，用于预分配内存
+    /* Estimate serialized size for preallocation */
     size_t estimateSerializedSize() const;
     
-    // 新增：直接序列化到预分配的字符串中，避免多次重新分配
+    /* Serialize into preallocated string */
     void serializeTo(std::string& output) const;
 
 private:
     friend class HttpResponseSerializer;
-    HttpVersion version = HttpVersion::HTTP_1_1;  // 默认HTTP/1.1
+    HttpVersion version = HttpVersion::HTTP_1_1;  /* Default HTTP/1.1 */
     int statusCode = 200;
     std::string reasonPhrase = "OK";
     HttpHeaderMap headers;
@@ -73,16 +73,16 @@ private:
 };
 
 struct HttpResponseSerializer {
-    // 原有方法保持兼容性
+    /* Keep legacy interface */
     static auto serialize(const HttpResponse &response) -> std::string;
     
-    // 新增：高效序列化方法，预分配内存
-    static void serializeTo(const HttpResponse &response, std::string& output);
+    /* Efficient serialization with preallocation */
+   static void serializeTo(const HttpResponse &response, std::string& output);
     
-    // 新增：直接序列化到缓冲区，零拷贝
+    /* Serialize directly into a buffer */
     static size_t serializeToBuffer(const HttpResponse &response, char* buffer, size_t buffer_size);
 };
 
-} // namespace Gecko
+} /* namespace Gecko */
 
 #endif

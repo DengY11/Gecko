@@ -2,7 +2,7 @@
 
 echo "=== Gecko Web Framework 系统优化脚本 ==="
 
-# 检查当前用户权限
+# Check privilege level
 if [ "$EUID" -ne 0 ]; then
     echo "注意: 某些优化需要root权限才能永久生效"
     echo "建议运行: sudo ./optimize_system.sh"
@@ -11,35 +11,35 @@ fi
 
 echo "1. 优化网络参数..."
 
-# 扩大本地端口范围 (需要root权限)
+# Expand ephemeral port range (root only)
 if [ "$EUID" -eq 0 ]; then
     echo "net.ipv4.ip_local_port_range = 1024 65535" >> /etc/sysctl.conf
     sysctl -w net.ipv4.ip_local_port_range="1024 65535"
-    echo "✓ 端口范围扩展至 1024-65535 (64511个端口)"
+    echo "[OK] 端口范围扩展至 1024-65535 (64511个端口)"
 else
     echo "- 当前端口范围: $(cat /proc/sys/net/ipv4/ip_local_port_range)"
     echo "  建议扩展至: 1024 65535 (需要root权限)"
 fi
 
-# 加速TIME_WAIT回收 (需要root权限)
+# Accelerate TIME_WAIT recycling (root only)
 if [ "$EUID" -eq 0 ]; then
     echo "net.ipv4.tcp_tw_reuse = 1" >> /etc/sysctl.conf
     echo "net.ipv4.tcp_fin_timeout = 30" >> /etc/sysctl.conf
     sysctl -w net.ipv4.tcp_tw_reuse=1
     sysctl -w net.ipv4.tcp_fin_timeout=30
-    echo "✓ 启用TIME_WAIT重用，减少FIN_TIMEOUT为30秒"
+    echo "[OK] 启用TIME_WAIT重用，减少FIN_TIMEOUT为30秒"
 else
     echo "- TIME_WAIT重用: $(cat /proc/sys/net/ipv4/tcp_tw_reuse)"
     echo "  建议启用TIME_WAIT重用以加速端口回收"
 fi
 
-# 增加连接队列大小 (需要root权限)
+# Increase listen queue size (root only)
 if [ "$EUID" -eq 0 ]; then
     echo "net.core.somaxconn = 65536" >> /etc/sysctl.conf
     echo "net.ipv4.tcp_max_syn_backlog = 65536" >> /etc/sysctl.conf
     sysctl -w net.core.somaxconn=65536
     sysctl -w net.ipv4.tcp_max_syn_backlog=65536
-    echo "✓ 连接队列扩展至 65536"
+    echo "[OK] 连接队列扩展至 65536"
 else
     echo "- 当前somaxconn: $(cat /proc/sys/net/core/somaxconn)"
     echo "  建议增加至65536以支持更多并发连接"
@@ -48,7 +48,7 @@ fi
 echo ""
 echo "2. 文件描述符优化..."
 
-# 检查当前文件描述符限制
+# Inspect descriptor limits
 current_limit=$(ulimit -n)
 echo "- 当前进程文件描述符限制: $current_limit"
 
@@ -66,7 +66,7 @@ echo "- 测试持续时间: 较短 (3-5分钟)"
 echo "- 渐进增长: 逐步增加VU数，观察系统表现"
 echo ""
 
-# 计算可用端口数
+# Derive available ports
 port_range=$(cat /proc/sys/net/ipv4/ip_local_port_range)
 min_port=$(echo $port_range | cut -d' ' -f1)
 max_port=$(echo $port_range | cut -d' ' -f2)

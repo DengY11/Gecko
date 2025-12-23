@@ -55,12 +55,12 @@ public:
         parseQueryParams(); 
     }
     void setVersion(HttpVersion version) { this->version = version; }
-    //void setHeaders(HttpHeaderMap headers) { this->headers = headers; }
+    /* void setHeaders(HttpHeaderMap headers) { this->headers = headers; } */
     void setHeaders(const HttpHeaderMap &headers) { this->headers = headers; }
     void setHeaders(HttpHeaderMap &&headers) {
         this->headers = std::move(headers);
     }
-    //void setBody(HttpBody body) { this->body = body; }
+    /* void setBody(HttpBody body) { this->body = body; } */
     void setBody(const HttpBody &body) { this->body = body; }
     void setBody(HttpBody &&body) { this->body = std::move(body); }
     std::string getQueryParam(const std::string& key) const {

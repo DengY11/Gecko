@@ -12,7 +12,7 @@
 
 namespace Gecko {
 
-// 前向声明
+/* Forward declaration */
 class Context;
 
 using RequestHandler = std::function<void(Context&)>;
@@ -21,7 +21,7 @@ struct Node {
 
     Node(std::string seg = "") : segment(std::move(seg)) {}
 
-    std::string segment; // "user" ":id"
+    std::string segment; /* e.g. "user" or ":id" */
     std::map<std::string, std::unique_ptr<Node>> children;
     std::unique_ptr<Node> param_child = nullptr;
     std::string param_key;
@@ -29,7 +29,7 @@ struct Node {
 };
 
 
-//      /users/:id/posts -> ["users", ":id", "posts"]
+/* Example: /users/:id/posts -> ["users", ":id", "posts"] */
 inline auto split_path(const std::string &path) -> std::vector<std::string> {
     std::vector<std::string> result;
     std::stringstream ss(path);
@@ -58,6 +58,6 @@ private:
         
 };
 
-} // namespace Gecko
+} /* namespace Gecko */
 
 #endif

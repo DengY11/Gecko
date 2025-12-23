@@ -8,20 +8,20 @@ namespace Gecko {
 
 HttpResponse HttpResponse::stockResponse(int statusCode) {
     HttpResponse response;
-    response.setVersion(HttpVersion::HTTP_1_1);  // 默认使用HTTP/1.1
+    response.setVersion(HttpVersion::HTTP_1_1);  /* Default to HTTP/1.1 */
     response.setStatusCode(statusCode);
     
-    // 优化：使用引用避免map查找的拷贝
+    /* Use iterator to avoid redundant map lookups */
     auto it = statusCodeMap.find(statusCode);
     if (it != statusCodeMap.end()) {
-        response.setReasonPhrase(it->second);  // 这里会进行一次拷贝，但无法避免
+        response.setReasonPhrase(it->second);  /* Copy is unavoidable here */
     } else {
         response.setReasonPhrase("Unknown");
     }
     return response;
 }
 
-//TODO:性能优化
+/* TODO: optimize performance */
 void HttpResponse::addHeader(const std::string &key, const std::string &value,
                              bool overwrite) {
     if (!overwrite && headers.find(key) != headers.end()) {
@@ -31,38 +31,38 @@ void HttpResponse::addHeader(const std::string &key, const std::string &value,
     headers[key] = value;
 }
 
-// 新增：预估序列化后的大小
+/* Estimate serialized size */
 size_t HttpResponse::estimateSerializedSize() const {
-    // HTTP/1.1 200 OK\r\n = ~15 bytes
+    /* HTTP/1.1 200 OK\r\n ~= 15 bytes */
     size_t size = HttpVersionToString(version).length() + 1 + 
                   std::to_string(statusCode).length() + 1 + 
                   reasonPhrase.length() + 2;
     
-    // Headers
+    /* Headers */
     for (const auto& [key, value] : headers) {
-        size += key.length() + 2 + value.length() + 2; // key: value\r\n
+        size += key.length() + 2 + value.length() + 2; /* key: value\r\n */
     }
     
-    // Content-Length header if not present
+    /* Content-Length header if not present */
     bool has_content_length = headers.find("Content-Length") != headers.end() ||
                              headers.find("content-length") != headers.end();
     if (!has_content_length) {
-        size += 16 + std::to_string(body.length()).length() + 2; // Content-Length: xxx\r\n
+        size += 16 + std::to_string(body.length()).length() + 2; /* Content-Length: xxx\r\n */
     }
     
-    size += 2; // \r\n separator
-    size += body.length(); // body
+    size += 2; /* \r\n separator */
+    size += body.length(); /* Body */
     
-    // Add 10% buffer for safety
+    /* Add 10% buffer */
     return size + (size / 10);
 }
 
-// 新增：直接序列化到字符串，预分配内存
+/* Serialize directly into a string with preallocation */
 void HttpResponse::serializeTo(std::string& output) const {
     output.clear();
     output.reserve(estimateSerializedSize());
     
-    // Status line
+    /* Status line */
     output += HttpVersionToString(version);
     output += ' ';
     output += std::to_string(statusCode);
@@ -70,12 +70,12 @@ void HttpResponse::serializeTo(std::string& output) const {
     output += reasonPhrase;
     output += "\r\n";
     
-    // Headers - 使用const引用避免拷贝
+    /* Headers via const ref to avoid copies */
     const auto& headers_ref = headers;
     bool has_content_length = headers_ref.find("Content-Length") != headers_ref.end() ||
                              headers_ref.find("content-length") != headers_ref.end();
     
-    // Add Content-Length if not present
+    /* Add Content-Length if missing */
     if (!has_content_length) {
         output += "Content-Length: ";
         output += std::to_string(body.length());
@@ -93,8 +93,7 @@ void HttpResponse::serializeTo(std::string& output) const {
     output += body;
 }
 
-// HttpResponseSerializer 实现
-
+/* HttpResponseSerializer implementation */
 auto HttpResponseSerializer::serialize(const HttpResponse &response) -> std::string {
     std::string result;
     response.serializeTo(result);
@@ -105,7 +104,7 @@ void HttpResponseSerializer::serializeTo(const HttpResponse &response, std::stri
     response.serializeTo(output);
 }
 
-// 新增：直接序列化到缓冲区，零拷贝
+/* Serialize directly into a caller-provided buffer */
 size_t HttpResponseSerializer::serializeToBuffer(const HttpResponse &response, char* buffer, size_t buffer_size) {
     if (!buffer || buffer_size == 0) {
         return 0;
@@ -114,17 +113,17 @@ size_t HttpResponseSerializer::serializeToBuffer(const HttpResponse &response, c
     char* current = buffer;
     char* end = buffer + buffer_size;
     
-    // Helper lambda for safe buffer writing
+    /* Helper lambda for safe buffer writing */
     auto safe_write = [&current, end](std::string_view data) -> bool {
         if (current + data.length() >= end) {
-            return false; // Buffer overflow
+            return false; /* Buffer overflow */
         }
         std::memcpy(current, data.data(), data.length());
         current += data.length();
         return true;
     };
     
-    // Status line
+    /* Status line */
     std::string version_str = HttpVersionToString(response.getVersion());
     std::string status_code_str = std::to_string(response.getStatusCode());
     
@@ -137,12 +136,12 @@ size_t HttpResponseSerializer::serializeToBuffer(const HttpResponse &response, c
         return 0;
     }
     
-    // Headers
+    /* Headers */
     const auto& headers = response.getHeaders();
     bool has_content_length = headers.find("Content-Length") != headers.end() ||
                              headers.find("content-length") != headers.end();
     
-    // Add Content-Length if not present
+    /* Add Content-Length if missing */
     if (!has_content_length) {
         std::string content_length_str = std::to_string(response.getBody().length());
         if (!safe_write("Content-Length: ") ||
@@ -161,7 +160,7 @@ size_t HttpResponseSerializer::serializeToBuffer(const HttpResponse &response, c
         }
     }
     
-    // Empty line and body
+    /* Empty line and body */
     if (!safe_write("\r\n") ||
         !safe_write(response.getBody())) {
         return 0;
@@ -170,4 +169,4 @@ size_t HttpResponseSerializer::serializeToBuffer(const HttpResponse &response, c
     return current - buffer;
 }
 
-} // namespace Gecko
+} /* namespace Gecko */

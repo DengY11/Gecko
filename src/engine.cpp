@@ -7,7 +7,7 @@ namespace Gecko {
 
 auto Engine::Static(const std::string &relativePath,
                     const std::string &root) -> Engine & {
-    // TODO: 实现静态文件服务
+    /* TODO: implement static file service */
     return *this;
 }
 
@@ -48,30 +48,29 @@ void Engine::executeMiddlewares(Context &ctx, HandlerFunc finalHandler) {
 }
 
 void Engine::printServerInfo(const ServerConfig &config) {
-    std::cout << "🦎 Gecko Web Framework" << std::endl;
-    std::cout << "======================" << std::endl;
+    std::cout << "Gecko Web Framework" << std::endl;
+    std::cout << "====================" << std::endl;
     std::cout << std::endl;
 
-    // 基本配置信息
-    std::cout << " 服务器配置:" << std::endl;
-    std::cout << " 端口:           " << config.port << std::endl;
-    std::cout << " 监听地址:       " << config.host << std::endl;
-    std::cout << " 工作线程数:     " << config.thread_pool_size << std::endl;
-    std::cout << " 最大连接数:     " << config.max_connections << std::endl;
-    std::cout << " 请求体大小限制: " << (config.max_request_body_size / 1024) << " KB" << std::endl;
-    std::cout << " Keep-Alive超时: " << config.keep_alive_timeout << 
-        "秒" << std::endl;
-        std::cout << std::endl;
+    /* Basic configuration output */
+    std::cout << " Server configuration:" << std::endl;
+    std::cout << " Port:              " << config.port << std::endl;
+    std::cout << " Listen address:    " << config.host << std::endl;
+    std::cout << " Worker threads:    " << config.thread_pool_size << std::endl;
+    std::cout << " Max connections:   " << config.max_connections << std::endl;
+    std::cout << " Body size limit:   " << (config.max_request_body_size / 1024) << " KB" << std::endl;
+    std::cout << " Keep-Alive timeout:" << config.keep_alive_timeout << " seconds" << std::endl;
+    std::cout << std::endl;
 
-    // 启动提示
-    std::cout << "服务器启动中..." << std::endl;
-    std::cout << "访问地址: http://" << (config.host == "0.0.0.0" ? "localhost" : config.host) << ":"
+    /* Startup hints */
+    std::cout << "Server starting..." << std::endl;
+    std::cout << "Visit http://" << (config.host == "0.0.0.0" ? "localhost" : config.host) << ":"
         << config.port << std::endl;
     std::cout << std::endl;
 
     std::cout << std::endl;
 
-    std::cout << "按 Ctrl+C 停止服务器" << std::endl;
+    std::cout << "Press Ctrl+C to stop the server" << std::endl;
     std::cout << "===================" << std::endl;
 }
-} // namespace Gecko
+} /* namespace Gecko */

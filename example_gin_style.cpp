@@ -6,30 +6,30 @@
 
 int main() {
     try {
-        std::cout << "🦎 Gecko Web Framework - Gin风格API + Logger系统示例" << std::endl;
-        std::cout << "========================================================" << std::endl;
+        std::cout << "Gecko Web Framework - Gin-style API + Logger demo" << std::endl;
+        std::cout << "=================================================" << std::endl;
 
-        // 创建Logger实例 - 展示不同的配置选项
-        std::cout << "📝 配置Logger系统..." << std::endl;
+        /* Instantiate loggers with different configs */
+        std::cout << "[LOG] Configuring logger subsystem..." << std::endl;
         
-        // 创建访问日志 - 输出到文件和控制台
+        /* Access log writes to console and file */
         Gecko::Logger access_logger(Gecko::LogLevel::ERROR, 2, Gecko::LogOutput::BOTH, "access.log");
         
-        // 创建错误日志 - 只输出到文件
+        /* Error log writes to file */
         Gecko::Logger error_logger(Gecko::LogLevel::ERROR, 1, Gecko::LogOutput::FILE, "error.log");
         
-        // 创建调试日志 - 只输出到控制台
+        /* Debug log writes to console */
         Gecko::Logger debug_logger(Gecko::LogLevel::ERROR, 1, Gecko::LogOutput::CONSOLE);
         
-        std::cout << "✅ Logger系统配置完成:" << std::endl;
-        std::cout << "  ├─ 访问日志: 同时输出到控制台和 access.log" << std::endl;
-        std::cout << "  ├─ 错误日志: 输出到 error.log" << std::endl;
-        std::cout << "  └─ 调试日志: 输出到控制台" << std::endl;
+        std::cout << "[OK] Logger setup complete:" << std::endl;
+        std::cout << "  ├─ Access log writes to console and access.log" << std::endl;
+        std::cout << "  ├─ Error log writes to error.log" << std::endl;
+        std::cout << "  └─ Debug log writes to console" << std::endl;
 
-        // 创建Engine实例
+        /* Build engine */
         Gecko::Engine app;
 
-        // 使用中间件记录请求 - 现在使用Logger而不是cout
+        /* Middleware logs via Logger instead of std::cout */
         app.Use([&access_logger, &debug_logger](Gecko::Context& ctx, std::function<void()> next) {
             auto start = std::chrono::high_resolution_clock::now();
             std::string client_info = "IP: " + ctx.header("X-Forwarded-For") + 
@@ -41,7 +41,7 @@ int main() {
             debug_logger.log(Gecko::LogLevel::DEBUG, 
                 "Processing request on thread: " + std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id())));
             
-            next(); // 调用下一个中间件或处理器
+            next(); /* Invoke next middleware */
             
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -51,7 +51,7 @@ int main() {
                 std::to_string(duration.count()) + "μs");
         });
 
-        // 添加CORS中间件
+        /* Add CORS middleware */
         app.Use([&debug_logger](Gecko::Context& ctx, std::function<void()> next) {
             debug_logger.log(Gecko::LogLevel::DEBUG, "Applying CORS headers");
             ctx.header("Access-Control-Allow-Origin", "*")
@@ -60,13 +60,13 @@ int main() {
             next();
         });
 
-        // 路由定义 - Gin风格
+        /* Gin-style route definitions */
         app.GET("/", [&access_logger](Gecko::Context& ctx) {
             access_logger.log(Gecko::LogLevel::INFO, "Serving homepage");
             ctx.html(R"(<!DOCTYPE html>
 <html>
 <head>
-    <title>🦎 Gecko Web Framework + Logger</title>
+    <title>Gecko Gecko Web Framework + Logger</title>
     <meta charset="utf-8">
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 40px; background: #f5f5f5; }
@@ -81,23 +81,23 @@ int main() {
 </head>
 <body>
     <div class="container">
-        <h1>🦎 Gecko Web Framework + Logger</h1>
+        <h1>Gecko Gecko Web Framework + Logger</h1>
         <p><strong>现在支持Gin风格的API、多线程处理和独立的Logger系统！</strong></p>
         
         <div class="logger-info">
-            <h3>📝 Logger系统特性:</h3>
+            <h3>[LOG] Logger系统特性:</h3>
             <ul>
-                <li>✅ <strong>多输出目标</strong> - 控制台、文件、或同时输出</li>
-                <li>✅ <strong>多线程安全</strong> - 异步日志写入</li>
-                <li>✅ <strong>分级日志</strong> - DEBUG、INFO、WARN、ERROR、FATAL</li>
-                <li>✅ <strong>时间戳格式化</strong> - 精确到毫秒</li>
-                <li>✅ <strong>独立库设计</strong> - 用户可选择使用</li>
-                <li>✅ <strong>配置灵活</strong> - 支持运行时修改输出目标</li>
+                <li>[OK] <strong>多输出目标</strong> - 控制台、文件、或同时输出</li>
+                <li>[OK] <strong>多线程安全</strong> - 异步日志写入</li>
+                <li>[OK] <strong>分级日志</strong> - DEBUG、INFO、WARN、ERROR、FATAL</li>
+                <li>[OK] <strong>时间戳格式化</strong> - 精确到毫秒</li>
+                <li>[OK] <strong>独立库设计</strong> - 用户可选择使用</li>
+                <li>[OK] <strong>配置灵活</strong> - 支持运行时修改输出目标</li>
             </ul>
             <p><em>检查服务器控制台和 access.log、error.log 文件查看日志输出效果！</em></p>
         </div>
         
-        <h2>🎯 API端点：</h2>
+        <h2>[GOAL] API端点：</h2>
         <div class="endpoint">
             <span class="badge">GET</span> <a href="/ping">/ping</a> - JSON响应测试
         </div>
@@ -195,12 +195,12 @@ int main() {
             ctx.json(response);
         });
 
-        // 错误测试端点 - 展示错误日志
+        /* Error endpoint demonstrates logging */
         app.GET("/error-test", [&error_logger, &debug_logger](Gecko::Context& ctx) {
             debug_logger.log(Gecko::LogLevel::DEBUG, "Error test endpoint called");
             
             try {
-                // 模拟一个可能的错误
+                /* Simulate a potential error */
                 std::string test_param = ctx.query("simulate");
                 if (test_param == "error") {
                     throw std::runtime_error("This is a simulated error for testing error logging");
@@ -231,7 +231,7 @@ int main() {
             std::string userId = ctx.param("id");
             debug_logger.log(Gecko::LogLevel::DEBUG, "User API called for ID: " + userId);
             
-            // 模拟数据库查询
+            /* Simulate database query */
             if (userId == "123") {
                 nlohmann::json user = {
                     {"id", 123},
@@ -264,53 +264,53 @@ int main() {
             }
         });
 
-        // 使用配置化启动服务器
-        std::cout << "\n🚀 配置服务器启动参数..." << std::endl;
+        /* Launch server with explicit configuration */
+        std::cout << "\n[START] Preparing server launch parameters..." << std::endl;
         
-        // 获取系统硬件并发数
+        /* Inspect hardware concurrency */
         size_t max_threads = std::thread::hardware_concurrency();
         if (max_threads == 0) {
-            max_threads = 8; // 后备默认值
+            max_threads = 8; /* Fallback default */
         }
         
-        // 创建服务器配置 - 注意：ServerConfig不再包含Logger
+        /* Build server config (Logger is decoupled) */
         Gecko::ServerConfig config = Gecko::ServerConfig()
-            .setPort(13514)                           // 设置端口为13514
-            .setThreadPoolSize(max_threads)           // 使用系统最大线程数
-            .setIOThreadCount(20)                      // 设置IO线程数为4
-            .setMaxConnections(1000000)                 // 最大连接数
-            .setKeepAliveTimeout(30)                  // Keep-Alive超时
-            .setMaxRequestBodySize(2 * 1024 * 1024)   // 2MB请求体限制
+            .setPort(13514)                           /* Port 13514 */
+            .setThreadPoolSize(max_threads)           /* Use system thread count */
+            .setIOThreadCount(20)                      /* IO thread count */
+            .setMaxConnections(1000000)                 /* Max connections */
+            .setKeepAliveTimeout(30)                  /* Keep-Alive timeout */
+            .setMaxRequestBodySize(2 * 1024 * 1024)   /* 2MB request body cap */
             .enablePerformanceMonitoring();
 
-        std::cout << "📝 架构特性展示:" << std::endl;
-        std::cout << "  ✅ 真正的三线程架构（主线程+IO线程+工作线程）" << std::endl;
-        std::cout << "  ✅ 专门的IO线程池处理网络IO" << std::endl;
-        std::cout << "  ✅ HTTP/1.1 Keep-Alive支持" << std::endl;
-        std::cout << "  ✅ 工作线程不再被IO阻塞" << std::endl;
-        std::cout << "  ✅ 高CPU利用率和并发性能" << std::endl;
-        std::cout << "  ✅ 异步IO处理" << std::endl;
-        std::cout << "  ✅ Gin风格的Context API" << std::endl;
-        std::cout << "  ✅ 洋葱模型中间件" << std::endl;
-        std::cout << "  ✅ 链式方法调用" << std::endl;
-        std::cout << "  ✅ 独立的Logger系统（用户可选）" << std::endl;
-        std::cout << "  ✅ 多线程安全的日志记录" << std::endl;
-        std::cout << "  ✅ 多输出目标（控制台/文件/同时）" << std::endl;
-        std::cout << "  ✅ 服务器与日志系统解耦" << std::endl;
-        std::cout << "\n💡 提示: " << std::endl;
-        std::cout << "  📁 访问日志: access.log（同时显示在控制台）" << std::endl;
-        std::cout << "  📁 错误日志: error.log（访问 /error-test?simulate=error 测试）" << std::endl;
-        std::cout << "  🖥️  调试日志: 仅显示在控制台" << std::endl;
-        std::cout << "📊 系统检测到 " << max_threads << " 个CPU核心" << std::endl;
-        std::cout << "🧵 将启动 " << max_threads << " 个工作线程和 4 个IO线程" << std::endl;
-        std::cout << "🔄 新架构：主线程(epoll) -> IO线程(网络IO) -> 工作线程(业务逻辑)" << std::endl;
-        std::cout << "\n按 Ctrl+C 停止服务器\n" << std::endl;
+        std::cout << "[LOG] Architecture highlights:" << std::endl;
+        std::cout << "  [OK] Three-thread design (accept, IO, worker)" << std::endl;
+        std::cout << "  [OK] Dedicated IO thread pool for network operations" << std::endl;
+        std::cout << "  [OK] HTTP/1.1 keep-alive support" << std::endl;
+        std::cout << "  [OK] Workers isolated from IO blocking" << std::endl;
+        std::cout << "  [OK] High CPU utilization and concurrency" << std::endl;
+        std::cout << "  [OK] Async IO pipeline" << std::endl;
+        std::cout << "  [OK] Gin-style context API" << std::endl;
+        std::cout << "  [OK] Onion-style middleware" << std::endl;
+        std::cout << "  [OK] Fluent handler configuration" << std::endl;
+        std::cout << "  [OK] Optional standalone logger subsystem" << std::endl;
+        std::cout << "  [OK] Thread-safe logging" << std::endl;
+        std::cout << "  [OK] Multiple output targets (console/file/both)" << std::endl;
+        std::cout << "  [OK] Server decoupled from logging" << std::endl;
+        std::cout << "\n[TIP] Usage notes:" << std::endl;
+        std::cout << "  [FILE] Access log: access.log plus console output" << std::endl;
+        std::cout << "  [FILE] Error log: error.log (hit /error-test?simulate=error to verify)" << std::endl;
+        std::cout << "  [HOST]  Debug log: console only" << std::endl;
+        std::cout << "[STATS] Detected " << max_threads << " hardware threads" << std::endl;
+        std::cout << "[THREAD] Launching " << max_threads << " worker threads and 4 IO threads" << std::endl;
+        std::cout << "[LOOP] Pipeline: accept (epoll) -> IO threads -> worker threads" << std::endl;
+        std::cout << "\nPress Ctrl+C to stop the server\n" << std::endl;
 
-        // 使用新的配置API启动服务器
+        /* Start server via configuration API */
         app.Run(config);
 
     } catch (const std::exception& e) {
-        std::cerr << "❌ 错误: " << e.what() << std::endl;
+        std::cerr << "[ERROR] Exception: " << e.what() << std::endl;
         return 1;
     }
 

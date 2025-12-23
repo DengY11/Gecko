@@ -10,7 +10,7 @@
 
 namespace Gecko {
 
-// ConnectionManager 实现
+/* ConnectionManager implementation */
 std::shared_ptr<ConnectionInfo> ConnectionManager::add_connection(int fd, 
                                                                 const std::string& peer_addr, 
                                                                 const std::string& local_addr) {
@@ -55,7 +55,7 @@ std::shared_ptr<ConnectionInfo> ConnectionManager::get_connection(int fd) {
 std::vector<int> ConnectionManager::get_expired_connections() {
     std::shared_lock<std::shared_mutex> lock(connections_mutex_);
     std::vector<int> expired;
-    expired.reserve(connections_.size() / 10); // 预估10%过期率
+    expired.reserve(connections_.size() / 10); /* Assume ~10% expire */
     
     for (const auto& [fd, conn_info] : connections_) {
         if (conn_info->is_expired(keep_alive_timeout_)) {
@@ -66,7 +66,7 @@ std::vector<int> ConnectionManager::get_expired_connections() {
     return expired;
 }
 
-// 新增：批量移除连接
+/* Batch removal helper */
 void ConnectionManager::batch_remove_connections(const std::vector<int>& fds) {
     if (fds.empty()) return;
     
@@ -81,13 +81,13 @@ void ConnectionManager::batch_remove_connections(const std::vector<int>& fds) {
     }
 }
 
-// 新增：获取连接统计信息
+/* Return connection stats */
 void ConnectionManager::get_connection_stats(size_t& active, size_t& total_ever_created) const {
     active = active_connections_.load();
     total_ever_created = total_connections_created_.load();
 }
 
-// Server 实现
+/* Server implementation */
 void Server::print_server_info() {
     std::cout << " Gecko Web Framework" << std::endl;
     std::cout << " Configuration:" << std::endl;
@@ -96,7 +96,7 @@ void Server::print_server_info() {
     std::cout << "   └─ Worker Thread Pool Size: " << thread_pool_->thread_count() << std::endl;
     std::cout << "   └─ IO Thread Pool Size: " << io_thread_pool_->thread_count() << std::endl;
     std::cout << "   └─ Max Connections: " << 10000 << std::endl;
-    std::cout << "🚀 Server initializing..." << std::endl;
+    std::cout << "[START] Server initializing..." << std::endl;
 }
 
 void Server::print_server_info_with_config(const ServerConfig& config) {
@@ -121,7 +121,7 @@ void Server::run(RequestHandler request_handler) {
     running_ = true;
     std::vector<struct epoll_event> events(MAX_EVENTS);
     
-    std::cout << "🚀 Server started on " << host_ << ":" << port_ << std::endl;
+    std::cout << "[START] Server started on " << host_ << ":" << port_ << std::endl;
     if(this->enable_performance_monitoring_){ 
         start_performance_monitoring(this->performance_monitor_interval_);
     }
@@ -133,7 +133,7 @@ void Server::run(RequestHandler request_handler) {
             cleanup_counter = 0;
         }
         
-        int num_events = epoll_wait(epoll_fd_, events.data(), MAX_EVENTS, 1); // 1ms超时，极大提升响应性
+        int num_events = epoll_wait(epoll_fd_, events.data(), MAX_EVENTS, 1); /* 1ms timeout keeps loop responsive */
         if (num_events < 0) {
             if (errno == EINTR) {
                 continue;
@@ -171,21 +171,21 @@ void Server::setup_listen_socket() {
     }
     
     if (setsockopt(listen_fd_, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
-        std::cerr << "⚠️ Failed to set SO_REUSEPORT: " << strerror(errno) << " (继续运行)" << std::endl;
+        std::cerr << "[WARN] Failed to set SO_REUSEPORT: " << strerror(errno) << " (continuing)" << std::endl;
     }
     
-    // 设置TCP_NODELAY，减少延迟
+    /* Enable TCP_NODELAY to reduce latency */
     if (setsockopt(listen_fd_, IPPROTO_TCP, TCP_NODELAY, &opt, sizeof(opt)) < 0) {
-        std::cerr << "⚠️ Failed to set TCP_NODELAY: " << strerror(errno) << " (继续运行)" << std::endl;
+        std::cerr << "[WARN] Failed to set TCP_NODELAY: " << strerror(errno) << " (continuing)" << std::endl;
     }
     
-    // 调整发送和接收缓冲区大小
+    /* Adjust send/receive buffers */
     int buffer_size = 64 * 1024; // 64KB
     if (setsockopt(listen_fd_, SOL_SOCKET, SO_SNDBUF, &buffer_size, sizeof(buffer_size)) < 0) {
-        std::cerr << "⚠️ Failed to set SO_SNDBUF: " << strerror(errno) << " (继续运行)" << std::endl;
+        std::cerr << "[WARN] Failed to set SO_SNDBUF: " << strerror(errno) << " (continuing)" << std::endl;
     }
     if (setsockopt(listen_fd_, SOL_SOCKET, SO_RCVBUF, &buffer_size, sizeof(buffer_size)) < 0) {
-        std::cerr << "⚠️ Failed to set SO_RCVBUF: " << strerror(errno) << " (继续运行)" << std::endl;
+        std::cerr << "[WARN] Failed to set SO_RCVBUF: " << strerror(errno) << " (continuing)" << std::endl;
     }
     set_non_blockint(listen_fd_);
     struct sockaddr_in server_addr;
@@ -213,14 +213,14 @@ void Server::setup_listen_socket() {
     add_to_epoll(listen_fd_, EPOLLIN);
 }
 
-// 连接处理 - 参考Drogon的onConnection
+/* Connection handling inspired by Drogon's onConnection */
 void Server::on_connection(int client_fd) {
     std::string peer_addr = get_peer_address(client_fd);
     std::string local_addr = get_local_address(client_fd);
     
     auto conn_info = conn_manager_->add_connection(client_fd, peer_addr, local_addr);
     if (!conn_info) {
-        std::cerr << "⚠️  Connection limit reached, rejecting connection from " << peer_addr << std::endl;
+        std::cerr << "[WARN]  Connection limit reached, rejecting connection from " << peer_addr << std::endl;
         send_error_response(client_fd, 503, "Service Unavailable");
         close(client_fd);
         return;
@@ -228,11 +228,11 @@ void Server::on_connection(int client_fd) {
     
     total_connections_++;
     #ifdef DEBUG
-    std::cout << "✅ New connection from " << peer_addr << " (fd: " << client_fd 
+    std::cout << "[OK] New connection from " << peer_addr << " (fd: " << client_fd 
               << ", total: " << conn_manager_->get_active_count() << ")" << std::endl;
     #endif
     
-    // 直接将新连接注册到IO线程池进行异步读取
+    /* Register connection with IO thread pool for async reads */
     io_thread_pool_->register_read(conn_info, [this](std::shared_ptr<ConnectionInfo> conn_info, const std::string& request_data) {
         process_request_with_io_thread(conn_info, request_data);
     });
@@ -242,7 +242,7 @@ void Server::on_disconnect(int client_fd) {
     auto conn_info = conn_manager_->get_connection(client_fd);
     if (conn_info) {
         #ifdef DEBUG
-        std::cout << "❌ Connection closed " << conn_info->peer_addr << " (fd: " << client_fd 
+        std::cout << "[ERROR] Connection closed " << conn_info->peer_addr << " (fd: " << client_fd 
                   << ", requests: " << conn_info->request_count.load() << ")" << std::endl;
         #endif
     }
@@ -264,7 +264,7 @@ void Server::handler_new_connection() {
         return;
     }
     
-    // 检查连接限制
+    /* Enforce connection limit */
     if (!conn_manager_->can_accept_connection()) {
         send_error_response(client_fd, 503, "Service Unavailable");
         close(client_fd);
@@ -314,9 +314,9 @@ void Server::handler_batch_accept(int& event_index, int num_events, const struct
         event_index += skipped_events;
         
         #ifdef DEBUG
-        std::cout << "📦 批量接受了 " << accepted_count << " 个连接";
+        std::cout << "[BATCH] Accepted " << accepted_count << " connections in batch";
         if (skipped_events > 0) {
-            std::cout << ", 跳过了 " << skipped_events << " 个重复listen事件";
+            std::cout << ", skipped " << skipped_events << " duplicate listen events";
         }
         std::cout << std::endl;
         #endif
@@ -353,11 +353,11 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
             if (!FastHttpParser::parse(request_data, fast_request)) {
                 throw std::runtime_error("Failed to parse HTTP request");
             }
-            //TODO:这个地方可以池化
+            /* TODO: pool this request object */
             HttpRequest request;
             HttpRequestAdapter::convert(fast_request, request);
             
-            // 检查是否支持keep-alive
+            /* Check keep-alive support */
             bool keep_alive = false;
             auto headers = request.getHeaders();
             auto connection_it = headers.find("Connection");
@@ -368,7 +368,7 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
             }
             conn_info->keep_alive = keep_alive;
             
-            //TODO: 这是一个可以池化优化的地方
+            /* TODO: pool context/response objects */
             Context ctx(request);
             request_handler_(ctx);
             HttpResponse response = ctx.response();
@@ -398,10 +398,10 @@ void Server::process_request_with_io_thread(std::shared_ptr<ConnectionInfo> conn
                 handle_keep_alive_response(conn_info, response_str);
             }
         } catch (const std::exception& e) {
-            // 记录失败请求
+            /* Track failed request */
             failed_requests_++;
             
-            std::cerr << "❌ Error processing request from " << conn_info->peer_addr 
+            std::cerr << "[ERROR] Error processing request from " << conn_info->peer_addr 
                       << ": " << e.what() << std::endl;
             
             if (conn_info->connected) {
@@ -462,7 +462,7 @@ void Server::cleanup_expired_connections() {
     static auto last_cleanup = std::chrono::steady_clock::now();
     auto now = std::chrono::steady_clock::now();
     
-    // 每10秒清理一次
+    /* Clean once every 10 seconds */
     if (now - last_cleanup < std::chrono::seconds(10)) {
         return;
     }
@@ -470,7 +470,7 @@ void Server::cleanup_expired_connections() {
     auto expired = conn_manager_->get_expired_connections();
     if (!expired.empty()) {
         #ifdef DEBUG    
-        std::cout << "🧹 Cleaning up " << expired.size() << " expired connections" << std::endl;
+        std::cout << "[CLEANUP] Cleaning up " << expired.size() << " expired connections" << std::endl;
         #endif
         
         for (int fd : expired) {
@@ -485,23 +485,23 @@ void Server::cleanup_expired_connections() {
 void Server::cleanup_all_connections() {
     running_ = false;
     
-    // 获取所有活跃连接并关闭
+    /* Drain every active connection */
     std::vector<int> all_fds;
     {
-        // 这里需要访问ConnectionManager的私有成员，我们通过另一种方式实现
+        /* Indirectly access ConnectionManager internals */
         while (conn_manager_->get_active_count() > 0) {
             auto expired = conn_manager_->get_expired_connections();
             for (int fd : expired) {
                 on_disconnect(fd);
             }
-            // 如果还有连接，强制清理
+            /* Force cleanup if anything remains */
             if (conn_manager_->get_active_count() > 0) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
         }
     }
     #ifdef DEBUG
-    std::cout << "🧹 All connections cleaned up" << std::endl;
+    std::cout << "[CLEANUP] All connections cleaned up" << std::endl;
     #endif
 }
 
@@ -542,21 +542,21 @@ Server::PerformanceStats Server::get_performance_stats() const {
 void Server::print_performance_stats() const {
     auto stats = get_performance_stats();
     
-    std::cout << " ========== 性能监控 ==========" << std::endl;
-    std::cout << " 当前连接数: " << stats.active_connections << std::endl;
-    std::cout << " 每秒请求数: " << stats.requests_per_second << " req/s" << std::endl;
-    std::cout << " 总请求数: " << stats.total_requests << std::endl;
-    std::cout << " 总连接数: " << stats.total_connections << std::endl;
-    std::cout << " 平均响应时间: " << std::fixed << std::setprecision(2) 
+    std::cout << " ========== Performance monitor ==========" << std::endl;
+    std::cout << " Active connections: " << stats.active_connections << std::endl;
+    std::cout << " Requests per second: " << stats.requests_per_second << " req/s" << std::endl;
+    std::cout << " Total requests: " << stats.total_requests << std::endl;
+    std::cout << " Total connections: " << stats.total_connections << std::endl;
+    std::cout << " Avg response time: " << std::fixed << std::setprecision(2) 
               << stats.avg_response_time_ms << " ms" << std::endl;
-    std::cout << " IO线程数: " << stats.io_thread_load << std::endl;
-    std::cout << " 工作线程数: " << stats.worker_thread_load << std::endl;
+    std::cout << " IO threads: " << stats.io_thread_load << std::endl;
+    std::cout << " Worker threads: " << stats.worker_thread_load << std::endl;
     std::cout << "================================" << std::endl;
 }
 
 void Server::start_performance_monitoring(std::chrono::seconds interval) {
     if (performance_monitoring_) {
-        return; // 已经在运行
+        return; /* Already running */
     }
     
     performance_monitoring_ = true;
@@ -569,7 +569,7 @@ void Server::start_performance_monitoring(std::chrono::seconds interval) {
         }
     });
     
-    std::cout << " 性能监控已启动（每 " << interval.count() << " 秒输出一次）" << std::endl;
+    std::cout << "[METRICS] Performance monitor started (interval: " << interval.count() << "s)" << std::endl;
 }
 
 void Server::stop_performance_monitoring() {
@@ -578,10 +578,10 @@ void Server::stop_performance_monitoring() {
         performance_monitor_thread_->join();
     }
     performance_monitor_thread_.reset();
-    std::cout << " 性能监控已停止" << std::endl;
+    std::cout << "[METRICS] Performance monitor stopped" << std::endl;
 }
 
-// 工具函数
+/* Utility helpers */
 std::string Server::get_peer_address(int fd) const {
     struct sockaddr_in addr;
     socklen_t addr_len = sizeof(addr);
@@ -641,7 +641,7 @@ void Server::send_response(int client_fd, const std::string& response) {
         ssize_t sent = write(client_fd, data + total_sent, total_size - total_sent);
         if (sent < 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                // 在生产环境中，应该使用EPOLLOUT事件来处理这种情况
+                /* Production code should watch EPOLLOUT instead */
                 continue;
             } else {
                 perror("write");
@@ -661,9 +661,9 @@ size_t Server::find_content_length_in_headers(std::string_view headers_part) con
                    [](unsigned char c) { return std::tolower(c); });
     size_t content_length_pos = headers_lower.find("content-length:");
     if (content_length_pos == std::string::npos) {
-        return 0; // don't find content-length
+        return 0; /* Content-Length missing */
     }
-    size_t value_start = content_length_pos + 15; // "content-length:"
+    size_t value_start = content_length_pos + 15; /* Skip "content-length:" */
     size_t line_end = headers_part.find("\r\n", value_start);
     if (line_end == std::string::npos) {
         line_end = headers_part.length();
@@ -675,7 +675,7 @@ size_t Server::find_content_length_in_headers(std::string_view headers_part) con
     try {
         return std::stoull(length_str);
     } catch (const std::exception&) {
-        //failed to parse content-length
+        /* Failed to parse Content-Length */
         return 0;
     }
 }
@@ -685,8 +685,8 @@ bool Server::is_request_complete(const std::string& request_data) const {
     if (header_end_pos == std::string::npos) {
         return false;  
     }
-    size_t body_start = header_end_pos + 4; // "\r\n\r\n"
-    //std::string headers_part = request_data.substr(0, header_end_pos);
+    size_t body_start = header_end_pos + 4; /* Skip CRLF CRLF */
+    /* std::string headers_part = request_data.substr(0, header_end_pos); */
     std::string_view headers_part(request_data.data(), header_end_pos);
     size_t content_length = find_content_length_in_headers(headers_part);
     size_t current_body_length = request_data.length() - body_start;

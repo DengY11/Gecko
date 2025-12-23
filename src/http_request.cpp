@@ -129,7 +129,7 @@ void HttpRequest::parseQueryParams() {
         return; 
     }
     std::string query_string = url.substr(query_start + 1);
-    //split by &
+    /* Split by '&' */
     std::stringstream ss(query_string);
     std::string param;
     while (std::getline(ss, param, '&')) {
@@ -140,8 +140,7 @@ void HttpRequest::parseQueryParams() {
         } else {
             std::string key = param.substr(0, eq_pos);
             std::string value = param.substr(eq_pos + 1);
-            // for url like /search?q=hello%20world&name=%E5%BC%A0%E4%B8%89&test=a+b
-            // will return return a pair of "q" and "hello world"
+            /* Example: /search?q=hello%20world yields "q" -> "hello world" */
             query_params[key] = urlDecode(value);
         }
     }

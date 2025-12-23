@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/router_tests.dir/tests/router/test_router.cpp.o -o router_tests  libgecko.a 

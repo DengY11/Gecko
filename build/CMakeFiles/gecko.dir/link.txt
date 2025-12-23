@@ -1,0 +1,2 @@
+/usr/bin/ar qc libgecko.a CMakeFiles/gecko.dir/src/context.cpp.o CMakeFiles/gecko.dir/src/engine.cpp.o CMakeFiles/gecko.dir/src/fast_http_parser.cpp.o CMakeFiles/gecko.dir/src/http_request.cpp.o CMakeFiles/gecko.dir/src/http_response.cpp.o CMakeFiles/gecko.dir/src/io_thread_pool.cpp.o CMakeFiles/gecko.dir/src/logger.cpp.o CMakeFiles/gecko.dir/src/router.cpp.o CMakeFiles/gecko.dir/src/server.cpp.o CMakeFiles/gecko.dir/src/thread_pool.cpp.o
+/usr/bin/ranlib libgecko.a
