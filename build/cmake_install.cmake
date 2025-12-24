@@ -47,21 +47,19 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/gecko" TYPE FILE FILES
-    "/home/dylan/code/GeckoWebFramework/src/context.hpp"
-    "/home/dylan/code/GeckoWebFramework/src/engine.hpp"
-    "/home/dylan/code/GeckoWebFramework/src/fast_http_parser.hpp"
-    "/home/dylan/code/GeckoWebFramework/src/http_request.hpp"
-    "/home/dylan/code/GeckoWebFramework/src/http_response.hpp"
-    "/home/dylan/code/GeckoWebFramework/src/io_thread_pool.hpp"
-    "/home/dylan/code/GeckoWebFramework/src/logger.hpp"
-    "/home/dylan/code/GeckoWebFramework/src/middlewares.hpp"
-    "/home/dylan/code/GeckoWebFramework/src/request_pool.hpp"
-    "/home/dylan/code/GeckoWebFramework/src/router.hpp"
-    "/home/dylan/code/GeckoWebFramework/src/server_config.hpp"
-    "/home/dylan/code/GeckoWebFramework/src/server.hpp"
-    "/home/dylan/code/GeckoWebFramework/src/thread_pool.hpp"
-    )
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/gecko" TYPE DIRECTORY FILES "/home/dylan/code/GeckoWebFramework/src/http" FILES_MATCHING REGEX "/[^/]*\\.hpp$")
+endif()
+
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/gecko" TYPE DIRECTORY FILES "/home/dylan/code/GeckoWebFramework/src/logger" FILES_MATCHING REGEX "/[^/]*\\.hpp$")
+endif()
+
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/gecko" TYPE DIRECTORY FILES "/home/dylan/code/GeckoWebFramework/src/rpc" FILES_MATCHING REGEX "/[^/]*\\.hpp$")
+endif()
+
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/gecko" TYPE DIRECTORY FILES "/home/dylan/code/GeckoWebFramework/src/tracing" FILES_MATCHING REGEX "/[^/]*\\.hpp$")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)

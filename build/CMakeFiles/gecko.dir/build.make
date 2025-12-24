@@ -69,175 +69,207 @@ include CMakeFiles/gecko.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/gecko.dir/flags.make
 
-CMakeFiles/gecko.dir/src/context.cpp.o: CMakeFiles/gecko.dir/flags.make
-CMakeFiles/gecko.dir/src/context.cpp.o: /home/dylan/code/GeckoWebFramework/src/context.cpp
-CMakeFiles/gecko.dir/src/context.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/gecko.dir/src/context.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/context.cpp.o -MF CMakeFiles/gecko.dir/src/context.cpp.o.d -o CMakeFiles/gecko.dir/src/context.cpp.o -c /home/dylan/code/GeckoWebFramework/src/context.cpp
+CMakeFiles/gecko.dir/src/http/context.cpp.o: CMakeFiles/gecko.dir/flags.make
+CMakeFiles/gecko.dir/src/http/context.cpp.o: /home/dylan/code/GeckoWebFramework/src/http/context.cpp
+CMakeFiles/gecko.dir/src/http/context.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/gecko.dir/src/http/context.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/http/context.cpp.o -MF CMakeFiles/gecko.dir/src/http/context.cpp.o.d -o CMakeFiles/gecko.dir/src/http/context.cpp.o -c /home/dylan/code/GeckoWebFramework/src/http/context.cpp
 
-CMakeFiles/gecko.dir/src/context.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/context.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/context.cpp > CMakeFiles/gecko.dir/src/context.cpp.i
+CMakeFiles/gecko.dir/src/http/context.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/http/context.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/http/context.cpp > CMakeFiles/gecko.dir/src/http/context.cpp.i
 
-CMakeFiles/gecko.dir/src/context.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/context.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/context.cpp -o CMakeFiles/gecko.dir/src/context.cpp.s
+CMakeFiles/gecko.dir/src/http/context.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/http/context.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/http/context.cpp -o CMakeFiles/gecko.dir/src/http/context.cpp.s
 
-CMakeFiles/gecko.dir/src/engine.cpp.o: CMakeFiles/gecko.dir/flags.make
-CMakeFiles/gecko.dir/src/engine.cpp.o: /home/dylan/code/GeckoWebFramework/src/engine.cpp
-CMakeFiles/gecko.dir/src/engine.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/gecko.dir/src/engine.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/engine.cpp.o -MF CMakeFiles/gecko.dir/src/engine.cpp.o.d -o CMakeFiles/gecko.dir/src/engine.cpp.o -c /home/dylan/code/GeckoWebFramework/src/engine.cpp
+CMakeFiles/gecko.dir/src/http/engine.cpp.o: CMakeFiles/gecko.dir/flags.make
+CMakeFiles/gecko.dir/src/http/engine.cpp.o: /home/dylan/code/GeckoWebFramework/src/http/engine.cpp
+CMakeFiles/gecko.dir/src/http/engine.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/gecko.dir/src/http/engine.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/http/engine.cpp.o -MF CMakeFiles/gecko.dir/src/http/engine.cpp.o.d -o CMakeFiles/gecko.dir/src/http/engine.cpp.o -c /home/dylan/code/GeckoWebFramework/src/http/engine.cpp
 
-CMakeFiles/gecko.dir/src/engine.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/engine.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/engine.cpp > CMakeFiles/gecko.dir/src/engine.cpp.i
+CMakeFiles/gecko.dir/src/http/engine.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/http/engine.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/http/engine.cpp > CMakeFiles/gecko.dir/src/http/engine.cpp.i
 
-CMakeFiles/gecko.dir/src/engine.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/engine.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/engine.cpp -o CMakeFiles/gecko.dir/src/engine.cpp.s
+CMakeFiles/gecko.dir/src/http/engine.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/http/engine.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/http/engine.cpp -o CMakeFiles/gecko.dir/src/http/engine.cpp.s
 
-CMakeFiles/gecko.dir/src/fast_http_parser.cpp.o: CMakeFiles/gecko.dir/flags.make
-CMakeFiles/gecko.dir/src/fast_http_parser.cpp.o: /home/dylan/code/GeckoWebFramework/src/fast_http_parser.cpp
-CMakeFiles/gecko.dir/src/fast_http_parser.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/gecko.dir/src/fast_http_parser.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/fast_http_parser.cpp.o -MF CMakeFiles/gecko.dir/src/fast_http_parser.cpp.o.d -o CMakeFiles/gecko.dir/src/fast_http_parser.cpp.o -c /home/dylan/code/GeckoWebFramework/src/fast_http_parser.cpp
+CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.o: CMakeFiles/gecko.dir/flags.make
+CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.o: /home/dylan/code/GeckoWebFramework/src/http/fast_http_parser.cpp
+CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.o -MF CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.o.d -o CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.o -c /home/dylan/code/GeckoWebFramework/src/http/fast_http_parser.cpp
 
-CMakeFiles/gecko.dir/src/fast_http_parser.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/fast_http_parser.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/fast_http_parser.cpp > CMakeFiles/gecko.dir/src/fast_http_parser.cpp.i
+CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/http/fast_http_parser.cpp > CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.i
 
-CMakeFiles/gecko.dir/src/fast_http_parser.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/fast_http_parser.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/fast_http_parser.cpp -o CMakeFiles/gecko.dir/src/fast_http_parser.cpp.s
+CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/http/fast_http_parser.cpp -o CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.s
 
-CMakeFiles/gecko.dir/src/http_request.cpp.o: CMakeFiles/gecko.dir/flags.make
-CMakeFiles/gecko.dir/src/http_request.cpp.o: /home/dylan/code/GeckoWebFramework/src/http_request.cpp
-CMakeFiles/gecko.dir/src/http_request.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/gecko.dir/src/http_request.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/http_request.cpp.o -MF CMakeFiles/gecko.dir/src/http_request.cpp.o.d -o CMakeFiles/gecko.dir/src/http_request.cpp.o -c /home/dylan/code/GeckoWebFramework/src/http_request.cpp
+CMakeFiles/gecko.dir/src/http/http_request.cpp.o: CMakeFiles/gecko.dir/flags.make
+CMakeFiles/gecko.dir/src/http/http_request.cpp.o: /home/dylan/code/GeckoWebFramework/src/http/http_request.cpp
+CMakeFiles/gecko.dir/src/http/http_request.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/gecko.dir/src/http/http_request.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/http/http_request.cpp.o -MF CMakeFiles/gecko.dir/src/http/http_request.cpp.o.d -o CMakeFiles/gecko.dir/src/http/http_request.cpp.o -c /home/dylan/code/GeckoWebFramework/src/http/http_request.cpp
 
-CMakeFiles/gecko.dir/src/http_request.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/http_request.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/http_request.cpp > CMakeFiles/gecko.dir/src/http_request.cpp.i
+CMakeFiles/gecko.dir/src/http/http_request.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/http/http_request.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/http/http_request.cpp > CMakeFiles/gecko.dir/src/http/http_request.cpp.i
 
-CMakeFiles/gecko.dir/src/http_request.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/http_request.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/http_request.cpp -o CMakeFiles/gecko.dir/src/http_request.cpp.s
+CMakeFiles/gecko.dir/src/http/http_request.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/http/http_request.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/http/http_request.cpp -o CMakeFiles/gecko.dir/src/http/http_request.cpp.s
 
-CMakeFiles/gecko.dir/src/http_response.cpp.o: CMakeFiles/gecko.dir/flags.make
-CMakeFiles/gecko.dir/src/http_response.cpp.o: /home/dylan/code/GeckoWebFramework/src/http_response.cpp
-CMakeFiles/gecko.dir/src/http_response.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/gecko.dir/src/http_response.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/http_response.cpp.o -MF CMakeFiles/gecko.dir/src/http_response.cpp.o.d -o CMakeFiles/gecko.dir/src/http_response.cpp.o -c /home/dylan/code/GeckoWebFramework/src/http_response.cpp
+CMakeFiles/gecko.dir/src/http/http_response.cpp.o: CMakeFiles/gecko.dir/flags.make
+CMakeFiles/gecko.dir/src/http/http_response.cpp.o: /home/dylan/code/GeckoWebFramework/src/http/http_response.cpp
+CMakeFiles/gecko.dir/src/http/http_response.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/gecko.dir/src/http/http_response.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/http/http_response.cpp.o -MF CMakeFiles/gecko.dir/src/http/http_response.cpp.o.d -o CMakeFiles/gecko.dir/src/http/http_response.cpp.o -c /home/dylan/code/GeckoWebFramework/src/http/http_response.cpp
 
-CMakeFiles/gecko.dir/src/http_response.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/http_response.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/http_response.cpp > CMakeFiles/gecko.dir/src/http_response.cpp.i
+CMakeFiles/gecko.dir/src/http/http_response.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/http/http_response.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/http/http_response.cpp > CMakeFiles/gecko.dir/src/http/http_response.cpp.i
 
-CMakeFiles/gecko.dir/src/http_response.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/http_response.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/http_response.cpp -o CMakeFiles/gecko.dir/src/http_response.cpp.s
+CMakeFiles/gecko.dir/src/http/http_response.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/http/http_response.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/http/http_response.cpp -o CMakeFiles/gecko.dir/src/http/http_response.cpp.s
 
-CMakeFiles/gecko.dir/src/io_thread_pool.cpp.o: CMakeFiles/gecko.dir/flags.make
-CMakeFiles/gecko.dir/src/io_thread_pool.cpp.o: /home/dylan/code/GeckoWebFramework/src/io_thread_pool.cpp
-CMakeFiles/gecko.dir/src/io_thread_pool.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/gecko.dir/src/io_thread_pool.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/io_thread_pool.cpp.o -MF CMakeFiles/gecko.dir/src/io_thread_pool.cpp.o.d -o CMakeFiles/gecko.dir/src/io_thread_pool.cpp.o -c /home/dylan/code/GeckoWebFramework/src/io_thread_pool.cpp
+CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.o: CMakeFiles/gecko.dir/flags.make
+CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.o: /home/dylan/code/GeckoWebFramework/src/http/io_thread_pool.cpp
+CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.o -MF CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.o.d -o CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.o -c /home/dylan/code/GeckoWebFramework/src/http/io_thread_pool.cpp
 
-CMakeFiles/gecko.dir/src/io_thread_pool.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/io_thread_pool.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/io_thread_pool.cpp > CMakeFiles/gecko.dir/src/io_thread_pool.cpp.i
+CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/http/io_thread_pool.cpp > CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.i
 
-CMakeFiles/gecko.dir/src/io_thread_pool.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/io_thread_pool.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/io_thread_pool.cpp -o CMakeFiles/gecko.dir/src/io_thread_pool.cpp.s
+CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/http/io_thread_pool.cpp -o CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.s
 
-CMakeFiles/gecko.dir/src/logger.cpp.o: CMakeFiles/gecko.dir/flags.make
-CMakeFiles/gecko.dir/src/logger.cpp.o: /home/dylan/code/GeckoWebFramework/src/logger.cpp
-CMakeFiles/gecko.dir/src/logger.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/gecko.dir/src/logger.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/logger.cpp.o -MF CMakeFiles/gecko.dir/src/logger.cpp.o.d -o CMakeFiles/gecko.dir/src/logger.cpp.o -c /home/dylan/code/GeckoWebFramework/src/logger.cpp
+CMakeFiles/gecko.dir/src/http/router.cpp.o: CMakeFiles/gecko.dir/flags.make
+CMakeFiles/gecko.dir/src/http/router.cpp.o: /home/dylan/code/GeckoWebFramework/src/http/router.cpp
+CMakeFiles/gecko.dir/src/http/router.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/gecko.dir/src/http/router.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/http/router.cpp.o -MF CMakeFiles/gecko.dir/src/http/router.cpp.o.d -o CMakeFiles/gecko.dir/src/http/router.cpp.o -c /home/dylan/code/GeckoWebFramework/src/http/router.cpp
 
-CMakeFiles/gecko.dir/src/logger.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/logger.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/logger.cpp > CMakeFiles/gecko.dir/src/logger.cpp.i
+CMakeFiles/gecko.dir/src/http/router.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/http/router.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/http/router.cpp > CMakeFiles/gecko.dir/src/http/router.cpp.i
 
-CMakeFiles/gecko.dir/src/logger.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/logger.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/logger.cpp -o CMakeFiles/gecko.dir/src/logger.cpp.s
+CMakeFiles/gecko.dir/src/http/router.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/http/router.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/http/router.cpp -o CMakeFiles/gecko.dir/src/http/router.cpp.s
 
-CMakeFiles/gecko.dir/src/router.cpp.o: CMakeFiles/gecko.dir/flags.make
-CMakeFiles/gecko.dir/src/router.cpp.o: /home/dylan/code/GeckoWebFramework/src/router.cpp
-CMakeFiles/gecko.dir/src/router.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/gecko.dir/src/router.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/router.cpp.o -MF CMakeFiles/gecko.dir/src/router.cpp.o.d -o CMakeFiles/gecko.dir/src/router.cpp.o -c /home/dylan/code/GeckoWebFramework/src/router.cpp
+CMakeFiles/gecko.dir/src/http/server.cpp.o: CMakeFiles/gecko.dir/flags.make
+CMakeFiles/gecko.dir/src/http/server.cpp.o: /home/dylan/code/GeckoWebFramework/src/http/server.cpp
+CMakeFiles/gecko.dir/src/http/server.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/gecko.dir/src/http/server.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/http/server.cpp.o -MF CMakeFiles/gecko.dir/src/http/server.cpp.o.d -o CMakeFiles/gecko.dir/src/http/server.cpp.o -c /home/dylan/code/GeckoWebFramework/src/http/server.cpp
 
-CMakeFiles/gecko.dir/src/router.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/router.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/router.cpp > CMakeFiles/gecko.dir/src/router.cpp.i
+CMakeFiles/gecko.dir/src/http/server.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/http/server.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/http/server.cpp > CMakeFiles/gecko.dir/src/http/server.cpp.i
 
-CMakeFiles/gecko.dir/src/router.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/router.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/router.cpp -o CMakeFiles/gecko.dir/src/router.cpp.s
+CMakeFiles/gecko.dir/src/http/server.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/http/server.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/http/server.cpp -o CMakeFiles/gecko.dir/src/http/server.cpp.s
 
-CMakeFiles/gecko.dir/src/server.cpp.o: CMakeFiles/gecko.dir/flags.make
-CMakeFiles/gecko.dir/src/server.cpp.o: /home/dylan/code/GeckoWebFramework/src/server.cpp
-CMakeFiles/gecko.dir/src/server.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/gecko.dir/src/server.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/server.cpp.o -MF CMakeFiles/gecko.dir/src/server.cpp.o.d -o CMakeFiles/gecko.dir/src/server.cpp.o -c /home/dylan/code/GeckoWebFramework/src/server.cpp
+CMakeFiles/gecko.dir/src/http/thread_pool.cpp.o: CMakeFiles/gecko.dir/flags.make
+CMakeFiles/gecko.dir/src/http/thread_pool.cpp.o: /home/dylan/code/GeckoWebFramework/src/http/thread_pool.cpp
+CMakeFiles/gecko.dir/src/http/thread_pool.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/gecko.dir/src/http/thread_pool.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/http/thread_pool.cpp.o -MF CMakeFiles/gecko.dir/src/http/thread_pool.cpp.o.d -o CMakeFiles/gecko.dir/src/http/thread_pool.cpp.o -c /home/dylan/code/GeckoWebFramework/src/http/thread_pool.cpp
 
-CMakeFiles/gecko.dir/src/server.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/server.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/server.cpp > CMakeFiles/gecko.dir/src/server.cpp.i
+CMakeFiles/gecko.dir/src/http/thread_pool.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/http/thread_pool.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/http/thread_pool.cpp > CMakeFiles/gecko.dir/src/http/thread_pool.cpp.i
 
-CMakeFiles/gecko.dir/src/server.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/server.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/server.cpp -o CMakeFiles/gecko.dir/src/server.cpp.s
+CMakeFiles/gecko.dir/src/http/thread_pool.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/http/thread_pool.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/http/thread_pool.cpp -o CMakeFiles/gecko.dir/src/http/thread_pool.cpp.s
 
-CMakeFiles/gecko.dir/src/thread_pool.cpp.o: CMakeFiles/gecko.dir/flags.make
-CMakeFiles/gecko.dir/src/thread_pool.cpp.o: /home/dylan/code/GeckoWebFramework/src/thread_pool.cpp
-CMakeFiles/gecko.dir/src/thread_pool.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/gecko.dir/src/thread_pool.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/thread_pool.cpp.o -MF CMakeFiles/gecko.dir/src/thread_pool.cpp.o.d -o CMakeFiles/gecko.dir/src/thread_pool.cpp.o -c /home/dylan/code/GeckoWebFramework/src/thread_pool.cpp
+CMakeFiles/gecko.dir/src/logger/logger.cpp.o: CMakeFiles/gecko.dir/flags.make
+CMakeFiles/gecko.dir/src/logger/logger.cpp.o: /home/dylan/code/GeckoWebFramework/src/logger/logger.cpp
+CMakeFiles/gecko.dir/src/logger/logger.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/gecko.dir/src/logger/logger.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/logger/logger.cpp.o -MF CMakeFiles/gecko.dir/src/logger/logger.cpp.o.d -o CMakeFiles/gecko.dir/src/logger/logger.cpp.o -c /home/dylan/code/GeckoWebFramework/src/logger/logger.cpp
 
-CMakeFiles/gecko.dir/src/thread_pool.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/thread_pool.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/thread_pool.cpp > CMakeFiles/gecko.dir/src/thread_pool.cpp.i
+CMakeFiles/gecko.dir/src/logger/logger.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/logger/logger.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/logger/logger.cpp > CMakeFiles/gecko.dir/src/logger/logger.cpp.i
 
-CMakeFiles/gecko.dir/src/thread_pool.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/thread_pool.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/thread_pool.cpp -o CMakeFiles/gecko.dir/src/thread_pool.cpp.s
+CMakeFiles/gecko.dir/src/logger/logger.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/logger/logger.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/logger/logger.cpp -o CMakeFiles/gecko.dir/src/logger/logger.cpp.s
+
+CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.o: CMakeFiles/gecko.dir/flags.make
+CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.o: /home/dylan/code/GeckoWebFramework/src/rpc/rpc_server.cpp
+CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.o -MF CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.o.d -o CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.o -c /home/dylan/code/GeckoWebFramework/src/rpc/rpc_server.cpp
+
+CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/rpc/rpc_server.cpp > CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.i
+
+CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/rpc/rpc_server.cpp -o CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.s
+
+CMakeFiles/gecko.dir/src/tracing/tracer.cpp.o: CMakeFiles/gecko.dir/flags.make
+CMakeFiles/gecko.dir/src/tracing/tracer.cpp.o: /home/dylan/code/GeckoWebFramework/src/tracing/tracer.cpp
+CMakeFiles/gecko.dir/src/tracing/tracer.cpp.o: CMakeFiles/gecko.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/gecko.dir/src/tracing/tracer.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/gecko.dir/src/tracing/tracer.cpp.o -MF CMakeFiles/gecko.dir/src/tracing/tracer.cpp.o.d -o CMakeFiles/gecko.dir/src/tracing/tracer.cpp.o -c /home/dylan/code/GeckoWebFramework/src/tracing/tracer.cpp
+
+CMakeFiles/gecko.dir/src/tracing/tracer.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/gecko.dir/src/tracing/tracer.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/src/tracing/tracer.cpp > CMakeFiles/gecko.dir/src/tracing/tracer.cpp.i
+
+CMakeFiles/gecko.dir/src/tracing/tracer.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/gecko.dir/src/tracing/tracer.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/src/tracing/tracer.cpp -o CMakeFiles/gecko.dir/src/tracing/tracer.cpp.s
 
 # Object files for target gecko
 gecko_OBJECTS = \
-"CMakeFiles/gecko.dir/src/context.cpp.o" \
-"CMakeFiles/gecko.dir/src/engine.cpp.o" \
-"CMakeFiles/gecko.dir/src/fast_http_parser.cpp.o" \
-"CMakeFiles/gecko.dir/src/http_request.cpp.o" \
-"CMakeFiles/gecko.dir/src/http_response.cpp.o" \
-"CMakeFiles/gecko.dir/src/io_thread_pool.cpp.o" \
-"CMakeFiles/gecko.dir/src/logger.cpp.o" \
-"CMakeFiles/gecko.dir/src/router.cpp.o" \
-"CMakeFiles/gecko.dir/src/server.cpp.o" \
-"CMakeFiles/gecko.dir/src/thread_pool.cpp.o"
+"CMakeFiles/gecko.dir/src/http/context.cpp.o" \
+"CMakeFiles/gecko.dir/src/http/engine.cpp.o" \
+"CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.o" \
+"CMakeFiles/gecko.dir/src/http/http_request.cpp.o" \
+"CMakeFiles/gecko.dir/src/http/http_response.cpp.o" \
+"CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.o" \
+"CMakeFiles/gecko.dir/src/http/router.cpp.o" \
+"CMakeFiles/gecko.dir/src/http/server.cpp.o" \
+"CMakeFiles/gecko.dir/src/http/thread_pool.cpp.o" \
+"CMakeFiles/gecko.dir/src/logger/logger.cpp.o" \
+"CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.o" \
+"CMakeFiles/gecko.dir/src/tracing/tracer.cpp.o"
 
 # External object files for target gecko
 gecko_EXTERNAL_OBJECTS =
 
-libgecko.a: CMakeFiles/gecko.dir/src/context.cpp.o
-libgecko.a: CMakeFiles/gecko.dir/src/engine.cpp.o
-libgecko.a: CMakeFiles/gecko.dir/src/fast_http_parser.cpp.o
-libgecko.a: CMakeFiles/gecko.dir/src/http_request.cpp.o
-libgecko.a: CMakeFiles/gecko.dir/src/http_response.cpp.o
-libgecko.a: CMakeFiles/gecko.dir/src/io_thread_pool.cpp.o
-libgecko.a: CMakeFiles/gecko.dir/src/logger.cpp.o
-libgecko.a: CMakeFiles/gecko.dir/src/router.cpp.o
-libgecko.a: CMakeFiles/gecko.dir/src/server.cpp.o
-libgecko.a: CMakeFiles/gecko.dir/src/thread_pool.cpp.o
+libgecko.a: CMakeFiles/gecko.dir/src/http/context.cpp.o
+libgecko.a: CMakeFiles/gecko.dir/src/http/engine.cpp.o
+libgecko.a: CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.o
+libgecko.a: CMakeFiles/gecko.dir/src/http/http_request.cpp.o
+libgecko.a: CMakeFiles/gecko.dir/src/http/http_response.cpp.o
+libgecko.a: CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.o
+libgecko.a: CMakeFiles/gecko.dir/src/http/router.cpp.o
+libgecko.a: CMakeFiles/gecko.dir/src/http/server.cpp.o
+libgecko.a: CMakeFiles/gecko.dir/src/http/thread_pool.cpp.o
+libgecko.a: CMakeFiles/gecko.dir/src/logger/logger.cpp.o
+libgecko.a: CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.o
+libgecko.a: CMakeFiles/gecko.dir/src/tracing/tracer.cpp.o
 libgecko.a: CMakeFiles/gecko.dir/build.make
 libgecko.a: CMakeFiles/gecko.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX static library libgecko.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking CXX static library libgecko.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/gecko.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/gecko.dir/link.txt --verbose=$(VERBOSE)
 

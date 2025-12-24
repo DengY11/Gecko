@@ -3,10 +3,10 @@
 
 CMakeFiles/router_tests.dir/tests/router/test_router.cpp.o
  /home/dylan/code/GeckoWebFramework/tests/router/test_router.cpp
- /home/dylan/code/GeckoWebFramework/src/context.hpp
- /home/dylan/code/GeckoWebFramework/src/http_request.hpp
- /home/dylan/code/GeckoWebFramework/src/http_response.hpp
- /home/dylan/code/GeckoWebFramework/src/router.hpp
+ /home/dylan/code/GeckoWebFramework/src/http/context.hpp
+ /home/dylan/code/GeckoWebFramework/src/http/http_request.hpp
+ /home/dylan/code/GeckoWebFramework/src/http/http_response.hpp
+ /home/dylan/code/GeckoWebFramework/src/http/router.hpp
  /usr/include/alloca.h
  /usr/include/asm-generic/errno-base.h
  /usr/include/asm-generic/errno.h

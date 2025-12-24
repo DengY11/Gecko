@@ -1,5 +1,7 @@
 /home/dylan/code/GeckoWebFramework/build/CMakeFiles/gecko.dir
 /home/dylan/code/GeckoWebFramework/build/CMakeFiles/example_gin_style.dir
+/home/dylan/code/GeckoWebFramework/build/CMakeFiles/gecko_greeter_proto.dir
+/home/dylan/code/GeckoWebFramework/build/CMakeFiles/example_http_rpc_middleware.dir
 /home/dylan/code/GeckoWebFramework/build/CMakeFiles/router_tests.dir
 /home/dylan/code/GeckoWebFramework/build/CMakeFiles/http_basic_tests.dir
 /home/dylan/code/GeckoWebFramework/build/CMakeFiles/http_constructors_tests.dir

@@ -1,8 +1,15 @@
-router_tests 5 0.000914707
-http_basic_tests 5 0.0008251
-http_constructors_tests 5 0.000903016
-http_error_tests 5 0.0009452
-http_special_case_tests 5 0.000919524
-performance_tests 5 0.877264
-cooperative_thread_pool_tests 2 0.00453522
+router_tests 7 0
+http_basic_tests 7 0
+http_constructors_tests 7 0
+http_error_tests 7 0
+http_special_case_tests 7 0
+performance_tests 7 0
+cooperative_thread_pool_tests 4 0
 ---
+router_tests
+http_basic_tests
+http_constructors_tests
+http_error_tests
+http_special_case_tests
+performance_tests
+cooperative_thread_pool_tests

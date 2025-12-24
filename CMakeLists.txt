@@ -17,34 +17,39 @@ endif()
 
 option(GECKO_BUILD_EXAMPLES "Build example executables" ON)
 option(GECKO_BUILD_TESTS "Build test executables" ON)
+option(GECKO_ENABLE_GRPC "Enable optional gRPC RPC server support" OFF)
 
 set(GECKO_PUBLIC_HEADERS
-    src/context.hpp
-    src/engine.hpp
-    src/fast_http_parser.hpp
-    src/http_request.hpp
-    src/http_response.hpp
-    src/io_thread_pool.hpp
-    src/logger.hpp
-    src/middlewares.hpp
-    src/request_pool.hpp
-    src/router.hpp
-    src/server_config.hpp
-    src/server.hpp
-    src/thread_pool.hpp
+    src/http/context.hpp
+    src/http/engine.hpp
+    src/http/fast_http_parser.hpp
+    src/http/http_request.hpp
+    src/http/http_response.hpp
+    src/http/io_thread_pool.hpp
+    src/http/middlewares.hpp
+    src/http/request_pool.hpp
+    src/http/router.hpp
+    src/http/server_config.hpp
+    src/http/server.hpp
+    src/http/thread_pool.hpp
+    src/logger/logger.hpp
+    src/rpc/rpc_server.hpp
+    src/tracing/tracer.hpp
 )
 
 set(GECKO_SOURCES
-    src/context.cpp
-    src/engine.cpp
-    src/fast_http_parser.cpp
-    src/http_request.cpp
-    src/http_response.cpp
-    src/io_thread_pool.cpp
-    src/logger.cpp
-    src/router.cpp
-    src/server.cpp
-    src/thread_pool.cpp
+    src/http/context.cpp
+    src/http/engine.cpp
+    src/http/fast_http_parser.cpp
+    src/http/http_request.cpp
+    src/http/http_response.cpp
+    src/http/io_thread_pool.cpp
+    src/http/router.cpp
+    src/http/server.cpp
+    src/http/thread_pool.cpp
+    src/logger/logger.cpp
+    src/rpc/rpc_server.cpp
+    src/tracing/tracer.cpp
 )
 
 add_library(gecko STATIC ${GECKO_SOURCES})
@@ -53,6 +58,10 @@ add_library(Gecko::gecko ALIAS gecko)
 target_include_directories(gecko
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/http>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/logger>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/rpc>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/tracing>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/gecko>
 )
 target_link_libraries(gecko PUBLIC Threads::Threads)
@@ -64,9 +73,75 @@ else()
     message(STATUS "nlohmann_json not found; assuming <nlohmann/json.hpp> is available in your include path")
 endif()
 
+if (GECKO_ENABLE_GRPC)
+    find_package(gRPC CONFIG QUIET)
+    if (NOT gRPC_FOUND)
+        message(FATAL_ERROR "GECKO_ENABLE_GRPC is ON but gRPC package was not found. Install gRPC C++ or disable the option.")
+    endif()
+    target_link_libraries(gecko PUBLIC gRPC::grpc++ gRPC::grpc++_reflection)
+    target_compile_definitions(gecko PUBLIC GECKO_ENABLE_GRPC)
+endif()
+
 if (GECKO_BUILD_EXAMPLES)
-    add_executable(example_gin_style example_gin_style.cpp)
+    add_executable(example_gin_style examples/gin_style.cpp)
     target_link_libraries(example_gin_style PRIVATE gecko)
+
+    if (GECKO_ENABLE_GRPC)
+        if (gRPC_DIR)
+            list(APPEND CMAKE_PREFIX_PATH ${gRPC_DIR}/..)
+        endif()
+
+        find_package(Protobuf CONFIG QUIET HINTS ${gRPC_DIR}/../protobuf ${gRPC_DIR}/..)
+        if (NOT Protobuf_FOUND)
+            find_package(Protobuf REQUIRED)
+        endif()
+
+        set(GREETER_PROTO ${CMAKE_CURRENT_SOURCE_DIR}/examples/proto/greeter.proto)
+        set(GREETER_PROTO_SRC ${CMAKE_CURRENT_BINARY_DIR}/greeter.pb.cc)
+        set(GREETER_PROTO_HDR ${CMAKE_CURRENT_BINARY_DIR}/greeter.pb.h)
+        set(GREETER_GRPC_SRC ${CMAKE_CURRENT_BINARY_DIR}/greeter.grpc.pb.cc)
+        set(GREETER_GRPC_HDR ${CMAKE_CURRENT_BINARY_DIR}/greeter.grpc.pb.h)
+
+        if (TARGET protobuf::protoc)
+            set(GREETER_PROTOC $<TARGET_FILE:protobuf::protoc>)
+        else()
+            set(GREETER_PROTOC ${Protobuf_PROTOC_EXECUTABLE})
+        endif()
+
+        add_custom_command(
+            OUTPUT ${GREETER_PROTO_SRC} ${GREETER_PROTO_HDR} ${GREETER_GRPC_SRC} ${GREETER_GRPC_HDR}
+            COMMAND ${GREETER_PROTOC}
+                --proto_path=${CMAKE_CURRENT_SOURCE_DIR}/examples/proto
+                --cpp_out=${CMAKE_CURRENT_BINARY_DIR}
+                --grpc_out=${CMAKE_CURRENT_BINARY_DIR}
+                --plugin=protoc-gen-grpc=$<TARGET_FILE:gRPC::grpc_cpp_plugin>
+                ${GREETER_PROTO}
+            DEPENDS ${GREETER_PROTO}
+            COMMENT "Generating gRPC sources for greeter.proto"
+            VERBATIM
+        )
+
+        add_library(gecko_greeter_proto STATIC
+            ${GREETER_PROTO_SRC}
+            ${GREETER_GRPC_SRC}
+        )
+        target_include_directories(gecko_greeter_proto PUBLIC
+            ${CMAKE_CURRENT_BINARY_DIR}
+            ${Protobuf_INCLUDE_DIRS}
+        )
+        target_compile_definitions(gecko_greeter_proto PRIVATE NDEBUG)
+        target_link_libraries(gecko_greeter_proto PUBLIC protobuf::libprotobuf gRPC::grpc++)
+
+        add_executable(example_http_rpc_middleware examples/http_rpc_middleware.cpp)
+        target_link_libraries(example_http_rpc_middleware PRIVATE
+            gecko
+            gecko_greeter_proto
+            gRPC::grpc++
+            gRPC::grpc++_reflection
+            protobuf::libprotobuf
+        )
+        target_include_directories(example_http_rpc_middleware PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+    endif()
 endif()
 
 if (GECKO_BUILD_TESTS)
@@ -94,9 +169,10 @@ install(TARGETS gecko
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-install(FILES ${GECKO_PUBLIC_HEADERS}
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gecko
-)
+install(DIRECTORY src/http DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gecko FILES_MATCHING PATTERN "*.hpp")
+install(DIRECTORY src/logger DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gecko FILES_MATCHING PATTERN "*.hpp")
+install(DIRECTORY src/rpc DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gecko FILES_MATCHING PATTERN "*.hpp")
+install(DIRECTORY src/tracing DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gecko FILES_MATCHING PATTERN "*.hpp")
 
 install(EXPORT GeckoTargets
     FILE GeckoTargets.cmake

@@ -198,6 +198,32 @@ example_gin_style/fast:
 .PHONY : example_gin_style/fast
 
 #=============================================================================
+# Target rules for targets named gecko_greeter_proto
+
+# Build rule for target.
+gecko_greeter_proto: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gecko_greeter_proto
+.PHONY : gecko_greeter_proto
+
+# fast build rule for target.
+gecko_greeter_proto/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko_greeter_proto.dir/build.make CMakeFiles/gecko_greeter_proto.dir/build
+.PHONY : gecko_greeter_proto/fast
+
+#=============================================================================
+# Target rules for targets named example_http_rpc_middleware
+
+# Build rule for target.
+example_http_rpc_middleware: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 example_http_rpc_middleware
+.PHONY : example_http_rpc_middleware
+
+# fast build rule for target.
+example_http_rpc_middleware/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_http_rpc_middleware.dir/build.make CMakeFiles/example_http_rpc_middleware.dir/build
+.PHONY : example_http_rpc_middleware/fast
+
+#=============================================================================
 # Target rules for targets named router_tests
 
 # Build rule for target.
@@ -288,269 +314,389 @@ cooperative_thread_pool_tests/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/cooperative_thread_pool_tests.dir/build.make CMakeFiles/cooperative_thread_pool_tests.dir/build
 .PHONY : cooperative_thread_pool_tests/fast
 
-example_gin_style.o: example_gin_style.cpp.o
-.PHONY : example_gin_style.o
+examples/gin_style.o: examples/gin_style.cpp.o
+.PHONY : examples/gin_style.o
 
 # target to build an object file
-example_gin_style.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_gin_style.dir/build.make CMakeFiles/example_gin_style.dir/example_gin_style.cpp.o
-.PHONY : example_gin_style.cpp.o
+examples/gin_style.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_gin_style.dir/build.make CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.o
+.PHONY : examples/gin_style.cpp.o
 
-example_gin_style.i: example_gin_style.cpp.i
-.PHONY : example_gin_style.i
+examples/gin_style.i: examples/gin_style.cpp.i
+.PHONY : examples/gin_style.i
 
 # target to preprocess a source file
-example_gin_style.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_gin_style.dir/build.make CMakeFiles/example_gin_style.dir/example_gin_style.cpp.i
-.PHONY : example_gin_style.cpp.i
+examples/gin_style.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_gin_style.dir/build.make CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.i
+.PHONY : examples/gin_style.cpp.i
 
-example_gin_style.s: example_gin_style.cpp.s
-.PHONY : example_gin_style.s
+examples/gin_style.s: examples/gin_style.cpp.s
+.PHONY : examples/gin_style.s
 
 # target to generate assembly for a file
-example_gin_style.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_gin_style.dir/build.make CMakeFiles/example_gin_style.dir/example_gin_style.cpp.s
-.PHONY : example_gin_style.cpp.s
+examples/gin_style.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_gin_style.dir/build.make CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.s
+.PHONY : examples/gin_style.cpp.s
 
-src/context.o: src/context.cpp.o
-.PHONY : src/context.o
+examples/http_rpc_middleware.o: examples/http_rpc_middleware.cpp.o
+.PHONY : examples/http_rpc_middleware.o
 
 # target to build an object file
-src/context.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/context.cpp.o
-.PHONY : src/context.cpp.o
+examples/http_rpc_middleware.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_http_rpc_middleware.dir/build.make CMakeFiles/example_http_rpc_middleware.dir/examples/http_rpc_middleware.cpp.o
+.PHONY : examples/http_rpc_middleware.cpp.o
 
-src/context.i: src/context.cpp.i
-.PHONY : src/context.i
+examples/http_rpc_middleware.i: examples/http_rpc_middleware.cpp.i
+.PHONY : examples/http_rpc_middleware.i
 
 # target to preprocess a source file
-src/context.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/context.cpp.i
-.PHONY : src/context.cpp.i
+examples/http_rpc_middleware.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_http_rpc_middleware.dir/build.make CMakeFiles/example_http_rpc_middleware.dir/examples/http_rpc_middleware.cpp.i
+.PHONY : examples/http_rpc_middleware.cpp.i
 
-src/context.s: src/context.cpp.s
-.PHONY : src/context.s
+examples/http_rpc_middleware.s: examples/http_rpc_middleware.cpp.s
+.PHONY : examples/http_rpc_middleware.s
 
 # target to generate assembly for a file
-src/context.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/context.cpp.s
-.PHONY : src/context.cpp.s
+examples/http_rpc_middleware.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/example_http_rpc_middleware.dir/build.make CMakeFiles/example_http_rpc_middleware.dir/examples/http_rpc_middleware.cpp.s
+.PHONY : examples/http_rpc_middleware.cpp.s
 
-src/engine.o: src/engine.cpp.o
-.PHONY : src/engine.o
+greeter.grpc.pb.o: greeter.grpc.pb.cc.o
+.PHONY : greeter.grpc.pb.o
 
 # target to build an object file
-src/engine.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/engine.cpp.o
-.PHONY : src/engine.cpp.o
+greeter.grpc.pb.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko_greeter_proto.dir/build.make CMakeFiles/gecko_greeter_proto.dir/greeter.grpc.pb.cc.o
+.PHONY : greeter.grpc.pb.cc.o
 
-src/engine.i: src/engine.cpp.i
-.PHONY : src/engine.i
+greeter.grpc.pb.i: greeter.grpc.pb.cc.i
+.PHONY : greeter.grpc.pb.i
 
 # target to preprocess a source file
-src/engine.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/engine.cpp.i
-.PHONY : src/engine.cpp.i
+greeter.grpc.pb.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko_greeter_proto.dir/build.make CMakeFiles/gecko_greeter_proto.dir/greeter.grpc.pb.cc.i
+.PHONY : greeter.grpc.pb.cc.i
 
-src/engine.s: src/engine.cpp.s
-.PHONY : src/engine.s
+greeter.grpc.pb.s: greeter.grpc.pb.cc.s
+.PHONY : greeter.grpc.pb.s
 
 # target to generate assembly for a file
-src/engine.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/engine.cpp.s
-.PHONY : src/engine.cpp.s
+greeter.grpc.pb.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko_greeter_proto.dir/build.make CMakeFiles/gecko_greeter_proto.dir/greeter.grpc.pb.cc.s
+.PHONY : greeter.grpc.pb.cc.s
 
-src/fast_http_parser.o: src/fast_http_parser.cpp.o
-.PHONY : src/fast_http_parser.o
+greeter.pb.o: greeter.pb.cc.o
+.PHONY : greeter.pb.o
 
 # target to build an object file
-src/fast_http_parser.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/fast_http_parser.cpp.o
-.PHONY : src/fast_http_parser.cpp.o
+greeter.pb.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko_greeter_proto.dir/build.make CMakeFiles/gecko_greeter_proto.dir/greeter.pb.cc.o
+.PHONY : greeter.pb.cc.o
 
-src/fast_http_parser.i: src/fast_http_parser.cpp.i
-.PHONY : src/fast_http_parser.i
+greeter.pb.i: greeter.pb.cc.i
+.PHONY : greeter.pb.i
 
 # target to preprocess a source file
-src/fast_http_parser.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/fast_http_parser.cpp.i
-.PHONY : src/fast_http_parser.cpp.i
+greeter.pb.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko_greeter_proto.dir/build.make CMakeFiles/gecko_greeter_proto.dir/greeter.pb.cc.i
+.PHONY : greeter.pb.cc.i
 
-src/fast_http_parser.s: src/fast_http_parser.cpp.s
-.PHONY : src/fast_http_parser.s
+greeter.pb.s: greeter.pb.cc.s
+.PHONY : greeter.pb.s
 
 # target to generate assembly for a file
-src/fast_http_parser.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/fast_http_parser.cpp.s
-.PHONY : src/fast_http_parser.cpp.s
+greeter.pb.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko_greeter_proto.dir/build.make CMakeFiles/gecko_greeter_proto.dir/greeter.pb.cc.s
+.PHONY : greeter.pb.cc.s
 
-src/http_request.o: src/http_request.cpp.o
-.PHONY : src/http_request.o
+src/http/context.o: src/http/context.cpp.o
+.PHONY : src/http/context.o
 
 # target to build an object file
-src/http_request.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http_request.cpp.o
-.PHONY : src/http_request.cpp.o
+src/http/context.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/context.cpp.o
+.PHONY : src/http/context.cpp.o
 
-src/http_request.i: src/http_request.cpp.i
-.PHONY : src/http_request.i
+src/http/context.i: src/http/context.cpp.i
+.PHONY : src/http/context.i
 
 # target to preprocess a source file
-src/http_request.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http_request.cpp.i
-.PHONY : src/http_request.cpp.i
+src/http/context.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/context.cpp.i
+.PHONY : src/http/context.cpp.i
 
-src/http_request.s: src/http_request.cpp.s
-.PHONY : src/http_request.s
+src/http/context.s: src/http/context.cpp.s
+.PHONY : src/http/context.s
 
 # target to generate assembly for a file
-src/http_request.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http_request.cpp.s
-.PHONY : src/http_request.cpp.s
+src/http/context.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/context.cpp.s
+.PHONY : src/http/context.cpp.s
 
-src/http_response.o: src/http_response.cpp.o
-.PHONY : src/http_response.o
+src/http/engine.o: src/http/engine.cpp.o
+.PHONY : src/http/engine.o
 
 # target to build an object file
-src/http_response.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http_response.cpp.o
-.PHONY : src/http_response.cpp.o
+src/http/engine.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/engine.cpp.o
+.PHONY : src/http/engine.cpp.o
 
-src/http_response.i: src/http_response.cpp.i
-.PHONY : src/http_response.i
+src/http/engine.i: src/http/engine.cpp.i
+.PHONY : src/http/engine.i
 
 # target to preprocess a source file
-src/http_response.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http_response.cpp.i
-.PHONY : src/http_response.cpp.i
+src/http/engine.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/engine.cpp.i
+.PHONY : src/http/engine.cpp.i
 
-src/http_response.s: src/http_response.cpp.s
-.PHONY : src/http_response.s
+src/http/engine.s: src/http/engine.cpp.s
+.PHONY : src/http/engine.s
 
 # target to generate assembly for a file
-src/http_response.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http_response.cpp.s
-.PHONY : src/http_response.cpp.s
+src/http/engine.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/engine.cpp.s
+.PHONY : src/http/engine.cpp.s
 
-src/io_thread_pool.o: src/io_thread_pool.cpp.o
-.PHONY : src/io_thread_pool.o
+src/http/fast_http_parser.o: src/http/fast_http_parser.cpp.o
+.PHONY : src/http/fast_http_parser.o
 
 # target to build an object file
-src/io_thread_pool.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/io_thread_pool.cpp.o
-.PHONY : src/io_thread_pool.cpp.o
+src/http/fast_http_parser.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.o
+.PHONY : src/http/fast_http_parser.cpp.o
 
-src/io_thread_pool.i: src/io_thread_pool.cpp.i
-.PHONY : src/io_thread_pool.i
+src/http/fast_http_parser.i: src/http/fast_http_parser.cpp.i
+.PHONY : src/http/fast_http_parser.i
 
 # target to preprocess a source file
-src/io_thread_pool.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/io_thread_pool.cpp.i
-.PHONY : src/io_thread_pool.cpp.i
+src/http/fast_http_parser.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.i
+.PHONY : src/http/fast_http_parser.cpp.i
 
-src/io_thread_pool.s: src/io_thread_pool.cpp.s
-.PHONY : src/io_thread_pool.s
+src/http/fast_http_parser.s: src/http/fast_http_parser.cpp.s
+.PHONY : src/http/fast_http_parser.s
 
 # target to generate assembly for a file
-src/io_thread_pool.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/io_thread_pool.cpp.s
-.PHONY : src/io_thread_pool.cpp.s
+src/http/fast_http_parser.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/fast_http_parser.cpp.s
+.PHONY : src/http/fast_http_parser.cpp.s
 
-src/logger.o: src/logger.cpp.o
-.PHONY : src/logger.o
+src/http/http_request.o: src/http/http_request.cpp.o
+.PHONY : src/http/http_request.o
 
 # target to build an object file
-src/logger.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/logger.cpp.o
-.PHONY : src/logger.cpp.o
+src/http/http_request.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/http_request.cpp.o
+.PHONY : src/http/http_request.cpp.o
 
-src/logger.i: src/logger.cpp.i
-.PHONY : src/logger.i
+src/http/http_request.i: src/http/http_request.cpp.i
+.PHONY : src/http/http_request.i
 
 # target to preprocess a source file
-src/logger.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/logger.cpp.i
-.PHONY : src/logger.cpp.i
+src/http/http_request.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/http_request.cpp.i
+.PHONY : src/http/http_request.cpp.i
 
-src/logger.s: src/logger.cpp.s
-.PHONY : src/logger.s
+src/http/http_request.s: src/http/http_request.cpp.s
+.PHONY : src/http/http_request.s
 
 # target to generate assembly for a file
-src/logger.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/logger.cpp.s
-.PHONY : src/logger.cpp.s
+src/http/http_request.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/http_request.cpp.s
+.PHONY : src/http/http_request.cpp.s
 
-src/router.o: src/router.cpp.o
-.PHONY : src/router.o
+src/http/http_response.o: src/http/http_response.cpp.o
+.PHONY : src/http/http_response.o
 
 # target to build an object file
-src/router.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/router.cpp.o
-.PHONY : src/router.cpp.o
+src/http/http_response.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/http_response.cpp.o
+.PHONY : src/http/http_response.cpp.o
 
-src/router.i: src/router.cpp.i
-.PHONY : src/router.i
+src/http/http_response.i: src/http/http_response.cpp.i
+.PHONY : src/http/http_response.i
 
 # target to preprocess a source file
-src/router.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/router.cpp.i
-.PHONY : src/router.cpp.i
+src/http/http_response.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/http_response.cpp.i
+.PHONY : src/http/http_response.cpp.i
 
-src/router.s: src/router.cpp.s
-.PHONY : src/router.s
+src/http/http_response.s: src/http/http_response.cpp.s
+.PHONY : src/http/http_response.s
 
 # target to generate assembly for a file
-src/router.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/router.cpp.s
-.PHONY : src/router.cpp.s
+src/http/http_response.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/http_response.cpp.s
+.PHONY : src/http/http_response.cpp.s
 
-src/server.o: src/server.cpp.o
-.PHONY : src/server.o
+src/http/io_thread_pool.o: src/http/io_thread_pool.cpp.o
+.PHONY : src/http/io_thread_pool.o
 
 # target to build an object file
-src/server.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/server.cpp.o
-.PHONY : src/server.cpp.o
+src/http/io_thread_pool.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.o
+.PHONY : src/http/io_thread_pool.cpp.o
 
-src/server.i: src/server.cpp.i
-.PHONY : src/server.i
+src/http/io_thread_pool.i: src/http/io_thread_pool.cpp.i
+.PHONY : src/http/io_thread_pool.i
 
 # target to preprocess a source file
-src/server.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/server.cpp.i
-.PHONY : src/server.cpp.i
+src/http/io_thread_pool.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.i
+.PHONY : src/http/io_thread_pool.cpp.i
 
-src/server.s: src/server.cpp.s
-.PHONY : src/server.s
+src/http/io_thread_pool.s: src/http/io_thread_pool.cpp.s
+.PHONY : src/http/io_thread_pool.s
 
 # target to generate assembly for a file
-src/server.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/server.cpp.s
-.PHONY : src/server.cpp.s
+src/http/io_thread_pool.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/io_thread_pool.cpp.s
+.PHONY : src/http/io_thread_pool.cpp.s
 
-src/thread_pool.o: src/thread_pool.cpp.o
-.PHONY : src/thread_pool.o
+src/http/router.o: src/http/router.cpp.o
+.PHONY : src/http/router.o
 
 # target to build an object file
-src/thread_pool.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/thread_pool.cpp.o
-.PHONY : src/thread_pool.cpp.o
+src/http/router.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/router.cpp.o
+.PHONY : src/http/router.cpp.o
 
-src/thread_pool.i: src/thread_pool.cpp.i
-.PHONY : src/thread_pool.i
+src/http/router.i: src/http/router.cpp.i
+.PHONY : src/http/router.i
 
 # target to preprocess a source file
-src/thread_pool.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/thread_pool.cpp.i
-.PHONY : src/thread_pool.cpp.i
+src/http/router.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/router.cpp.i
+.PHONY : src/http/router.cpp.i
 
-src/thread_pool.s: src/thread_pool.cpp.s
-.PHONY : src/thread_pool.s
+src/http/router.s: src/http/router.cpp.s
+.PHONY : src/http/router.s
 
 # target to generate assembly for a file
-src/thread_pool.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/thread_pool.cpp.s
-.PHONY : src/thread_pool.cpp.s
+src/http/router.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/router.cpp.s
+.PHONY : src/http/router.cpp.s
+
+src/http/server.o: src/http/server.cpp.o
+.PHONY : src/http/server.o
+
+# target to build an object file
+src/http/server.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/server.cpp.o
+.PHONY : src/http/server.cpp.o
+
+src/http/server.i: src/http/server.cpp.i
+.PHONY : src/http/server.i
+
+# target to preprocess a source file
+src/http/server.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/server.cpp.i
+.PHONY : src/http/server.cpp.i
+
+src/http/server.s: src/http/server.cpp.s
+.PHONY : src/http/server.s
+
+# target to generate assembly for a file
+src/http/server.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/server.cpp.s
+.PHONY : src/http/server.cpp.s
+
+src/http/thread_pool.o: src/http/thread_pool.cpp.o
+.PHONY : src/http/thread_pool.o
+
+# target to build an object file
+src/http/thread_pool.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/thread_pool.cpp.o
+.PHONY : src/http/thread_pool.cpp.o
+
+src/http/thread_pool.i: src/http/thread_pool.cpp.i
+.PHONY : src/http/thread_pool.i
+
+# target to preprocess a source file
+src/http/thread_pool.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/thread_pool.cpp.i
+.PHONY : src/http/thread_pool.cpp.i
+
+src/http/thread_pool.s: src/http/thread_pool.cpp.s
+.PHONY : src/http/thread_pool.s
+
+# target to generate assembly for a file
+src/http/thread_pool.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/http/thread_pool.cpp.s
+.PHONY : src/http/thread_pool.cpp.s
+
+src/logger/logger.o: src/logger/logger.cpp.o
+.PHONY : src/logger/logger.o
+
+# target to build an object file
+src/logger/logger.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/logger/logger.cpp.o
+.PHONY : src/logger/logger.cpp.o
+
+src/logger/logger.i: src/logger/logger.cpp.i
+.PHONY : src/logger/logger.i
+
+# target to preprocess a source file
+src/logger/logger.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/logger/logger.cpp.i
+.PHONY : src/logger/logger.cpp.i
+
+src/logger/logger.s: src/logger/logger.cpp.s
+.PHONY : src/logger/logger.s
+
+# target to generate assembly for a file
+src/logger/logger.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/logger/logger.cpp.s
+.PHONY : src/logger/logger.cpp.s
+
+src/rpc/rpc_server.o: src/rpc/rpc_server.cpp.o
+.PHONY : src/rpc/rpc_server.o
+
+# target to build an object file
+src/rpc/rpc_server.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.o
+.PHONY : src/rpc/rpc_server.cpp.o
+
+src/rpc/rpc_server.i: src/rpc/rpc_server.cpp.i
+.PHONY : src/rpc/rpc_server.i
+
+# target to preprocess a source file
+src/rpc/rpc_server.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.i
+.PHONY : src/rpc/rpc_server.cpp.i
+
+src/rpc/rpc_server.s: src/rpc/rpc_server.cpp.s
+.PHONY : src/rpc/rpc_server.s
+
+# target to generate assembly for a file
+src/rpc/rpc_server.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/rpc/rpc_server.cpp.s
+.PHONY : src/rpc/rpc_server.cpp.s
+
+src/tracing/tracer.o: src/tracing/tracer.cpp.o
+.PHONY : src/tracing/tracer.o
+
+# target to build an object file
+src/tracing/tracer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/tracing/tracer.cpp.o
+.PHONY : src/tracing/tracer.cpp.o
+
+src/tracing/tracer.i: src/tracing/tracer.cpp.i
+.PHONY : src/tracing/tracer.i
+
+# target to preprocess a source file
+src/tracing/tracer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/tracing/tracer.cpp.i
+.PHONY : src/tracing/tracer.cpp.i
+
+src/tracing/tracer.s: src/tracing/tracer.cpp.s
+.PHONY : src/tracing/tracer.s
+
+# target to generate assembly for a file
+src/tracing/tracer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gecko.dir/build.make CMakeFiles/gecko.dir/src/tracing/tracer.cpp.s
+.PHONY : src/tracing/tracer.cpp.s
 
 tests/http/test_basic_requests.o: tests/http/test_basic_requests.cpp.o
 .PHONY : tests/http/test_basic_requests.o
@@ -735,46 +881,63 @@ help:
 	@echo "... test"
 	@echo "... cooperative_thread_pool_tests"
 	@echo "... example_gin_style"
+	@echo "... example_http_rpc_middleware"
 	@echo "... gecko"
+	@echo "... gecko_greeter_proto"
 	@echo "... http_basic_tests"
 	@echo "... http_constructors_tests"
 	@echo "... http_error_tests"
 	@echo "... http_special_case_tests"
 	@echo "... performance_tests"
 	@echo "... router_tests"
-	@echo "... example_gin_style.o"
-	@echo "... example_gin_style.i"
-	@echo "... example_gin_style.s"
-	@echo "... src/context.o"
-	@echo "... src/context.i"
-	@echo "... src/context.s"
-	@echo "... src/engine.o"
-	@echo "... src/engine.i"
-	@echo "... src/engine.s"
-	@echo "... src/fast_http_parser.o"
-	@echo "... src/fast_http_parser.i"
-	@echo "... src/fast_http_parser.s"
-	@echo "... src/http_request.o"
-	@echo "... src/http_request.i"
-	@echo "... src/http_request.s"
-	@echo "... src/http_response.o"
-	@echo "... src/http_response.i"
-	@echo "... src/http_response.s"
-	@echo "... src/io_thread_pool.o"
-	@echo "... src/io_thread_pool.i"
-	@echo "... src/io_thread_pool.s"
-	@echo "... src/logger.o"
-	@echo "... src/logger.i"
-	@echo "... src/logger.s"
-	@echo "... src/router.o"
-	@echo "... src/router.i"
-	@echo "... src/router.s"
-	@echo "... src/server.o"
-	@echo "... src/server.i"
-	@echo "... src/server.s"
-	@echo "... src/thread_pool.o"
-	@echo "... src/thread_pool.i"
-	@echo "... src/thread_pool.s"
+	@echo "... examples/gin_style.o"
+	@echo "... examples/gin_style.i"
+	@echo "... examples/gin_style.s"
+	@echo "... examples/http_rpc_middleware.o"
+	@echo "... examples/http_rpc_middleware.i"
+	@echo "... examples/http_rpc_middleware.s"
+	@echo "... greeter.grpc.pb.o"
+	@echo "... greeter.grpc.pb.i"
+	@echo "... greeter.grpc.pb.s"
+	@echo "... greeter.pb.o"
+	@echo "... greeter.pb.i"
+	@echo "... greeter.pb.s"
+	@echo "... src/http/context.o"
+	@echo "... src/http/context.i"
+	@echo "... src/http/context.s"
+	@echo "... src/http/engine.o"
+	@echo "... src/http/engine.i"
+	@echo "... src/http/engine.s"
+	@echo "... src/http/fast_http_parser.o"
+	@echo "... src/http/fast_http_parser.i"
+	@echo "... src/http/fast_http_parser.s"
+	@echo "... src/http/http_request.o"
+	@echo "... src/http/http_request.i"
+	@echo "... src/http/http_request.s"
+	@echo "... src/http/http_response.o"
+	@echo "... src/http/http_response.i"
+	@echo "... src/http/http_response.s"
+	@echo "... src/http/io_thread_pool.o"
+	@echo "... src/http/io_thread_pool.i"
+	@echo "... src/http/io_thread_pool.s"
+	@echo "... src/http/router.o"
+	@echo "... src/http/router.i"
+	@echo "... src/http/router.s"
+	@echo "... src/http/server.o"
+	@echo "... src/http/server.i"
+	@echo "... src/http/server.s"
+	@echo "... src/http/thread_pool.o"
+	@echo "... src/http/thread_pool.i"
+	@echo "... src/http/thread_pool.s"
+	@echo "... src/logger/logger.o"
+	@echo "... src/logger/logger.i"
+	@echo "... src/logger/logger.s"
+	@echo "... src/rpc/rpc_server.o"
+	@echo "... src/rpc/rpc_server.i"
+	@echo "... src/rpc/rpc_server.s"
+	@echo "... src/tracing/tracer.o"
+	@echo "... src/tracing/tracer.i"
+	@echo "... src/tracing/tracer.s"
 	@echo "... tests/http/test_basic_requests.o"
 	@echo "... tests/http/test_basic_requests.i"
 	@echo "... tests/http/test_basic_requests.s"

@@ -1,57 +1,42 @@
-#include "src/engine.hpp"
-#include "src/logger.hpp"
-#include <iostream>
+#include "http/engine.hpp"
+#include "logger/logger.hpp"
 #include <chrono>
+#include <iostream>
 #include <thread>
+#include <nlohmann/json.hpp>
 
 int main() {
     try {
         std::cout << "Gecko Web Framework - Gin-style API + Logger demo" << std::endl;
         std::cout << "=================================================" << std::endl;
 
-        /* Instantiate loggers with different configs */
-        std::cout << "[LOG] Configuring logger subsystem..." << std::endl;
-        
-        /* Access log writes to console and file */
         Gecko::Logger access_logger(Gecko::LogLevel::ERROR, 2, Gecko::LogOutput::BOTH, "access.log");
-        
-        /* Error log writes to file */
         Gecko::Logger error_logger(Gecko::LogLevel::ERROR, 1, Gecko::LogOutput::FILE, "error.log");
-        
-        /* Debug log writes to console */
         Gecko::Logger debug_logger(Gecko::LogLevel::ERROR, 1, Gecko::LogOutput::CONSOLE);
-        
-        std::cout << "[OK] Logger setup complete:" << std::endl;
-        std::cout << "  ├─ Access log writes to console and access.log" << std::endl;
-        std::cout << "  ├─ Error log writes to error.log" << std::endl;
-        std::cout << "  └─ Debug log writes to console" << std::endl;
 
-        /* Build engine */
         Gecko::Engine app;
 
-        /* Middleware logs via Logger instead of std::cout */
         app.Use([&access_logger, &debug_logger](Gecko::Context& ctx, std::function<void()> next) {
             auto start = std::chrono::high_resolution_clock::now();
-            std::string client_info = "IP: " + ctx.header("X-Forwarded-For") + 
+            std::string client_info = "IP: " + ctx.header("X-Forwarded-For") +
                                     " UserAgent: " + ctx.header("User-Agent");
-            
-            access_logger.log(Gecko::LogLevel::INFO, 
+
+            access_logger.log(Gecko::LogLevel::INFO,
                 "Request started: " + ctx.request().getUrl() + " | " + client_info);
-            
-            debug_logger.log(Gecko::LogLevel::DEBUG, 
+
+            debug_logger.log(Gecko::LogLevel::DEBUG,
                 "Processing request on thread: " + std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id())));
-            
-            next(); /* Invoke next middleware */
-            
+
+            next();
+
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-            
-            access_logger.log(Gecko::LogLevel::INFO, 
-                "Request completed: " + ctx.request().getUrl() + " | Duration: " + 
+
+            access_logger.log(Gecko::LogLevel::INFO,
+                "Request completed: " + ctx.request().getUrl() + " | Duration: " +
                 std::to_string(duration.count()) + "μs");
         });
 
-        /* Add CORS middleware */
         app.Use([&debug_logger](Gecko::Context& ctx, std::function<void()> next) {
             debug_logger.log(Gecko::LogLevel::DEBUG, "Applying CORS headers");
             ctx.header("Access-Control-Allow-Origin", "*")
@@ -60,7 +45,6 @@ int main() {
             next();
         });
 
-        /* Gin-style route definitions */
         app.GET("/", [&access_logger](Gecko::Context& ctx) {
             access_logger.log(Gecko::LogLevel::INFO, "Serving homepage");
             ctx.html(R"(<!DOCTYPE html>
@@ -83,7 +67,7 @@ int main() {
     <div class="container">
         <h1>Gecko Gecko Web Framework + Logger</h1>
         <p><strong>现在支持Gin风格的API、多线程处理和独立的Logger系统！</strong></p>
-        
+
         <div class="logger-info">
             <h3>[LOG] Logger系统特性:</h3>
             <ul>
@@ -96,7 +80,7 @@ int main() {
             </ul>
             <p><em>检查服务器控制台和 access.log、error.log 文件查看日志输出效果！</em></p>
         </div>
-        
+
         <h2>[GOAL] API端点：</h2>
         <div class="endpoint">
             <span class="badge">GET</span> <a href="/ping">/ping</a> - JSON响应测试
@@ -120,7 +104,7 @@ int main() {
 
         app.GET("/ping", [&access_logger, &debug_logger](Gecko::Context& ctx) {
             debug_logger.log(Gecko::LogLevel::DEBUG, "Ping endpoint called");
-            
+
             nlohmann::json response = {
                 {"message", "pong"},
                 {"framework", "Gecko Web Framework"},
@@ -130,14 +114,14 @@ int main() {
                 {"thread_id", std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()))},
                 {"features", nlohmann::json::array({
                     "context-based handlers",
-                    "onion-model middleware", 
+                    "onion-model middleware",
                     "method chaining",
                     "independent logger system",
                     "multi-threading",
                     "configurable server"
                 })}
             };
-            
+
             access_logger.log(Gecko::LogLevel::INFO, "Ping response sent successfully");
             ctx.json(response);
         });
@@ -145,13 +129,13 @@ int main() {
         app.GET("/hello/:name", [&access_logger, &debug_logger](Gecko::Context& ctx) {
             std::string name = ctx.param("name");
             debug_logger.log(Gecko::LogLevel::DEBUG, "Hello endpoint called with name: " + name);
-            
+
             if (name.empty()) {
                 access_logger.log(Gecko::LogLevel::WARN, "Hello endpoint called without name parameter");
                 ctx.status(400).json({{"error", "name parameter is required"}});
                 return;
             }
-            
+
             nlohmann::json response = {
                 {"message", "Hello, " + name + "!"},
                 {"path_param", name},
@@ -159,7 +143,7 @@ int main() {
                 {"logged_by", "Independent Logger System"},
                 {"thread_id", std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()))}
             };
-            
+
             access_logger.log(Gecko::LogLevel::INFO, "Hello response sent for: " + name);
             ctx.status(200).json(response);
         });
@@ -167,10 +151,10 @@ int main() {
         app.GET("/search", [&access_logger, &debug_logger](Gecko::Context& ctx) {
             std::string query = ctx.query("q");
             std::string type = ctx.query("type");
-            
-            debug_logger.log(Gecko::LogLevel::DEBUG, 
+
+            debug_logger.log(Gecko::LogLevel::DEBUG,
                 "Search endpoint: query=" + query + ", type=" + type);
-            
+
             nlohmann::json response = {
                 {"search_query", query},
                 {"search_type", type},
@@ -179,33 +163,31 @@ int main() {
                 {"logged_by", "Gecko Logger System"},
                 {"thread_id", std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()))}
             };
-            
+
             if (!query.empty()) {
                 response["results"] = nlohmann::json::array({
                     {{"id", 1}, {"title", "Gecko Web Framework"}, {"description", "A fast C++ web framework with logging"}},
                     {{"id", 2}, {"title", "Gecko Logger"}, {"description", "Independent logging system for C++"}}
                 });
                 response["total"] = 2;
-                access_logger.log(Gecko::LogLevel::INFO, 
+                access_logger.log(Gecko::LogLevel::INFO,
                     "Search performed: query=" + query + ", results=2");
             } else {
                 access_logger.log(Gecko::LogLevel::INFO, "Empty search query received");
             }
-            
+
             ctx.json(response);
         });
 
-        /* Error endpoint demonstrates logging */
         app.GET("/error-test", [&error_logger, &debug_logger](Gecko::Context& ctx) {
             debug_logger.log(Gecko::LogLevel::DEBUG, "Error test endpoint called");
-            
+
             try {
-                /* Simulate a potential error */
                 std::string test_param = ctx.query("simulate");
                 if (test_param == "error") {
                     throw std::runtime_error("This is a simulated error for testing error logging");
                 }
-                
+
                 nlohmann::json response = {
                     {"message", "Error test endpoint"},
                     {"status", "success"},
@@ -213,11 +195,11 @@ int main() {
                     {"thread_id", std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()))}
                 };
                 ctx.json(response);
-                
+
             } catch (const std::exception& e) {
-                error_logger.log(Gecko::LogLevel::ERROR, 
+                error_logger.log(Gecko::LogLevel::ERROR,
                     "Error in /error-test: " + std::string(e.what()));
-                
+
                 ctx.status(500).json({
                     {"error", "Internal server error"},
                     {"message", e.what()},
@@ -230,8 +212,7 @@ int main() {
         app.GET("/api/users/:id", [&access_logger, &debug_logger](Gecko::Context& ctx) {
             std::string userId = ctx.param("id");
             debug_logger.log(Gecko::LogLevel::DEBUG, "User API called for ID: " + userId);
-            
-            /* Simulate database query */
+
             if (userId == "123") {
                 nlohmann::json user = {
                     {"id", 123},
@@ -264,23 +245,20 @@ int main() {
             }
         });
 
-        /* Launch server with explicit configuration */
         std::cout << "\n[START] Preparing server launch parameters..." << std::endl;
-        
-        /* Inspect hardware concurrency */
+
         size_t max_threads = std::thread::hardware_concurrency();
         if (max_threads == 0) {
-            max_threads = 8; /* Fallback default */
+            max_threads = 8;
         }
-        
-        /* Build server config (Logger is decoupled) */
+
         Gecko::ServerConfig config = Gecko::ServerConfig()
-            .setPort(13514)                           /* Port 13514 */
-            .setThreadPoolSize(max_threads)           /* Use system thread count */
-            .setIOThreadCount(20)                      /* IO thread count */
-            .setMaxConnections(1000000)                 /* Max connections */
-            .setKeepAliveTimeout(30)                  /* Keep-Alive timeout */
-            .setMaxRequestBodySize(2 * 1024 * 1024)   /* 2MB request body cap */
+            .setPort(13514)
+            .setThreadPoolSize(max_threads)
+            .setIOThreadCount(20)
+            .setMaxConnections(1000000)
+            .setKeepAliveTimeout(30)
+            .setMaxRequestBodySize(2 * 1024 * 1024)
             .enablePerformanceMonitoring();
 
         std::cout << "[LOG] Architecture highlights:" << std::endl;
@@ -306,7 +284,6 @@ int main() {
         std::cout << "[LOOP] Pipeline: accept (epoll) -> IO threads -> worker threads" << std::endl;
         std::cout << "\nPress Ctrl+C to stop the server\n" << std::endl;
 
-        /* Start server via configuration API */
         app.Run(config);
 
     } catch (const std::exception& e) {
@@ -315,4 +292,4 @@ int main() {
     }
 
     return 0;
-} 
+}

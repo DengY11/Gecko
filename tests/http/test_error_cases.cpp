@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cassert>
-#include "http_request.hpp"
+#include "http/http_request.hpp"
 
 void test_invalid_request_line() {
     /* Missing HTTP version */

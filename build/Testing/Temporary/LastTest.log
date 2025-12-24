@@ -1,18 +1,18 @@
-Start testing: Dec 24 03:20 CST
+Start testing: Dec 24 17:25 CST
 ----------------------------------------------------------
 1/7 Testing: router_tests
 1/7 Test: router_tests
 Command: "/home/dylan/code/GeckoWebFramework/build/router_tests"
 Directory: /home/dylan/code/GeckoWebFramework/build
-"router_tests" start time: Dec 24 03:20 CST
+"router_tests" start time: Dec 24 17:25 CST
 Output:
 ----------------------------------------------------------
-all tests passed
+/home/dylan/code/GeckoWebFramework/build/router_tests: /home/dylan/anaconda3/lib/libstdc++.so.6: version `GLIBCXX_3.4.32' not found (required by /home/dylan/code/GeckoWebFramework/build/router_tests)
 <end of output>
 Test time =   0.00 sec
 ----------------------------------------------------------
-Test Passed.
-"router_tests" end time: Dec 24 03:20 CST
+Test Failed.
+"router_tests" end time: Dec 24 17:25 CST
 "router_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -20,16 +20,15 @@ Test Passed.
 2/7 Test: http_basic_tests
 Command: "/home/dylan/code/GeckoWebFramework/build/http_basic_tests"
 Directory: /home/dylan/code/GeckoWebFramework/build
-"http_basic_tests" start time: Dec 24 03:20 CST
+"http_basic_tests" start time: Dec 24 17:25 CST
 Output:
 ----------------------------------------------------------
-[FAIL] POST request test failed: Content-Length is invalid
-[FAIL] PUT request test failed: Content-Length is invalid
+/home/dylan/code/GeckoWebFramework/build/http_basic_tests: /home/dylan/anaconda3/lib/libstdc++.so.6: version `GLIBCXX_3.4.32' not found (required by /home/dylan/code/GeckoWebFramework/build/http_basic_tests)
 <end of output>
 Test time =   0.00 sec
 ----------------------------------------------------------
-Test Passed.
-"http_basic_tests" end time: Dec 24 03:20 CST
+Test Failed.
+"http_basic_tests" end time: Dec 24 17:25 CST
 "http_basic_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -37,14 +36,15 @@ Test Passed.
 3/7 Test: http_constructors_tests
 Command: "/home/dylan/code/GeckoWebFramework/build/http_constructors_tests"
 Directory: /home/dylan/code/GeckoWebFramework/build
-"http_constructors_tests" start time: Dec 24 03:20 CST
+"http_constructors_tests" start time: Dec 24 17:25 CST
 Output:
 ----------------------------------------------------------
+/home/dylan/code/GeckoWebFramework/build/http_constructors_tests: /home/dylan/anaconda3/lib/libstdc++.so.6: version `GLIBCXX_3.4.32' not found (required by /home/dylan/code/GeckoWebFramework/build/http_constructors_tests)
 <end of output>
 Test time =   0.00 sec
 ----------------------------------------------------------
-Test Passed.
-"http_constructors_tests" end time: Dec 24 03:20 CST
+Test Failed.
+"http_constructors_tests" end time: Dec 24 17:25 CST
 "http_constructors_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -52,14 +52,15 @@ Test Passed.
 4/7 Test: http_error_tests
 Command: "/home/dylan/code/GeckoWebFramework/build/http_error_tests"
 Directory: /home/dylan/code/GeckoWebFramework/build
-"http_error_tests" start time: Dec 24 03:20 CST
+"http_error_tests" start time: Dec 24 17:25 CST
 Output:
 ----------------------------------------------------------
+/home/dylan/code/GeckoWebFramework/build/http_error_tests: /home/dylan/anaconda3/lib/libstdc++.so.6: version `GLIBCXX_3.4.32' not found (required by /home/dylan/code/GeckoWebFramework/build/http_error_tests)
 <end of output>
 Test time =   0.00 sec
 ----------------------------------------------------------
-Test Passed.
-"http_error_tests" end time: Dec 24 03:20 CST
+Test Failed.
+"http_error_tests" end time: Dec 24 17:25 CST
 "http_error_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -67,14 +68,15 @@ Test Passed.
 5/7 Test: http_special_case_tests
 Command: "/home/dylan/code/GeckoWebFramework/build/http_special_case_tests"
 Directory: /home/dylan/code/GeckoWebFramework/build
-"http_special_case_tests" start time: Dec 24 03:20 CST
+"http_special_case_tests" start time: Dec 24 17:25 CST
 Output:
 ----------------------------------------------------------
+/home/dylan/code/GeckoWebFramework/build/http_special_case_tests: /home/dylan/anaconda3/lib/libstdc++.so.6: version `GLIBCXX_3.4.32' not found (required by /home/dylan/code/GeckoWebFramework/build/http_special_case_tests)
 <end of output>
 Test time =   0.00 sec
 ----------------------------------------------------------
-Test Passed.
-"http_special_case_tests" end time: Dec 24 03:20 CST
+Test Failed.
+"http_special_case_tests" end time: Dec 24 17:25 CST
 "http_special_case_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -82,72 +84,33 @@ Test Passed.
 6/7 Test: performance_tests
 Command: "/home/dylan/code/GeckoWebFramework/build/performance_tests"
 Directory: /home/dylan/code/GeckoWebFramework/build
-"performance_tests" start time: Dec 24 03:20 CST
+"performance_tests" start time: Dec 24 17:25 CST
 Output:
 ----------------------------------------------------------
-[START] HTTP parser performance tests
-========================
-
-=== Validation: parser correctness ===
-
-Test request 1:
-Method match: [OK]
-URL match: [OK]
-Version match: [OK]
-Body match: [OK]
-[OK] Parsed results match
-
-Test request 2:
-Method match: [OK]
-URL match: [OK]
-Version match: [OK]
-Body match: [OK]
-[OK] Parsed results match
-
-Test request 3:
-Method match: [OK]
-URL match: [OK]
-Version match: [OK]
-Body match: [OK]
-[OK] Parsed results match
-=== Benchmark: baseline parser ===
-Baseline parser: 300000 requests parsed in 2796872 microseconds
-Avg per request: 9.32291 microseconds
-Throughput: 107263 req/s
-
-=== Benchmark: fast parser ===
-Fast parser: 300000 requests parsed in 1141066 microseconds
-Avg per request: 3.80355 microseconds
-Throughput: 262912 req/s
-
-=== Benchmark: conversion ===
-Conversion: 100000 iterations took 443525 microseconds
-Average per conversion: 4.43525 microseconds
-
-[STATS] Performance tests finished
+/home/dylan/code/GeckoWebFramework/build/performance_tests: /home/dylan/anaconda3/lib/libstdc++.so.6: version `GLIBCXX_3.4.32' not found (required by /home/dylan/code/GeckoWebFramework/build/performance_tests)
 <end of output>
-Test time =   4.39 sec
+Test time =   0.00 sec
 ----------------------------------------------------------
-Test Passed.
-"performance_tests" end time: Dec 24 03:21 CST
-"performance_tests" time elapsed: 00:00:04
+Test Failed.
+"performance_tests" end time: Dec 24 17:25 CST
+"performance_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
 7/7 Testing: cooperative_thread_pool_tests
 7/7 Test: cooperative_thread_pool_tests
 Command: "/home/dylan/code/GeckoWebFramework/build/cooperative_thread_pool_tests"
 Directory: /home/dylan/code/GeckoWebFramework/build
-"cooperative_thread_pool_tests" start time: Dec 24 03:21 CST
+"cooperative_thread_pool_tests" start time: Dec 24 17:25 CST
 Output:
 ----------------------------------------------------------
-[THREAD] Creating thread pool, thread count: 2
-[THREAD] Thread pool stopped
+/home/dylan/code/GeckoWebFramework/build/cooperative_thread_pool_tests: /home/dylan/anaconda3/lib/libstdc++.so.6: version `GLIBCXX_3.4.32' not found (required by /home/dylan/code/GeckoWebFramework/build/cooperative_thread_pool_tests)
+/home/dylan/code/GeckoWebFramework/build/cooperative_thread_pool_tests: /home/dylan/anaconda3/lib/libstdc++.so.6: version `GLIBCXX_3.4.30' not found (required by /home/dylan/code/GeckoWebFramework/build/cooperative_thread_pool_tests)
 <end of output>
-Test time =   0.01 sec
+Test time =   0.00 sec
 ----------------------------------------------------------
-Test Passed.
-"cooperative_thread_pool_tests" end time: Dec 24 03:21 CST
+Test Failed.
+"cooperative_thread_pool_tests" end time: Dec 24 17:25 CST
 "cooperative_thread_pool_tests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Dec 24 03:21 CST
+End testing: Dec 24 17:25 CST

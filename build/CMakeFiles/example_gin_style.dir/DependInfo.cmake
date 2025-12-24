@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/dylan/code/GeckoWebFramework/example_gin_style.cpp" "CMakeFiles/example_gin_style.dir/example_gin_style.cpp.o" "gcc" "CMakeFiles/example_gin_style.dir/example_gin_style.cpp.o.d"
+  "/home/dylan/code/GeckoWebFramework/examples/gin_style.cpp" "CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.o" "gcc" "CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

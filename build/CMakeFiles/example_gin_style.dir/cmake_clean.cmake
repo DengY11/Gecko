@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/example_gin_style.dir/example_gin_style.cpp.o"
-  "CMakeFiles/example_gin_style.dir/example_gin_style.cpp.o.d"
+  "CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.o"
+  "CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.o.d"
   "example_gin_style"
   "example_gin_style.pdb"
 )

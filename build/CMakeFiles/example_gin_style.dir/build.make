@@ -69,30 +69,86 @@ include CMakeFiles/example_gin_style.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/example_gin_style.dir/flags.make
 
-CMakeFiles/example_gin_style.dir/example_gin_style.cpp.o: CMakeFiles/example_gin_style.dir/flags.make
-CMakeFiles/example_gin_style.dir/example_gin_style.cpp.o: /home/dylan/code/GeckoWebFramework/example_gin_style.cpp
-CMakeFiles/example_gin_style.dir/example_gin_style.cpp.o: CMakeFiles/example_gin_style.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/example_gin_style.dir/example_gin_style.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/example_gin_style.dir/example_gin_style.cpp.o -MF CMakeFiles/example_gin_style.dir/example_gin_style.cpp.o.d -o CMakeFiles/example_gin_style.dir/example_gin_style.cpp.o -c /home/dylan/code/GeckoWebFramework/example_gin_style.cpp
+CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.o: CMakeFiles/example_gin_style.dir/flags.make
+CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.o: /home/dylan/code/GeckoWebFramework/examples/gin_style.cpp
+CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.o: CMakeFiles/example_gin_style.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.o -MF CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.o.d -o CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.o -c /home/dylan/code/GeckoWebFramework/examples/gin_style.cpp
 
-CMakeFiles/example_gin_style.dir/example_gin_style.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/example_gin_style.dir/example_gin_style.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/example_gin_style.cpp > CMakeFiles/example_gin_style.dir/example_gin_style.cpp.i
+CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/dylan/code/GeckoWebFramework/examples/gin_style.cpp > CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.i
 
-CMakeFiles/example_gin_style.dir/example_gin_style.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/example_gin_style.dir/example_gin_style.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/example_gin_style.cpp -o CMakeFiles/example_gin_style.dir/example_gin_style.cpp.s
+CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/dylan/code/GeckoWebFramework/examples/gin_style.cpp -o CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.s
 
 # Object files for target example_gin_style
 example_gin_style_OBJECTS = \
-"CMakeFiles/example_gin_style.dir/example_gin_style.cpp.o"
+"CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.o"
 
 # External object files for target example_gin_style
 example_gin_style_EXTERNAL_OBJECTS =
 
-example_gin_style: CMakeFiles/example_gin_style.dir/example_gin_style.cpp.o
+example_gin_style: CMakeFiles/example_gin_style.dir/examples/gin_style.cpp.o
 example_gin_style: CMakeFiles/example_gin_style.dir/build.make
 example_gin_style: libgecko.a
+example_gin_style: /home/dylan/anaconda3/lib/libgrpc++_reflection.so.1.48.2
+example_gin_style: /home/dylan/anaconda3/lib/libgrpc++.so.1.48.2
+example_gin_style: /home/dylan/anaconda3/lib/libgrpc.so.26.0.0
+example_gin_style: /usr/lib/x86_64-linux-gnu/libz.so
+example_gin_style: /home/dylan/anaconda3/lib/libcares.so.2.6.1
+example_gin_style: /home/dylan/anaconda3/lib/libaddress_sorting.so.26.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libre2.so.9.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libupb.so.26.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_raw_hash_set.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_hashtablez_sampler.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_hash.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_city.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_low_level_hash.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_statusor.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_bad_variant_access.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libgpr.so.26.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_status.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_random_distributions.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_random_seed_sequences.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_random_internal_pool_urbg.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_random_internal_randen.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_random_internal_randen_hwaes.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_random_internal_randen_hwaes_impl.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_random_internal_randen_slow.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_random_internal_platform.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_random_internal_seed_material.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_random_seed_gen_exception.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_cord.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_bad_optional_access.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_cordz_info.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_cord_internal.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_cordz_functions.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_exponential_biased.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_cordz_handle.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_str_format_internal.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_synchronization.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_stacktrace.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_symbolize.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_debugging_internal.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_demangle_internal.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_graphcycles_internal.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_malloc_internal.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_time.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_strings.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_throw_delegate.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_int128.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_strings_internal.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_base.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_spinlock_wait.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_raw_logging_internal.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_log_severity.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_civil_time.so.2111.0.0
+example_gin_style: /home/dylan/anaconda3/lib/libabsl_time_zone.so.2111.0.0
+example_gin_style: /usr/lib/x86_64-linux-gnu/libssl.so
+example_gin_style: /usr/lib/x86_64-linux-gnu/libcrypto.so
+example_gin_style: /home/dylan/anaconda3/lib/libprotobuf.so
 example_gin_style: CMakeFiles/example_gin_style.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/dylan/code/GeckoWebFramework/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable example_gin_style"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/example_gin_style.dir/link.txt --verbose=$(VERBOSE)

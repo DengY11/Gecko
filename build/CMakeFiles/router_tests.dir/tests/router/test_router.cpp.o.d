@@ -152,8 +152,8 @@ CMakeFiles/router_tests.dir/tests/router/test_router.cpp.o: \
  /usr/include/c++/13/bits/istream.tcc /usr/include/c++/13/cassert \
  /usr/include/assert.h /usr/include/c++/13/utility \
  /usr/include/c++/13/bits/stl_relops.h \
- /home/dylan/code/GeckoWebFramework/src/context.hpp \
- /home/dylan/code/GeckoWebFramework/src/http_request.hpp \
+ /home/dylan/code/GeckoWebFramework/src/http/context.hpp \
+ /home/dylan/code/GeckoWebFramework/src/http/http_request.hpp \
  /usr/include/c++/13/algorithm /usr/include/c++/13/bits/stl_algo.h \
  /usr/include/c++/13/bits/algorithmfwd.h \
  /usr/include/c++/13/bits/stl_heap.h \
@@ -167,7 +167,7 @@ CMakeFiles/router_tests.dir/tests/router/test_router.cpp.o: \
  /usr/include/c++/13/bits/stl_map.h \
  /usr/include/c++/13/bits/stl_multimap.h \
  /usr/include/c++/13/bits/erase_if.h \
- /home/dylan/code/GeckoWebFramework/src/http_response.hpp \
+ /home/dylan/code/GeckoWebFramework/src/http/http_response.hpp \
  /usr/include/c++/13/any /usr/include/c++/13/functional \
  /usr/include/c++/13/bits/std_function.h \
  /usr/include/c++/13/unordered_map \
@@ -295,5 +295,5 @@ CMakeFiles/router_tests.dir/tests/router/test_router.cpp.o: \
  /usr/include/nlohmann/detail/macro_unscope.hpp \
  /usr/include/nlohmann/thirdparty/hedley/hedley_undef.hpp \
  /usr/include/c++/13/shared_mutex \
- /home/dylan/code/GeckoWebFramework/src/router.hpp \
+ /home/dylan/code/GeckoWebFramework/src/http/router.hpp \
  /usr/include/c++/13/optional

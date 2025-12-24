@@ -1,7 +1,7 @@
 CMakeFiles/performance_tests.dir/tests/performance/performance_test.cpp.o: \
  /home/dylan/code/GeckoWebFramework/tests/performance/performance_test.cpp \
  /usr/include/stdc-predef.h \
- /home/dylan/code/GeckoWebFramework/src/fast_http_parser.hpp \
+ /home/dylan/code/GeckoWebFramework/src/http/fast_http_parser.hpp \
  /usr/include/c++/13/string_view /usr/include/c++/13/bits/char_traits.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \
@@ -131,7 +131,7 @@ CMakeFiles/performance_tests.dir/tests/performance/performance_test.cpp.o: \
  /usr/include/c++/13/bits/stl_tempbuf.h \
  /usr/include/c++/13/pstl/glue_algorithm_defs.h \
  /usr/include/c++/13/pstl/execution_defs.h \
- /home/dylan/code/GeckoWebFramework/src/http_request.hpp \
+ /home/dylan/code/GeckoWebFramework/src/http/http_request.hpp \
  /usr/include/c++/13/chrono /usr/include/c++/13/bits/chrono.h \
  /usr/include/c++/13/ratio /usr/include/c++/13/cstdint \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h /usr/include/stdint.h \

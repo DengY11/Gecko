@@ -9,12 +9,52 @@ A lightweight C++17 web framework with Gin-style routing, middleware chaining, a
 - 性能监控：周期性打印连接数、QPS、队列深度、协作重排/丢弃计数。
 - 可扩展组件：预留 `Engine::Static` 静态文件服务；`ServerConfig` 链式调优端口、线程、背压阈值等。
 
+## Modules / 模块划分
+- `http/`：HTTP 引擎、路由、请求响应对象、线程池与服务器配置。
+- `logger/`：独立的异步日志模块，可选择控制台/文件/双写输出。
+- `rpc/`：可选的 gRPC `RpcServer` 封装，支持 Server Interceptor 风格的中间件（示例：JWT/metadata 校验）。
+- `tracing/`：轻量级链路追踪器与 HTTP Trace 中间件，生成 trace/span id 并可自定义导出。
+
 ## Build (CMake)
-- Prereqs: CMake >= 3.16, a C++17 compiler, pthreads, and the header-only `nlohmann_json` (e.g. `nlohmann-json` package).
-- Configure: `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`
+- Prereqs: CMake >= 3.16, a C++17 compiler, pthreads, and the header-only `nlohmann_json` (e.g. `nlohmann-json` package). For gRPC example, install `gRPC` + `protobuf` with `protoc`.
+- Configure: `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release [-DGECKO_ENABLE_GRPC=ON]`
 - Build: `cmake --build build`
-- Run example: `./build/example_gin_style`
+- Run HTTP example: `./build/example_gin_style`
+- Run HTTP + gRPC middlewares example (requires gRPC/protoc): `./build/example_http_rpc_middleware`
 - Run tests: `ctest --test-dir build` (router, HTTP parser, performance suites). The old Makefile has been replaced by CMake.
+
+## RPC (gRPC) Support / RPC 支持
+- Optional gRPC layer: configure with `-DGECKO_ENABLE_GRPC=ON` (requires `gRPC::grpc++` and `gRPC::grpc++_reflection`).
+- `RpcServer` wraps `grpc::ServerBuilder` and can run alongside the HTTP engine to build microservices.
+- Example: start gRPC in the background, keep HTTP for REST/metrics:
+```cpp
+#include "http/engine.hpp"
+#include "rpc/rpc_server.hpp"
+#include "helloworld.grpc.pb.h"
+
+class GreeterService final : public helloworld::Greeter::Service {
+public:
+    grpc::Status SayHello(grpc::ServerContext*,
+                          const helloworld::HelloRequest* req,
+                          helloworld::HelloReply* resp) override {
+        resp->set_message("Hello " + req->name());
+        return grpc::Status::OK;
+    }
+};
+
+int main() {
+    Gecko::Engine http;
+    http.GET("/healthz", [](Gecko::Context& ctx) { ctx.json({{"status", "ok"}}); });
+
+    GreeterService greeter;
+    Gecko::RpcServer rpc(Gecko::RpcConfig().setAddress("0.0.0.0:50051"));
+    rpc.AddService(&greeter).StartBackground();  // gRPC stays alive while HTTP runs
+
+    Gecko::ServerConfig httpCfg;
+    http.Run(httpCfg);
+    rpc.Shutdown();
+}
+```
 
 ## API Quick Reference / API 快速参考
 - `Engine::GET/POST/PUT/DELETE/HEAD/PATCH/OPTIONS(path, handler)` or `Engine::AddRoute(method, path, handler)` — Register HTTP routes; 注册对应的路由处理器。
@@ -25,7 +65,7 @@ A lightweight C++17 web framework with Gin-style routing, middleware chaining, a
 
 ## Minimal Example / 最简示例
 ```cpp
-#include "src/engine.hpp"
+#include "http/engine.hpp"
 
 int main() {
     Gecko::Engine app;
